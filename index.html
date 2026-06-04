@@ -63,7 +63,7 @@
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const carro = {
-                        placa: linha[0] || 'N/I',
+                        placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: linha[1],
                         cor: linha[2] || 'Não informada',
                         km: linha[3] || 'N/I',
