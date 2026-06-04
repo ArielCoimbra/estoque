@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque de Veículos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .card-carro { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; overflow: hidden; min-height: 100%; }
+        .card-carro:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15)!important; }
+        .img-carro { height: 200px; object-fit: cover; background-color: #e9ecef; }
+        .badge-status { position: absolute; top: 15px; left: 15px; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .status-disponivel { background-color: #2ec4b6; color: white; }
+        .status-vendido { background-color: #e71d36; color: white; }
+        .card-vendido { opacity: 0.60; }
+        .card-vendido .img-carro { filter: grayscale(100%); }
+        .preco-tag { color: #2a5298; font-weight: 700; font-size: 1.6rem; }
+        .detalhe-item { font-size: 0.9rem; color: #6c757d; margin-bottom: 3px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-dark shadow mb-5">
+        <div class="container text-center py-2">
+            <span class="navbar-brand mb-0 h1 w-100 fs-3">🚗 Estoque em Tempo Real</span>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div id="lista-carros" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="text-center w-100 my-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <h4 class="mt-3 text-muted">Buscando veículos na planilha...</h4>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
+
+        async function carregarEstoque() {
+            const container = document.getElementById('lista-carros');
+            try {
+                const resposta = await fetch(urlPlanilha + '&nocache=' + new Date().getTime());
+                if (!resposta.ok) throw new Error();
+                
+                const textoCsv = await resposta.text();
+                
+                const linhas = textoCsv.split(/\r?\n/).map(linha => {
+                    return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
+                });
+                
+                if (linhas.length > 0) linhas.shift(); 
+                
+                container.innerHTML = ''; 
+
+                let disponiveis = [];
+                let vendidos = [];
+
+                linhas.forEach(linha => {
+                    if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
+
+                    const carro = {
+                        placa: linha[0] || 'N/I',
+                        modelo: linha[1],
+                        cor: linha[2] || 'Não informada',
+                        km: WebGLQuery || linha[3] || 'N/I',
+                        fipe: linha[4] || 'N/A',
+                        valor: linha[5] || 'Consulte',
+                        margem: linha[6] || '',
+                        status: linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel',
+                        foto: linha[8] || ''
+                    };
+
+                    if (carro.status.includes('vendido')) {
+                        vendidos.push(carro);
+                    } else {
+                        disponiveis.push(carro);
+                    }
+                });
+
+                const estoqueFinal = [...disponiveis, ...vendidos];
+
+                if(estoqueFinal.length === 0) {
+                    container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h3>Nenhum veículo encontrado.</h3><p>Verifique se os carros estão cadastrados logo abaixo da linha de títulos.</p></div>';
+                    return;
+                }
+
+                estoqueFinal.forEach(carro => {
+                    const esVendido = carro.status.includes('vendido');
+                    const classeStatus = esVendido ? 'status-vendido' : 'status-disponivel';
+                    const classeCard = esVendido ? 'card-vendido' : '';
+                    const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
+                    
+                    const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+
+                    const cardHtml = `
+                        <div class="col">
+                            <div class="card card-carro shadow-sm ${classeCard} position-relative">
+                                <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
+                                <img src="${fotoUrl}" class="card-img-top img-carro" alt="${carro.modelo}">
+                                <div class="card-body d-flex flex-column justify-content-between">
+                                    <div>
+                                        <h5 class="card-title text-dark fw-bold mb-3">${carro.modelo}</h5>
+                                        <div class="mb-3">
+                                            <div class="detalhe-item"><strong>Placa:</strong> ${carro.placa}</div>
+                                            <div class="detalhe-item"><strong>Cor:</strong> ${carro.cor} | <strong>KM:</strong> ${carro.km}</div>
+                                            <div class="detalhe-item text-muted"><small>FIPE: ${carro.fipe}</small></div>
+                                        </div>
+                                    </div>
+                                    <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
+                                        <span class="small text-muted fw-bold">VALOR:</span>
+                                        <span class="preco-tag">${carro.valor}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += cardHtml;
+                });
+
+            } catch (erro) {
+                container.innerHTML = `
+                    <div class="text-center w-100 my-5 text-danger">
+                        <h3>⚠️ Erro ao carregar o estoque</h3>
+                        <p>Certifique-se de que o arquivo está no servidor do GitHub Pages e a planilha está pública.</p>
+                    </div>`;
+            }
+        }
+
+        carregarEstoque();
+    </script>
+</body>
+</html>
