@@ -11,22 +11,41 @@
         .card-carro { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; overflow: hidden; min-height: 100%; }
         .card-carro:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15)!important; }
         .img-carro { height: 200px; object-fit: cover; background-color: #e9ecef; }
-        .badge-status { position: absolute; top: 15px; left: 15px; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .badge-status { position: absolute; top: 15px; left: 15px; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
+        .badge-novidade { position: absolute; top: 15px; right: 15px; font-size: 0.85rem; padding: 6px 12px; border-radius: 20px; font-weight: 600; background-color: #ff9f1c; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
         .status-disponivel { background-color: #2ec4b6; color: white; }
         .status-vendido { background-color: #e71d36; color: white; }
         .card-vendido { opacity: 0.60; }
         .card-vendido .img-carro { filter: grayscale(100%); }
         .preco-tag { color: #2a5298; font-weight: 700; font-size: 1.6rem; }
         .detalhe-item { font-size: 0.9rem; color: #6c757d; margin-bottom: 3px; }
+        .btn-filtro { border-radius: 20px; padding: 6px 18px; font-weight: 500; margin: 4px; transition: all 0.2s; }
+        .btn-filtro.active { background-color: #1e3c72!important; color: white!important; border-color: #1e3c72!important; }
     </style>
 </head>
 <body>
 
-    <nav class="navbar navbar-dark shadow mb-5">
+    <nav class="navbar navbar-dark shadow mb-4">
         <div class="container text-center py-2">
             <span class="navbar-brand mb-0 h1 w-100 fs-3">🚗 Estoque em Tempo Real</span>
         </div>
     </nav>
+
+    <!-- Seção de Filtros Inteligentes -->
+    <div class="container mb-4">
+        <div class="card p-3 shadow-sm border-0 bg-white rounded-3 text-center">
+            <h6 class="text-muted mb-2 text-start px-2"><small>FILTRAR E ORDENAR ESTOQUE</small></h6>
+            <div class="d-flex flex-wrap justify-content-start align-items-center">
+                <button class="btn btn-outline-secondary btn-filtro active" onclick="filtrar('todos', this)">Todos</button>
+                <button class="btn btn-outline-warning btn-filtro" onclick="filtrar('novidades', this)">✨ Novidades</button>
+                <button class="btn btn-outline-success btn-filtro" onclick="ordenarPorMargem(this)">💰 Melhor Margem</button>
+                <div class="vr mx-2 my-1 d-none d-md-block" style="height: 25px;"></div>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrar('hatch', this)">Hatch</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrar('sedan', this)">Sedan</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrar('suv', this)">SUV</button>
+            </div>
+        </div>
+    </div>
 
     <div class="container mb-5">
         <div id="lista-carros" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -39,9 +58,22 @@
 
     <script>
         const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
+        let todosOsCarros = []; // Guarda a lista completa vinda da planilha
+
+        // Regras para categorizar os carros automaticamente pelo nome
+        function identificarCarroceria(modelo) {
+            const mod = modelo.toLowerCase();
+            const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208'];
+            const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta'];
+            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur'];
+
+            if (hatches.some(h => mod.includes(h))) return 'hatch';
+            if (sedans.some(s => mod.includes(s))) return 'sedan';
+            if (suvs.some(suv => mod.includes(suv))) return 'suv';
+            return 'outros';
+        }
 
         async function carregarEstoque() {
-            const container = document.getElementById('lista-carros');
             try {
                 const resposta = await fetch(urlPlanilha + '&nocache=' + new Date().getTime());
                 if (!resposta.ok) throw new Error();
@@ -54,8 +86,6 @@
                 
                 if (linhas.length > 0) linhas.shift(); 
                 
-                container.innerHTML = ''; 
-
                 let disponiveis = [];
                 let vendidos = [];
 
@@ -66,14 +96,16 @@
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: linha[1],
                         cor: linha[2] || 'Não informada',
-                        km: linha[3] || 'N/I',
+                        km: AppendingKM(linha[3]),
                         fipe: linha[4] || 'N/A',
                         valor: linha[5] || 'Consulte',
                         margem: linha[6] || 'N/I',
                         status: linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel',
                         foto: (linha[8] && linha[8].includes('drive.google.com')) 
-    ? 'https://lh3.googleusercontent.com/d/' + (linha[8].includes('id=') ? linha[8].split('id=')[1].split('&')[0] : linha[8].split('/d/')[1].split('/')[0])
-    : (linha[8] || '')
+                            ? 'https://lh3.googleusercontent.com/d/' + (linha[8].includes('id=') ? linha[8].split('id=')[1].split('&')[0] : linha[8].split('/d/')[1].split('/')[0])
+                            : (linha[8] || ''),
+                        carroceria: identificarCarroceria(linha[1]),
+                        novidade: false
                     };
 
                     if (carro.status.includes('vendido')) {
@@ -83,54 +115,118 @@
                     }
                 });
 
-                const estoqueFinal = [...disponiveis, ...vendidos];
-
-                if(estoqueFinal.length === 0) {
-                    container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h3>Nenhum veículo encontrado.</h3><p>Verifique se os carros estão cadastrados logo abaixo da linha de títulos.</p></div>';
-                    return;
+                // Os primeiros 4 carros cadastrados na seção de disponíveis ganham a tag de Novidade
+                for (let i = 0; i < Math.min(4, disponiveis.length); i++) {
+                    disponiveis[i].novidade = true;
                 }
 
-                estoqueFinal.forEach(carro => {
-                    const esVendido = carro.status.includes('vendido');
-                    const classeStatus = esVendido ? 'status-vendido' : 'status-disponivel';
-                    const classeCard = esVendido ? 'card-vendido' : '';
-                    const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
-                    
-                    const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+                todosOsCarros = [...disponiveis, ...vendidos];
+                renderizarCards(todosOsCarros);
 
-                    const cardHtml = `
-                        <div class="col">
-                            <div class="card card-carro shadow-sm ${classeCard} position-relative">
-                                <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
-                                <img src="${fotoUrl}" class="card-img-top img-carro" alt="${carro.modelo}">
-                                <div class="card-body d-flex flex-column justify-content-between">
-                                    <div>
-                                        <h5 class="card-title text-dark fw-bold mb-3">${carro.modelo}</h5>
-                                        <div class="mb-3">
-                                           <div class="detalhe-item"><strong>Placa:</strong> ${carro.placa}</div>
-<div class="detalhe-item"><strong>Cor:</strong> ${carro.cor} | <strong>KM:</strong> ${carro.km}</div>
-<div class="detalhe-item"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></div>
-<div class="detalhe-item text-muted"><small>FIPE: ${carro.fipe}</small></div>
-                                        </div>
+            } catch (erro) {
+                document.getElementById('lista-carros').innerHTML = `
+                    <div class="text-center w-100 my-5 text-danger">
+                        <h3>⚠️ Erro ao carregar o estoque</h3>
+                        <p>Certifique-se de que a planilha está pública.</p>
+                    </div>`;
+            }
+        }
+
+        function AppendingKM(valor) {
+            if(!valor || valor === 'N/I') return 'N/I';
+            if(String(valor).toLowerCase().includes('km')) return valor;
+            return valor + ' KM';
+        }
+
+        function renderizarCards(lista) {
+            const container = document.getElementById('lista-carros');
+            container.innerHTML = '';
+
+            if(lista.length === 0) {
+                container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h3>Nenhum veículo nesta categoria.</h3></div>';
+                return;
+            }
+
+            lista.forEach(carro => {
+                const esVendido = carro.status.includes('vendido');
+                const classeStatus = esVendido ? 'status-vendido' : 'status-disponivel';
+                const classeCard = esVendido ? 'card-vendido' : '';
+                const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
+                
+                const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+
+                const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="badge badge-novidade">✨ NOVIDADE</span>` : '';
+
+                const cardHtml = `
+                    <div class="col">
+                        <div class="card card-carro shadow-sm ${classeCard} position-relative">
+                            <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
+                            ${badgeNovidadeHtml}
+                            <img src="${fotoUrl}" class="card-img-top img-carro" alt="${carro.modelo}">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title text-dark fw-bold mb-3">${carro.modelo}</h5>
+                                    <div class="mb-3">
+                                        <div class="detalhe-item"><strong>Placa:</strong> ${carro.placa}</div>
+                                        <div class="detalhe-item"><strong>Cor:</strong> ${carro.cor} | <strong>KM:</strong> ${carro.km}</div>
+                                        <div class="detalhe-item"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></div>
+                                        <div class="detalhe-item text-muted"><small>FIPE: ${carro.fipe}</small></div>
                                     </div>
-                                    <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
-                                        <span class="small text-muted fw-bold">VALOR:</span>
-                                        <span class="preco-tag">${carro.valor}</span>
-                                    </div>
+                                </div>
+                                <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
+                                    <span class="small text-muted fw-bold">VALOR:</span>
+                                    <span class="preco-tag">${carro.valor}</span>
                                 </div>
                             </div>
                         </div>
-                    `;
-                    container.innerHTML += cardHtml;
-                });
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+        }
 
-            } catch (erro) {
-                container.innerHTML = `
-                    <div class="text-center w-100 my-5 text-danger">
-                        <h3>⚠️ Erro ao carregar o estoque</h3>
-                        <p>Certifique-se de que o arquivo está no servidor do GitHub Pages e a planilha está pública.</p>
-                    </div>`;
+        // Função para filtrar por Tipo ou Novidade
+        function filtrar(tipo, botao) {
+            marcarBotaoAtivo(botao);
+            
+            if (tipo === 'todos') {
+                renderizarCards(todosOsCarros);
+            } else if (tipo === 'novidades') {
+                const filtrados = todosOsCarros.filter(c => c.novidade && !c.status.includes('vendido'));
+                renderizarCards(filtrados);
+            } else {
+                const filtrados = todosOsCarros.filter(c => c.carroceria === tipo);
+                renderizarCards(filtrados);
             }
+        }
+
+        // Função para ordenar da Maior Margem para a Menor
+        function ordenarPorMargem(botao) {
+            marcarBotaoAtivo(botao);
+
+            // Função auxiliar para limpar a margem e transformar em número real
+            const limparValor = (texto) => {
+                if (!texto || texto === 'N/I') return 0;
+                let limpo = texto.replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
+                return parseFloat(limpo) || 0;
+            };
+
+            // Copia a lista atual e ordena (mantendo os disponíveis em cima e vendidos abaixo se tiverem mesma margem)
+            const ordenados = [...todosOsCarros].sort((a, b) => {
+                if (a.status.includes('vendido') && !b.status.includes('vendido')) return 1;
+                if (!a.status.includes('vendido') && b.status.includes('vendido')) return -1;
+                return limparValor(b.margem) - limparValor(a.fipe); 
+            });
+
+            // Ordenação simples pura baseada estritamente no valor numérico da margem
+            const ordenadosPuraMargem = [...todosOsCarros].sort((a, b) => limparValor(b.margem) - limparValor(a.margem));
+
+            renderizarCards(ordenadosPuraMargem);
+        }
+
+        function marcarBotaoAtivo(botaoAlvo) {
+            document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('active'));
+            botaoAlvo.classList.add('active');
         }
 
         carregarEstoque();
