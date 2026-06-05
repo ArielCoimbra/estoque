@@ -69,7 +69,7 @@
                         km: linha[3] || 'N/I',
                         fipe: linha[4] || 'N/A',
                         valor: linha[5] || 'Consulte',
-                        margem: linha[6] || '',
+                        margem: linha[6] || 'N/I',
                         status: linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel',
                         foto: (linha[8] && linha[8].includes('drive.google.com')) 
     ? 'https://lh3.googleusercontent.com/d/' + (linha[8].includes('id=') ? linha[8].split('id=')[1].split('&')[0] : linha[8].split('/d/')[1].split('/')[0])
