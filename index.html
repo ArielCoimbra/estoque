@@ -58,9 +58,8 @@
 
     <script>
         const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
-        let todosOsCarros = []; // Guarda a lista completa vinda da planilha
+        let todosOsCarros = []; 
 
-        // Regras para categorizar os carros automaticamente pelo nome
         function identificarCarroceria(modelo) {
             const mod = modelo.toLowerCase();
             const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208'];
@@ -92,20 +91,27 @@
                 linhas.forEach(linha => {
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
+                    // Lê o campo de status e remove acentos/maiúsculas
+                    const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
+                    const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+
+                    // Verifica se a palavra "novidade" foi digitada na coluna H ou na coluna I
+                    const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
+
                     const carro = {
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                        modelo: linha[1],
+                        modelo: engineTratarModelo(linha[1]),
                         cor: linha[2] || 'Não informada',
                         km: AppendingKM(linha[3]),
                         fipe: linha[4] || 'N/A',
                         valor: linha[5] || 'Consulte',
                         margem: linha[6] || 'N/I',
-                        status: linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel',
+                        status: textoStatusColunaH,
                         foto: (linha[8] && linha[8].includes('drive.google.com')) 
                             ? 'https://lh3.googleusercontent.com/d/' + (linha[8].includes('id=') ? linha[8].split('id=')[1].split('&')[0] : linha[8].split('/d/')[1].split('/')[0])
                             : (linha[8] || ''),
                         carroceria: identificarCarroceria(linha[1]),
-                        novidade: false
+                        novidade: ehNovidade
                     };
 
                     if (carro.status.includes('vendido')) {
@@ -114,11 +120,6 @@
                         disponiveis.push(carro);
                     }
                 });
-
-                // Os primeiros 4 carros cadastrados na seção de disponíveis ganham a tag de Novidade
-                for (let i = 0; i < Math.min(4, disponiveis.length); i++) {
-                    disponiveis[i].novidade = true;
-                }
 
                 todosOsCarros = [...disponiveis, ...vendidos];
                 renderizarCards(todosOsCarros);
@@ -130,6 +131,12 @@
                         <p>Certifique-se de que a planilha está pública.</p>
                     </div>`;
             }
+        }
+
+        function engineTratarModelo(txt) {
+            if(!txt) return 'N/I';
+            // Limpa palavras de controle para não aparecerem feias no título do card
+            return txt.replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').trim();
         }
 
         function AppendingKM(valor) {
@@ -153,7 +160,7 @@
                 const classeCard = esVendido ? 'card-vendido' : '';
                 const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
                 
-                const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+                const fotoUrl = (carro.foto && carro.foto.startsWith('http')) ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
 
                 const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="badge badge-novidade">✨ NOVIDADE</span>` : '';
 
@@ -185,7 +192,6 @@
             });
         }
 
-        // Função para filtrar por Tipo ou Novidade
         function filtrar(tipo, botao) {
             marcarBotaoAtivo(botao);
             
@@ -200,26 +206,20 @@
             }
         }
 
-        // Função para ordenar da Maior Margem para a Menor
         function ordenarPorMargem(botao) {
             marcarBotaoAtivo(botao);
 
-            // Função auxiliar para limpar a margem e transformar em número real
             const limparValor = (texto) => {
                 if (!texto || texto === 'N/I') return 0;
-                let limpo = texto.replace(/[^\d,.-]/g, '').replace('.', '').replace(',', '.');
+                // Remove R$, espaços, pontos de milhar e arruma a vírgula decimal
+                let limpo = texto.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
                 return parseFloat(limpo) || 0;
             };
 
-            // Copia a lista atual e ordena (mantendo os disponíveis em cima e vendidos abaixo se tiverem mesma margem)
-            const ordenados = [...todosOsCarros].sort((a, b) => {
-                if (a.status.includes('vendido') && !b.status.includes('vendido')) return 1;
-                if (!a.status.includes('vendido') && b.status.includes('vendido')) return -1;
-                return limparValor(b.margem) - limparValor(a.fipe); 
+            // Ordena estritamente do maior valor numérico de margem para o menor
+            const ordenadosPuraMargem = [...todosOsCarros].sort((a, b) => {
+                return limparValor(b.margem) - limparValor(a.margem);
             });
-
-            // Ordenação simples pura baseada estritamente no valor numérico da margem
-            const ordenadosPuraMargem = [...todosOsCarros].sort((a, b) => limparValor(b.margem) - limparValor(a.margem));
 
             renderizarCards(ordenadosPuraMargem);
         }
