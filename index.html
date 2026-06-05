@@ -4,303 +4,76 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ariel Unidas Atacado | Estoque de Veículos</title>
-    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Ícones do Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
-        body { 
-            background-color: #f8f9fa; 
-            font-family: 'Inter', sans-serif; 
-            color: #212529;
-        }
-        
-        /* Cabeçalho Premium */
-        .header-premium {
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            border-bottom: 4px solid #3b82f6;
-            padding: 2rem 0;
-        }
-        .header-title {
-            font-weight: 800;
-            letter-spacing: -1px;
-            color: #ffffff;
-            text-transform: uppercase;
-            font-size: 2rem;
-        }
+        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 4px solid #3b82f6; }
+        .card-carro { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; overflow: hidden; min-height: 100%; background: #ffffff; }
+        .card-carro:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15)!important; }
+        .img-carro { height: 180px; object-fit: cover; background-color: #e9ecef; width: 100%; }
+        @media (min-width: 768px) { .img-carro { height: 200px; } }
+        .badge-status { position: absolute; top: 10px; left: 10px; font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
+        .badge-novidade { position: absolute; top: 10px; right: 10px; font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; background-color: #ff9f1c; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
         @media (min-width: 768px) {
-            .header-premium { padding: 2.5rem 0; }
-            .header-title { font-size: 2.5rem; }
+            .badge-status { top: 15px; left: 15px; font-size: 0.85rem; padding: 6px 12px; }
+            .badge-novidade { top: 15px; right: 15px; font-size: 0.85rem; padding: 6px 12px; }
         }
-        .btn-whatsapp-header {
-            background-color: #25d366;
-            color: white;
-            font-weight: 600;
-            border-radius: 50px;
-            padding: 8px 24px;
-            transition: all 0.3s;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
-        }
-        .btn-whatsapp-header:hover {
-            background-color: #20ba59;
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        /* Seção de Filtros */
-        .card-filtros {
-            background: #ffffff;
-            border-radius: 16px;
-            border: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-            margin-top: -20px;
-            z-index: 10;
-            position: relative;
-        }
-        .btn-filtro {
-            border-radius: 10px;
-            padding: 6px 14px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin: 3px;
-            transition: all 0.2s ease;
-            border: 1px solid #e2e8f0;
-            background-color: #f8fafc;
-            color: #64748b;
-        }
-        @media (min-width: 768px) {
-            .btn-filtro { padding: 8px 20px; font-size: 0.9rem; margin: 4px; }
-        }
-        .btn-filtro:hover {
-            background-color: #f1f5f9;
-            color: #334155;
-        }
-        .btn-filtro.active {
-            background-color: #3b82f6!important;
-            color: white!important;
-            border-color: #3b82f6!important;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-        }
-        /* Botão de Destaque para Ordenação de Margem */
-        .btn-filtro.btn-margem-toggle.active-margem {
-            background-color: #10b981!important;
-            color: white!important;
-            border-color: #10b981!important;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-
-        /* Grid Otimizado para Celular (2 colunas) */
-        .grid-estoque {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-        }
-        @media (min-width: 768px) {
-            .grid-estoque {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 24px;
-            }
-        }
-        @media (min-width: 992px) {
-            .grid-estoque {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        /* Cards dos Carros Compactos e Quadrados */
-        .card-carro { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            border: none; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            display: flex;
-            flex-column: min-height;
-            height: 100%;
-        }
-        @media (min-width: 768px) {
-            .card-carro { border-radius: 16px; }
-        }
-        .card-carro:hover { 
-            transform: translateY(-4px); 
-            box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12)!important; 
-        }
-        
-        /* Foto Proporção Quadrada no Celular */
-        .img-container {
-            position: relative;
-            width: 100%;
-            padding-top: 85%; /* Deixa a imagem mais quadrada e compacta */
-            background-color: #f1f5f9;
-            overflow: hidden;
-        }
-        .img-carro { 
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover; 
-        }
-        
-        /* Badges Reduzidas no Celular */
-        .badge-status { 
-            position: absolute; 
-            top: 8px; 
-            left: 8px; 
-            font-size: 0.65rem; 
-            padding: 4px 8px; 
-            border-radius: 30px; 
-            font-weight: 700; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
-            z-index: 2; 
-        }
-        .badge-novidade { 
-            position: absolute; 
-            top: 8px; 
-            right: 8px; 
-            font-size: 0.65rem; 
-            padding: 4px 8px; 
-            border-radius: 30px; 
-            font-weight: 700; 
-            background: linear-gradient(45deg, #f59e0b, #d97706);
-            color: white; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
-            z-index: 2; 
-        }
-        @media (min-width: 768px) {
-            .badge-status { top: 16px; left: 16px; font-size: 0.75rem; padding: 6px 14px; }
-            .badge-novidade { top: 16px; right: 16px; font-size: 0.75rem; padding: 6px 14px; }
-        }
-        .status-disponivel { background-color: #10b981; color: white; }
-        .status-vendido { background-color: #ef4444; color: white; }
-        
-        .card-vendido { opacity: 0.65; }
+        .status-disponivel { background-color: #2ec4b6; color: white; }
+        .status-vendido { background-color: #e71d36; color: white; }
+        .card-vendido { opacity: 0.60; }
         .card-vendido .img-carro { filter: grayscale(100%); }
-        
-        /* Detalhes Técnicos Adaptáveis */
-        .card-corpo {
-            padding: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-grow: 1;
-        }
-        @media (min-width: 768px) {
-            .card-corpo { padding: 1.25rem; }
-        }
-        .car-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: #0f172a;
-            letter-spacing: -0.3px;
-            margin-bottom: 0.5rem;
-            line-height: 1.2;
-        }
-        @media (min-width: 768px) {
-            .car-title { font-size: 1.25rem; margin-bottom: 0.75rem; }
-        }
-        .preco-tag { 
-            color: #1e3a8a; 
-            font-weight: 800; 
-            font-size: 1.1rem; 
-            letter-spacing: -0.5px;
-        }
-        @media (min-width: 768px) {
-            .preco-tag { font-size: 1.65rem; }
-        }
-        .detalhes-container {
-            margin-bottom: 0.75rem;
-        }
-        @media (min-width: 768px) {
-            .detalhes-container { margin-bottom: 1.25rem; }
-        }
-        .detalhe-item { 
-            font-size: 0.75rem; 
-            color: #475569; 
-            margin-bottom: 4px; 
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        @media (min-width: 768px) {
-            .detalhe-item { font-size: 0.88rem; margin-bottom: 6px; gap: 6px; }
-        }
-        .detalhe-item i {
-            color: #94a3b8;
-            font-size: 0.85rem;
-        }
-        @media (min-width: 768px) {
-            .detalhe-item i { font-size: 1rem; }
-        }
-        .margem-destaque {
-            background-color: #f0fdf4;
-            color: #16a34a;
-            padding: 1px 4px;
-            border-radius: 4px;
-        }
-        @media (min-width: 768px) {
-            .margem-destaque { padding: 2px 8px; border-radius: 6px; }
-        }
-        .rotulo-valor {
-            font-size: 0.65rem;
-            color: #64748b;
-            font-weight: 700;
-        }
-        @media (min-width: 768px) {
-            .rotulo-valor { font-size: 0.75rem; }
-        }
+        .preco-tag { color: #2a5298; font-weight: 700; font-size: 1.1rem; }
+        @media (min-width: 768px) { .preco-tag { font-size: 1.6rem; } }
+        .detalhe-item { font-size: 0.8rem; color: #6c757d; margin-bottom: 3px; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        @media (min-width: 768px) { .detalhe-item { font-size: 0.9rem; } }
+        .btn-filtro { border-radius: 20px; padding: 6px 14px; font-weight: 500; margin: 3px; transition: all 0.2s; font-size: 0.85rem; }
+        @media (min-width: 768px) { .btn-filtro { padding: 6px 18px; margin: 4px; font-size: 1rem; } }
+        .btn-filtro.active { background-color: #1e3c72!important; color: white!important; border-color: #1e3c72!important; }
+        .btn-filtro.btn-margem-toggle.active-margem { background-color: #198754!important; color: white!important; border-color: #198754!important; }
+        .btn-whatsapp-header { background-color: #25d366; color: white; font-weight: 600; border-radius: 50px; padding: 6px 18px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+        .btn-whatsapp-header:hover { background-color: #20ba59; color: white; }
+        .card-title { font-size: 1rem; }
+        @media (min-width: 768px) { .card-title { font-size: 1.25rem; } }
     </style>
 </head>
 <body>
 
-    <!-- Cabeçalho Principal -->
-    <header class="header-premium text-center">
-        <div class="container px-3">
-            <h1 class="header-title mb-1">Ariel Unidas Atacado</h1>
-            <p class="text-muted mb-3 fw-medium small">Repasse e Estoque de Veículos em Tempo Real</p>
-            <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header btn-sm">
-                <i class="bi bi-whatsapp"></i> (51) 98659-7751
-            </a>
+    <!-- Topo do Site -->
+    <nav class="navbar navbar-dark shadow mb-4 py-3">
+        <div class="container text-center">
+            <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white">ARIEL UNIDAS ATACADO</span>
+            <div class="w-100 mb-2 text-white-50 small">Repasse e Estoque de Veículos em Tempo Real</div>
+            <div class="w-100">
+                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header">
+                    <i class="bi bi-whatsapp"></i> (51) 98659-7751
+                </a>
+            </div>
         </div>
-    </header>
+    </nav>
 
-    <!-- Seção de Filtros Combinados -->
+    <!-- Filtros Integrados -->
     <div class="container mb-4">
-        <div class="card card-filtros p-2 p-md-3 border-0">
+        <div class="card p-3 shadow-sm border-0 bg-white rounded-3">
             <div class="d-flex flex-wrap justify-content-center justify-content-md-start align-items-center">
-                <button id="btn-cat-todos" class="btn btn-filtro active" onclick="filtrarCategoria('todos', this)">📊 Todos</button>
-                <button id="btn-cat-novidades" class="btn btn-filtro" onclick="filtrarCategoria('novidades', this)">✨ Novidades</button>
-                <div class="vr mx-1 mx-md-2 my-1" style="height: 25px; background-color: #cbd5e1;"></div>
-                <button id="btn-cat-hatch" class="btn btn-filtro" onclick="filtrarCategoria('hatch', this)">🚗 Hatch</button>
-                <button id="btn-cat-sedan" class="btn btn-filtro" onclick="filtrarCategoria('sedan', this)">🚘 Sedan</button>
-                <button id="btn-cat-suv" class="btn btn-filtro" onclick="filtrarCategoria('suv', this)">🚙 SUV</button>
-                <div class="vr mx-1 mx-md-2 my-1" style="height: 25px; background-color: #cbd5e1;"></div>
-                <button id="btn-filtro-margem" class="btn btn-filtro btn-margem-toggle" onclick="toggleOrdenacaoMargem(this)">💰 Melhor Margem</button>
+                <button class="btn btn-outline-secondary btn-filtro active" onclick="filtrarCategoria('todos', this)">Todos</button>
+                <button class="btn btn-outline-warning btn-filtro" onclick="filtrarCategoria('novidades', this)">✨ Novidades</button>
+                <div class="vr mx-2 my-1" style="height: 25px;"></div>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('hatch', this)">Hatch</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('sedan', this)">Sedan</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('suv', this)">SUV</button>
+                <div class="vr mx-2 my-1"></div>
+                <button class="btn btn-outline-success btn-filtro btn-margem-toggle" onclick="toggleMargem(this)">💰 Melhor Margem</button>
             </div>
         </div>
     </div>
 
-    <!-- Grid de Veículos Otimizado -->
+    <!-- Grid Original do Bootstrap (Ajustado para 2 colunas no celular e 3 no PC) -->
     <div class="container mb-5">
-        <div id="lista-carros" class="grid-estoque">
-            <div class="text-center grid-span-all w-100 my-5" style="grid-column: 1 / -1;">
+        <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
+            <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
                 <div class="spinner-border text-primary" role="status"></div>
-                <h4 class="mt-3 text-muted">Acessando banco de dados seguro...</h4>
+                <h4 class="mt-3 text-muted">Buscando veículos na planilha...</h4>
             </div>
         </div>
     </div>
@@ -329,7 +102,9 @@
                 if (!resposta.ok) throw new Error();
                 
                 const textoCsv = await resposta.text();
-                const linhas = textoCsv.split(/\r?\n/).map(linha => lineSplitter(linha));
+                const linhas = textoCsv.split(/\r?\n/).map(linha => {
+                    return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
+                });
                 
                 if (linhas.length > 0) linhas.shift(); 
                 
@@ -345,8 +120,8 @@
 
                     const carro = {
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                        modelo: engineTratarModelo(linha[1]),
-                        cor: linha[2] || 'Não informada',
+                        modelo: linha[1].replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').trim(),
+                        cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
                         fipe: linha[4] || 'N/A',
                         valor: linha[5] || 'Consulte',
@@ -367,24 +142,11 @@
                 });
 
                 todosOsCarros = [...disponiveis, ...vendidos];
-                processarEExibirEstoque();
+                processarEstoque();
 
             } catch (erro) {
-                document.getElementById('lista-carros').innerHTML = `
-                    <div class="text-center w-100 my-5 text-danger" style="grid-column: 1 / -1;">
-                        <i class="bi bi-exclamation-triangle display-4"></i>
-                        <h3 class="mt-3">Erro ao conectar com a planilha</h3>
-                    </div>`;
+                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h3>⚠️ Erro ao carregar o estoque</h3></div>';
             }
-        }
-
-        function lineSplitter(linha) {
-            return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
-        }
-
-        function engineTratarModelo(txt) {
-            if(!txt) return 'N/I';
-            return txt.replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').trim();
         }
 
         function AppendingKM(valor) {
@@ -392,19 +154,21 @@
             if(String(valor).toLowerCase().includes('km')) return valor;
             return valor + ' KM';
         }
+        
+        function AppendingCor(valor) {
+            if(!valor) return 'Não informada';
+            return valor;
+        }
 
-        // Nova inteligência que filtra E ordena ao mesmo tempo
-        function processarEExibirEstoque() {
+        function processarEstoque() {
             let listaFiltrada = [...todosOsCarros];
 
-            // 1. Aplica o filtro de categoria escolhido
             if (categoriaAtiva === 'novidades') {
                 listaFiltrada = listaFiltrada.filter(c => c.novidade && !c.status.includes('vendido'));
             } else if (categoriaAtiva !== 'todos') {
                 listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
             }
 
-            // 2. Se o botão "Melhor Margem" estiver ligado, faz a ordenação
             if (ordenarPorMargemAtivo) {
                 const limparValor = (texto) => {
                     if (!texto || texto === 'N/I') return 0;
@@ -417,25 +181,21 @@
             renderizarCards(listaFiltrada);
         }
 
-        function filtrarCategoria(categoria, botao) {
-            categoriaAtiva = categoria;
-            // Trata a marcação visual dos botões de categoria
+        function filtrarCategoria(cat, botao) {
+            categoriaAtiva = cat;
             document.querySelectorAll('.btn-filtro:not(.btn-margem-toggle)').forEach(btn => btn.classList.remove('active'));
             botao.classList.add('active');
-            
-            processarEExibirEstoque();
+            processarEstoque();
         }
 
-        function toggleOrdenacaoMargem(botao) {
-            ordenarPorMargemAtivo = !ordenarPorMargemAtivo; // Inverte o estado (liga/desliga)
-            
+        function toggleMargem(botao) {
+            ordenarPorMargemAtivo = !ordenarPorMargemAtivo;
             if (ordenarPorMargemAtivo) {
                 botao.classList.add('active-margem');
             } else {
                 botao.classList.remove('active-margem');
             }
-            
-            processarEExibirEstoque();
+            processarEstoque();
         }
 
         function renderizarCards(lista) {
@@ -443,7 +203,7 @@
             container.innerHTML = '';
 
             if(lista.length === 0) {
-                container.innerHTML = '<div class="text-center w-100 my-5 text-muted" style="grid-column: 1 / -1;"><i class="bi bi-search display-5"></i><h4 class="mt-2">Nenhum veículo encontrado.</h4></div>';
+                container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h3>Nenhum veículo encontrado.</h3></div>';
                 return;
             }
 
@@ -453,32 +213,28 @@
                 const classeCard = esVendido ? 'card-vendido' : '';
                 const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
                 
-                const fotoUrl = (carro.foto && carro.foto.startsWith('http')) ? carro.foto : 'https://placehold.co/600x400/0f172a/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
-                const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="badge badge-novidade"><i class="bi bi-stars"></i> NOVIDADE</span>` : '';
+                const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e3c72/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+                const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="badge badge-novidade">✨ NOVIDADE</span>` : '';
 
                 const cardHtml = `
-                    <div class="col-span-item">
-                        <div class="card card-carro ${classeCard}">
-                            <div class="position-relative w-100">
-                                <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
-                                ${badgeNovidadeHtml}
-                                <div class="img-container">
-                                    <img src="${fotoUrl}" class="img-carro" alt="${carro.modelo}">
-                                </div>
-                            </div>
-                            <div class="card-corpo">
+                    <div class="col">
+                        <div class="card card-carro shadow-sm ${classeCard} position-relative">
+                            <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
+                            ${badgeNovidadeHtml}
+                            <img src="${fotoUrl}" class="card-img-top img-carro" alt="${carro.modelo}">
+                            <div class="card-body p-2 p-md-3 d-flex flex-column justify-content-between">
                                 <div>
-                                    <h5 class="car-title text-truncate" title="${carro.modelo}">${carro.modelo}</h5>
-                                    <div class="detalhes-container">
-                                        <div class="detalhe-item"><i class="bi bi-hash"></i> <span>Placa: <strong>${carro.placa}</strong></span></div>
-                                        <div class="detalhe-item"><i class="bi bi-palette"></i> <span>Cor: <strong>${carro.cor}</strong></span></div>
-                                        <div class="detalhe-item"><i class="bi bi-speedometer2"></i> <span>KM: <strong>${carro.km}</strong></span></div>
-                                        <div class="detalhe-item"><i class="bi bi-graph-up-arrow"></i> <span>Margem: <span class="margem-destaque fw-bold">${carro.margem}</span></span></div>
-                                        <div class="detalhe-item"><i class="bi bi-file-text"></i> <span class="text-muted">FIPE: ${carro.fipe}</span></div>
+                                    <h5 class="card-title text-dark fw-bold mb-2 text-truncate" title="${carro.modelo}">${carro.modelo}</h5>
+                                    <div class="mb-2">
+                                        <div class="detalhe-item"><strong>Placa:</strong> ${carro.placa}</div>
+                                        <div class="detalhe-item text-truncate"><strong>Cor:</strong> ${carro.cor}</div>
+                                        <div class="detalhe-item"><strong>KM:</strong> ${carro.km}</div>
+                                        <div class="detalhe-item"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></div>
+                                        <div class="detalhe-item text-muted text-truncate"><small>FIPE: ${carro.fipe}</small></div>
                                     </div>
                                 </div>
-                                <div class="border-top pt-2 d-flex flex-column align-items-start">
-                                    <span class="rotulo-valor">VALOR REPASSE</span>
+                                <div class="border-top pt-2 mt-1 d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center">
+                                    <span class="small text-muted fw-bold" style="font-size:0.7rem;">REPASSE:</span>
                                     <span class="preco-tag">${carro.valor}</span>
                                 </div>
                             </div>
