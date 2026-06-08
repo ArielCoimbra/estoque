@@ -62,13 +62,14 @@
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('hatch', this)">Hatch</button>
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('sedan', this)">Sedan</button>
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('suv', this)">SUV</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('picape', this)">🛻 Picape/Picape</button>
                 <div class="vr mx-2 my-1"></div>
                 <button class="btn btn-outline-success btn-filtro btn-margem-toggle" onclick="toggleMargem(this)">💰 Melhor Margem</button>
             </div>
         </div>
     </div>
 
-    <!-- Grid Original do Bootstrap (Ajustado para 2 colunas no celular e 3 no PC) -->
+    <!-- Grid de Carros -->
     <div class="container mb-5">
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
             <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
@@ -88,11 +89,14 @@
             const mod = modelo.toLowerCase();
             const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208'];
             const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta'];
-            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur'];
+            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur', 'tucson', 'tiguan'];
+            // Palavras-chave para identificar caminhonetes e picapes:
+            const picapes = ['hilux', 's10', 'toro', 'ranger', 'oroch', 'saveiro', 'strada', 'montana', 'fiorino', 'frontier', 'amarok', 'l200', 'ram', 'maverick', 'titano', 'hoggar', 'courier', 'picape', 'camionete'];
 
             if (hatches.some(h => mod.includes(h))) return 'hatch';
             if (sedans.some(s => mod.includes(s))) return 'sedan';
             if (suvs.some(suv => mod.includes(suv))) return 'suv';
+            if (picapes.some(p => mod.includes(p))) return 'picape';
             return 'outros';
         }
 
@@ -120,7 +124,7 @@
 
                     const carro = {
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                        modelo: linha[1].replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').trim(),
+                        modelo: linha[1].replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
                         cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
                         fipe: linha[4] || 'N/A',
