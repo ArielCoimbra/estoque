@@ -11,8 +11,24 @@
         .navbar { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-bottom: 4px solid #3b82f6; }
         .card-carro { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; overflow: hidden; min-height: 100%; background: #ffffff; }
         .card-carro:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15)!important; }
-        .img-carro { height: 180px; object-fit: cover; background-color: #e9ecef; width: 100%; }
-        @media (min-width: 768px) { .img-carro { height: 200px; } }
+        
+        /* Ajuste Inteligente das Fotos */
+        .img-carro { 
+            height: 160px; 
+            object-fit: cover; 
+            background-color: #e9ecef; 
+            width: 100%; 
+        }
+        /* No computador, impede o zoom forçado e mostra o carro inteiro */
+        @media (min-width: 768px) { 
+            .img-carro { 
+                height: 220px; 
+                object-fit: contain; /* Garante que a foto inteira apareça sem cortes */
+                background-color: #f8fafc; /* Fundo neutro suave para as laterais se a foto for menor */
+                padding: 6px;
+            } 
+        }
+
         .badge-status { position: absolute; top: 10px; left: 10px; font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
         .badge-novidade { position: absolute; top: 10px; right: 10px; font-size: 0.75rem; padding: 4px 8px; border-radius: 20px; font-weight: 600; background-color: #ff9f1c; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; }
         @media (min-width: 768px) {
@@ -62,7 +78,7 @@
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('hatch', this)">Hatch</button>
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('sedan', this)">Sedan</button>
                 <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('suv', this)">SUV</button>
-                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('picape', this)">🛻 Picape/Picape</button>
+                <button class="btn btn-outline-primary btn-filtro" onclick="filtrarCategoria('picape', this)">🛻 Picape</button>
                 <div class="vr mx-2 my-1"></div>
                 <button class="btn btn-outline-success btn-filtro btn-margem-toggle" onclick="toggleMargem(this)">💰 Melhor Margem</button>
             </div>
@@ -90,7 +106,6 @@
             const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208'];
             const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta'];
             const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur', 'tucson', 'tiguan'];
-            // Palavras-chave para identificar caminhonetes e picapes:
             const picapes = ['hilux', 's10', 'toro', 'ranger', 'oroch', 'saveiro', 'strada', 'montana', 'fiorino', 'frontier', 'amarok', 'l200', 'ram', 'maverick', 'titano', 'hoggar', 'courier', 'picape', 'camionete'];
 
             if (hatches.some(h => mod.includes(h))) return 'hatch';
@@ -116,7 +131,7 @@
                 let vendidos = [];
 
                 linhas.forEach(linha => {
-                    if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
+                    if (!linha || Math.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
                     const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
@@ -127,8 +142,8 @@
                         modelo: linha[1].replace(/novidade/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
                         cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
-                        fipe: linha[4] || 'N/A',
-                        valor: linha[5] || 'Consulte',
+                        fipe: ServerCleanValue(linha[4]),
+                        valor: ServerCleanValue(linha[5]),
                         margem: linha[6] || 'N/I',
                         status: textoStatusColunaH,
                         foto: (linha[8] && linha[8].includes('drive.google.com')) 
@@ -162,6 +177,11 @@
         function AppendingCor(valor) {
             if(!valor) return 'Não informada';
             return valor;
+        }
+
+        function ServerCleanValue(val) {
+            if(!val) return 'N/A';
+            return val.replace(/^"|"$/g, '').trim();
         }
 
         function processarEstoque() {
