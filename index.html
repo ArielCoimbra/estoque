@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alvaro Unidas Atacado | Estoque de Veículos</title>
+    <title>Ariel Unidas Atacado | Estoque de Veículos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -139,10 +139,10 @@
     <!-- Topo do Site -->
     <nav class="navbar navbar-dark shadow-sm text-center">
         <div class="container">
-            <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ALVARO UNIDAS ATACADO</span>
+            <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ARIEL UNIDAS ATACADO</span>
             <div class="w-100 mb-3 text-white-50 small" style="letter-spacing: 0.5px;">REPASSE E ESTOQUE DE VEÍCULOS EM TEMPO REAL</div>
             <div class="w-100">
-                <a href="https://wa.me/5551994611234" target="_blank" class="btn-whatsapp-header">
+                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header">
                     <i class="bi bi-whatsapp"></i> Contato Geral
                 </a>
             </div>
@@ -207,7 +207,7 @@
                         </button>
                     </div>
                     
-                    <!-- Ficha Técnica dentro do Modal -->
+                    <!-- Ficha Técnico dentro do Modal -->
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
@@ -293,19 +293,18 @@
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
-                    const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+                    const textoColunaI = inlineStatus = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
                     
                     const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
                     const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
 
-                    // Separação de dados conforme solicitado
-                    const fotoCapaRaw = linha[8] || ''; // Coluna I
-                    const fotosCarrosselRaw = linha[9] || ''; // Coluna J
-                    const descricaoRaw = linha[10] ? linha[10] : 'Sem observações adicionais para este veículo.'; // Coluna K
+                    const fotoCapaRaw = linha[8] || ''; 
+                    const fotosCarrosselRaw = linha[9] || ''; 
+                    const descricaoRaw = linha[10] ? linha[10] : 'Sem observações adicionais para este veículo.'; 
 
                     const carro = {
                         id: index,
-                        placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
+                        placa: inlinePlaca = linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: linha[1].replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
                         cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
@@ -372,7 +371,7 @@
             } else if (categoriaAtiva === 'baixou') {
                 listaFiltrada = listaFiltrada.filter(c => c.baixouPreco && !c.status.includes('vendido'));
             } else if (categoriaAtiva !== 'todos') {
-                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoryAtiva);
+                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
             }
 
             if (termoPesquisa !== '') {
@@ -429,7 +428,6 @@
             const containerFotos = document.getElementById('modalFotosContainer');
             containerFotos.innerHTML = '';
             
-            // Cria a lista total de fotos combinando a Capa (Coluna I) com as demais (Coluna J)
             let arrFotos = [];
             if (carro.fotoCapa.trim() !== '') {
                 arrFotos.push(carro.fotoCapa);
@@ -456,8 +454,8 @@
             const esVendido = carro.status.includes('vendido');
             const containerBotao = document.getElementById('modalBotaoWppContainer');
             if (!esVendido) {
-                const textoMensagemWpp = encodeURIComponent(`Olá Alvaro, estou vendo os detalhes do veículo *${carro.modelo}* no site e gostaria de negociar.`);
-                containerBotao.innerHTML = `<a href="https://wa.me/5551994611234?text=${textoMensagemWpp}" target="_blank" class="btn-wpp-card py-2"><i class="bi bi-whatsapp"></i> Negociar Agora</a>`;
+                const textoMensagemWpp = encodeURIComponent(`Olá Ariel, estou vendo os detalhes do veículo *${carro.modelo}* no site e gostaria de negociar.`);
+                containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn-wpp-card py-2"><i class="bi bi-whatsapp"></i> Negociar Agora</a>`;
             } else {
                 containerBotao.innerHTML = `<button class="btn-wpp-card bg-secondary border-secondary py-2" disabled>Vendido</button>`;
             }
