@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ariel Unidas Atacado | Estoque de Veículos</title>
+    <title>Alvaro Unidas Atacado | Estoque de Veículos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
@@ -22,14 +22,13 @@
             color: #334155;
         }
 
-        /* Topo Elegante */
         .navbar { 
             background: var(--azul-escuro); 
             border-bottom: 1px solid rgba(255,255,255,0.1); 
             padding: 1.5rem 0;
         }
         
-        /* Cards Modernos */
+        /* Card de Carro Clicável */
         .card-carro { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 1px solid var(--cinza-borda); 
@@ -39,6 +38,7 @@
             display: flex; 
             flex-direction: column;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.04);
+            cursor: pointer;
         }
         .card-carro:hover { 
             transform: translateY(-4px); 
@@ -46,7 +46,6 @@
             border-color: #cbd5e1;
         }
         
-        /* Fotos Estilo Vitrine */
         .img-carro { 
             height: 160px; 
             object-fit: cover; 
@@ -62,7 +61,6 @@
             } 
         }
 
-        /* Badges Minimalistas */
         .badge-status { position: absolute; top: 12px; left: 12px; font-size: 0.7rem; padding: 5px 10px; border-radius: 30px; font-weight: 600; letter-spacing: 0.5px; z-index: 2; border: 1px solid rgba(255,255,255,0.2); }
         .badge-novidade { position: absolute; top: 12px; right: 12px; font-size: 0.7rem; padding: 5px 10px; border-radius: 30px; font-weight: 600; background-color: #f59e0b; color: white; z-index: 2; }
         .badge-baixou { position: absolute; top: 42px; left: 12px; font-size: 0.7rem; padding: 5px 10px; border-radius: 30px; font-weight: 700; background-color: #ef4444; color: white; z-index: 2; box-shadow: 0 4px 10px rgba(239,68,68,0.3); animation: pulse 2s infinite; }
@@ -84,7 +82,6 @@
         .card-vendido { opacity: 0.5; filter: grayscale(40%); }
         .card-body { display: flex; flex-direction: column; justify-content: space-between; flex-grow: 1; padding: 1.25rem!important; }
         
-        /* Preço e Textos */
         .card-title { font-size: 1.05rem; color: var(--azul-escuro); letter-spacing: -0.3px; }
         @media (min-width: 768px) { .card-title { font-size: 1.2rem; } }
         
@@ -95,24 +92,46 @@
         @media (min-width: 768px) { .detalhe-item { font-size: 0.85rem; } }
         .detalhe-item strong { color: var(--texto-mutado); font-weight: 500; }
         
-        /* Filtros Avançados */
         .btn-filtro { border-radius: 30px; padding: 6px 16px; font-weight: 500; margin: 4px; transition: all 0.2s; font-size: 0.85rem; border: 1px solid var(--cinza-borda); background: #ffffff; color: #475569; }
         @media (min-width: 768px) { .btn-filtro { padding: 8px 20px; font-size: 0.9rem; } }
         .btn-filtro:hover { background: #f8fafc; color: var(--azul-escuro); border-color: #cbd5e1; }
         .btn-filtro.active { background-color: var(--azul-escuro)!important; color: white!important; border-color: var(--azul-escuro)!important; }
         .btn-filtro.btn-margem-toggle.active-margem { background-color: #10b981!important; color: white!important; border-color: #10b981!important; }
         
-        /* Botões de Ação Profissionais */
         .btn-whatsapp-header { background-color: #25d366; color: white; font-weight: 600; border-radius: 50px; padding: 8px 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37,211,102,0.2); }
         .btn-whatsapp-header:hover { background-color: #20ba59; color: white; transform: scale(1.02); }
         
         .btn-wpp-card { background-color: var(--azul-escuro); color: white; font-weight: 600; font-size: 0.85rem; border-radius: 10px; width: 100%; padding: 10px; text-align: center; border: 1px solid var(--azul-escuro); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
         .btn-wpp-card:hover { background-color: #25d366; border-color: #25d366; color: white; box-shadow: 0 4px 12px rgba(37,211,102,0.15); }
         
-        /* Campo de Busca Premium */
         .container-busca { max-width: 550px; margin: -25px auto 25px auto; position: relative; z-index: 10; }
         .input-busca { border-radius: 50px; padding: 12px 24px; border: 1px solid var(--cinza-borda); font-size: 0.95rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); transition: all 0.2s; }
         .input-busca:focus { border-color: #94a3b8; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); }
+
+        /* Estilos do Modal de Fotos */
+        .modal-carousel-img {
+            height: 250px;
+            object-fit: contain;
+            background-color: #f8fafc;
+            width: 100%;
+        }
+        @media (min-width: 768px) {
+            .modal-carousel-img { height: 400px; }
+        }
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .desc-box {
+            background-color: #f1f5f9;
+            border-radius: 12px;
+            padding: 15px;
+            font-size: 0.9rem;
+            color: #334155;
+            border-left: 4px solid var(--azul-destaque);
+        }
     </style>
 </head>
 <body>
@@ -120,10 +139,10 @@
     <!-- Topo do Site -->
     <nav class="navbar navbar-dark shadow-sm text-center">
         <div class="container">
-            <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ARIEL UNIDAS ATACADO</span>
-            <div class="w-100 mb-3 text-white-50 small" style="letter-spacing: 0.5px;">ESTOQUE DE VEÍCULOS EM TEMPO REAL</div>
+            <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ALVARO UNIDAS ATACADO</span>
+            <div class="w-100 mb-3 text-white-50 small" style="letter-spacing: 0.5px;">REPASSE E ESTOQUE DE VEÍCULOS EM TEMPO REAL</div>
             <div class="w-100">
-                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header">
+                <a href="https://wa.me/5551994611234" target="_blank" class="btn-whatsapp-header">
                     <i class="bi bi-whatsapp"></i> Contato Geral
                 </a>
             </div>
@@ -166,6 +185,74 @@
         </div>
     </div>
 
+    <!-- JANELA MODAL DE DETALHES (POP-UP) -->
+    <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 bg-dark text-white">
+                    <h5 class="modal-title fw-bold" id="modalModelo">Modelo do Carro</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <!-- Carrossel Dinâmico de Fotos -->
+                    <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="modalFotosContainer">
+                            <!-- Fotos injetadas via JS -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="next">
+                            <span class="carousel-control-next-icon bg-dark rounded-circle" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Ficha Técnica dentro do Modal -->
+                    <div class="p-4">
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4">
+                                <div class="small text-muted">Preço Repasse</div>
+                                <div class="fs-4 fw-bold text-primary" id="modalValor">R$ --</div>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <div class="small text-muted">Margem Estimada</div>
+                                <div class="fs-4 fw-bold text-success" id="modalMargem">R$ --</div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <div class="small text-muted">FIPE</div>
+                                <div class="fs-5 text-secondary fw-semibold" id="modalFipe">R$ --</div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-3" style="color: var(--cinza-borda);">
+                        
+                        <div class="row row-cols-2 g-2 mb-4">
+                            <div><strong>Placa:</strong> <span id="modalPlaca">--</span></div>
+                            <div><strong>Cor:</strong> <span id="modalCor">--</span></div>
+                            <div><strong>KM:</strong> <span id="modalKm">--</span></div>
+                            <div><strong>Carroceria:</strong> <span id="modalCarroceria" class="text-capitalize">--</span></div>
+                        </div>
+
+                        <!-- Caixa de Descrição Avançada -->
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary"></i> Observações / Detalhes do Repasse:</h6>
+                            <div class="desc-box" id="modalDescricao">
+                                Nenhuma observação adicional cadastrada para este veículo.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Fechar</button>
+                    <div id="modalBotaoWppContainer" style="width: 60%;">
+                        <!-- Botão Wpp dinâmico -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
         let todosOsCarros = []; 
@@ -202,7 +289,7 @@
                 let disponiveis = [];
                 let vendidos = [];
 
-                linhas.forEach(linha => {
+                linhas.forEach((linha, index) => {
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
@@ -211,7 +298,13 @@
                     const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
                     const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
 
+                    // Separação de dados conforme solicitado
+                    const fotoCapaRaw = linha[8] || ''; // Coluna I
+                    const fotosCarrosselRaw = linha[9] || ''; // Coluna J
+                    const descricaoRaw = linha[10] ? linha[10] : 'Sem observações adicionais para este veículo.'; // Coluna K
+
                     const carro = {
+                        id: index,
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: linha[1].replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
                         cor: AppendingCor(linha[2]),
@@ -220,9 +313,9 @@
                         valor: ServerCleanValue(linha[5]),
                         margem: linha[6] || 'N/I',
                         status: textoStatusColunaH,
-                        foto: (linha[8] && linha[8].includes('drive.google.com')) 
-                            ? 'https://lh3.googleusercontent.com/d/' + (linha[8].includes('id=') ? linha[8].split('id=')[1].split('&')[0] : linha[8].split('/d/')[1].split('/')[0])
-                            : (linha[8] || ''),
+                        fotoCapa: fotoCapaRaw,
+                        fotosCarrossel: fotosCarrosselRaw,
+                        descricao: descricaoRaw,
                         carroceria: identificarCarroceria(linha[1]),
                         novidade: ehNovidade,
                         baixouPreco: ehBaixouPreco
@@ -241,6 +334,13 @@
             } catch (erro) {
                 document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h3>⚠️ Erro ao carregar o estoque</h3></div>';
             }
+        }
+
+        function converterLinkDrive(link) {
+            if (link.includes('drive.google.com')) {
+                return 'https://lh3.googleusercontent.com/d/' + (link.includes('id=') ? link.split('id=')[1].split('&')[0] : link.split('/d/')[1].split('/')[0]);
+            }
+            return link.trim();
         }
 
         function AppendingKM(valor) {
@@ -267,16 +367,14 @@
         function processarEstoque() {
             let listaFiltrada = [...todosOsCarros];
 
-            // Filtros de Categorias e Botões Superiores
             if (categoriaAtiva === 'novidades') {
                 listaFiltrada = listaFiltrada.filter(c => c.novidade && !c.status.includes('vendido'));
             } else if (categoriaAtiva === 'baixou') {
                 listaFiltrada = listaFiltrada.filter(c => c.baixouPreco && !c.status.includes('vendido'));
             } else if (categoriaAtiva !== 'todos') {
-                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
+                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoryAtiva);
             }
 
-            // Filtro por Texto da barra de busca
             if (termoPesquisa !== '') {
                 listaFiltrada = listaFiltrada.filter(c => 
                     c.modelo.toLowerCase().includes(termoPesquisa) ||
@@ -285,7 +383,6 @@
                 );
             }
 
-            // Ordenação de Margem
             if (ordenarPorMargemAtivo) {
                 const limparValor = (texto) => {
                     if (!texto || texto === 'N/I') return 0;
@@ -315,6 +412,60 @@
             processarEstoque();
         }
 
+        function abrirModalDetalhes(idCarro) {
+            const carro = todosOsCarros.find(c => c.id === idCarro);
+            if (!carro) return;
+
+            document.getElementById('modalModelo').innerText = carro.modelo;
+            document.getElementById('modalValor').innerText = carro.valor;
+            document.getElementById('modalMargem').innerText = carro.margem;
+            document.getElementById('modalFipe').innerText = carro.fipe;
+            document.getElementById('modalPlaca').innerText = carro.placa;
+            document.getElementById('modalCor').innerText = carro.cor;
+            document.getElementById('modalKm').innerText = carro.km;
+            document.getElementById('modalCarroceria').innerText = carro.carroceria;
+            document.getElementById('modalDescricao').innerText = carro.descricao;
+
+            const containerFotos = document.getElementById('modalFotosContainer');
+            containerFotos.innerHTML = '';
+            
+            // Cria a lista total de fotos combinando a Capa (Coluna I) com as demais (Coluna J)
+            let arrFotos = [];
+            if (carro.fotoCapa.trim() !== '') {
+                arrFotos.push(carro.fotoCapa);
+            }
+            if (carro.fotosCarrossel.trim() !== '') {
+                const extras = carro.fotosCarrossel.split(',').filter(f => f.trim() !== '');
+                arrFotos = arrFotos.concat(extras);
+            }
+            
+            if (arrFotos.length === 0) {
+                arrFotos.push('https://placehold.co/600x400/1e293b/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]));
+            }
+
+            arrFotos.forEach((foto, index) => {
+                const urlLimpa = converterLinkDrive(foto);
+                const classeAtiva = index === 0 ? 'active' : '';
+                containerFotos.innerHTML += `
+                    <div class="carousel-item ${classeAtiva}">
+                        <img src="${urlLimpa}" class="modal-carousel-img" alt="Foto ${index + 1}">
+                    </div>
+                `;
+            });
+
+            const esVendido = carro.status.includes('vendido');
+            const containerBotao = document.getElementById('modalBotaoWppContainer');
+            if (!esVendido) {
+                const textoMensagemWpp = encodeURIComponent(`Olá Alvaro, estou vendo os detalhes do veículo *${carro.modelo}* no site e gostaria de negociar.`);
+                containerBotao.innerHTML = `<a href="https://wa.me/5551994611234?text=${textoMensagemWpp}" target="_blank" class="btn-wpp-card py-2"><i class="bi bi-whatsapp"></i> Negociar Agora</a>`;
+            } else {
+                containerBotao.innerHTML = `<button class="btn-wpp-card bg-secondary border-secondary py-2" disabled>Vendido</button>`;
+            }
+
+            const meuModal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
+            meuModal.show();
+        }
+
         function renderizarCards(lista) {
             const container = document.getElementById('lista-carros');
             container.innerHTML = '';
@@ -330,16 +481,13 @@
                 const classeCard = esVendido ? 'card-vendido' : '';
                 const textoStatus = esVendido ? 'VENDIDO' : 'DISPONÍVEL';
                 
-                const fotoUrl = carro.foto.startsWith('http') ? carro.foto : 'https://placehold.co/600x400/1e293b/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+                const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/1e293b/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
+                
                 const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="badge badge-novidade">✨ NOVIDADE</span>` : '';
                 const badgeBaixouHtml = (carro.baixouPreco && !esVendido) ? `<span class="badge badge-baixou">🔥 BAIXOU O PREÇO</span>` : '';
 
-                // Link do Whatsapp Direto para o Carro com texto personalizado
-                const textoMensagemWpp = encodeURIComponent(`Olá Ariel, tenho interesse no veículo do estoque: *${carro.modelo}* (Placa final: ${carro.placa}). Está disponível?`);
-                const linkWppCarro = `https://wa.me/5551986597751?text=${textoMensagemWpp}`;
-
                 const cardHtml = `
-                    <div class="col">
+                    <div class="col" onclick="abrirModalDetalhes(${carro.id})">
                         <div class="card card-carro ${classeCard} position-relative">
                             <span class="badge badge-status ${classeStatus}">${textoStatus}</span>
                             ${badgeNovidadeHtml}
@@ -353,7 +501,6 @@
                                         <div class="detalhe-item text-truncate"><strong>Cor:</strong> <span>${carro.cor}</span></div>
                                         <div class="detalhe-item"><strong>KM:</strong> <span>${carro.km}</span></div>
                                         <div class="detalhe-item"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></div>
-                                        <div class="detalhe-item text-muted text-truncate"><small>FIPE: ${carro.fipe}</small></div>
                                     </div>
                                 </div>
                                 <div>
@@ -361,7 +508,7 @@
                                         <span class="small text-muted fw-bold" style="font-size:0.7rem; letter-spacing:0.3px;">REPASSE ATACADO</span>
                                         <span class="preco-tag">${carro.valor}</span>
                                     </div>
-                                    ${!esVendido ? `<a href="${linkWppCarro}" target="_blank" class="btn-wpp-card"><i class="bi bi-whatsapp"></i> Negociar no Zap</a>` : `<button class="btn-wpp-card bg-secondary border-secondary" disabled>Vendido</button>`}
+                                    <span class="btn-wpp-card" style="font-size: 0.8rem;"><i class="bi bi-eye"></i> Ver Detalhes</span>
                                 </div>
                             </div>
                         </div>
