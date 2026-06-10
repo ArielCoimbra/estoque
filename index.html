@@ -27,6 +27,36 @@
             border-bottom: 1px solid rgba(255,255,255,0.1); 
             padding: 1.5rem 0;
         }
+
+        /* Banner de Destaque Dinâmico (Coluna L) */
+        .banner-destaque {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none; /* Inicia oculto e aparece se houver texto */
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .btn-banner-wpp {
+            background-color: #25d366;
+            color: white;
+            font-weight: 700;
+            border-radius: 30px;
+            padding: 10px 24px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(37,211,102,0.3);
+        }
+        .btn-banner-wpp:hover {
+            background-color: #20ba59;
+            color: white;
+            transform: scale(1.03);
+        }
         
         /* Card de Carro Clicável */
         .card-carro { 
@@ -75,6 +105,10 @@
             0% { transform: scale(1); }
             50% { transform: scale(1.03); }
             100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .status-disponivel { background-color: #10b981; color: white; }
@@ -157,6 +191,21 @@
         </div>
     </div>
 
+    <!-- BANNER DE DESTAQUE DINÂMICO (Preenchido via Planilha Coluna L) -->
+    <div class="container mb-4">
+        <div id="box-banner-destaque" class="banner-destaque">
+            <div class="row align-items-center text-center text-md-start g-3">
+                <div class="col-12 col-md-8">
+                    <h4 class="fw-bold mb-1"><i class="bi bi-megaphone-fill text-warning me-2"></i> Destaque do Dia</h4>
+                    <p id="texto-banner-destaque" class="mb-0 fs-5 opacity-90">Carregando avisos...</p>
+                </div>
+                <div class="col-12 col-md-4 text-md-end" id="container-botao-banner">
+                    <!-- Injetado dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filtros Integrados -->
     <div class="container mb-4">
         <div class="card p-2 border-0 bg-white rounded-4 shadow-sm">
@@ -207,7 +256,7 @@
                         </button>
                     </div>
                     
-                    <!-- Ficha Técnico dentro do Modal -->
+                    <!-- Ficha Técnica dentro do Modal -->
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
@@ -283,6 +332,35 @@
                 const linhas = textoCsv.split(/\r?\n/).map(linha => {
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
                 });
+
+                // LER FRASE E LINK DO WHATSAPP (Coluna L -> Índice 11)
+                // Linha 0 (título/cabeçalho) -> célula L1 é índice 11
+                // Linha 1 (primeiro dado) -> célula L2 é índice 11
+                let fraseDestaque = "";
+                let linkGrupoWpp = "";
+                
+                if (linhas.length > 0 && linhas[0][11]) {
+                    fraseDestaque = linhas[0][11].trim();
+                }
+                if (linhas.length > 1 && linhas[1][11]) {
+                    linkGrupoWpp = linhas[1][11].trim();
+                }
+
+                // Configura e exibe o banner se houver frase cadastrada
+                const boxBanner = document.getElementById('box-banner-destaque');
+                if (fraseDestaque && fraseDestaque !== "" && fraseDestaque.toLowerCase() !== "null") {
+                    document.getElementById('texto-banner-destaque').innerText = fraseDestaque;
+                    const containerBotao = document.getElementById('container-botao-banner');
+                    
+                    if (linkGrupoWpp && linkGrupoWpp.startsWith('http')) {
+                        containerBotao.innerHTML = `<a href="${linkGrupoWpp}" target="_blank" class="btn-banner-wpp"><i class="bi bi-whatsapp"></i> Entrar no Grupo</a>`;
+                    } else {
+                        containerBotao.innerHTML = "";
+                    }
+                    boxBanner.style.display = "block";
+                } else {
+                    boxBanner.style.display = "none";
+                }
                 
                 if (linhas.length > 0) linhas.shift(); 
                 
@@ -290,10 +368,10 @@
                 let vendidos = [];
 
                 linhas.forEach((linha, index) => {
-                    if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
+                    if (!linha || linha.length < 2 || !linha[1] || inlineModelo === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
-                    const textoColunaI = inlineStatus = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+                    const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
                     
                     const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
                     const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
@@ -304,7 +382,7 @@
 
                     const carro = {
                         id: index,
-                        placa: inlinePlaca = linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
+                        placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: linha[1].replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
                         cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
