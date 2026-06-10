@@ -256,7 +256,7 @@
                         </button>
                     </div>
                     
-                    <!-- Ficha Técnico dentro do Modal -->
+                    <!-- Ficha Técnica dentro do Modal -->
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
@@ -311,15 +311,15 @@
 
         function identificarCarroceria(modelo) {
             const mod = modelo.toLowerCase();
-            const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208'];
-            const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta'];
-            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur', 'tucson', 'tiguan'];
-            const picapes = ['hilux', 's10', 'toro', 'ranger', 'oroch', 'saveiro', 'strada', 'montana', 'fiorino', 'frontier', 'amarok', 'l200', 'ram', 'maverick', 'titano', 'hoggar', 'courier', 'picape', 'camionete'];
+            const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208', 'etios hatch', 'golf', 'cruze sport'];
+            const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta', 'linea', 'fluence', 'cobalt'];
+            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur', 'tucson', 'tiguan', 'ecosport', 'wr-v'];
+            const picapes = ['hilux', 's10', 'toro', 'ranger', 'oroch', 'saveiro', 'strada', 'montana', 'fiorino', 'frontier', 'amarok', 'l200', 'ram', 'maverick', 'titano', 'hoggar', 'courier', 'picape', 'camionete', 'master', 'ducato', 'daily'];
 
-            if (hatches.some(h => mod.includes(h))) return 'hatch';
-            if (sedans.some(s => mod.includes(s))) return 'sedan';
-            if (suvs.some(suv => mod.includes(suv))) return 'suv';
             if (picapes.some(p => mod.includes(p))) return 'picape';
+            if (suvs.some(suv => mod.includes(suv))) return 'suv';
+            if (sedans.some(s => mod.includes(s))) return 'sedan';
+            if (hatches.some(h => mod.includes(h))) return 'hatch';
             return 'outros';
         }
 
@@ -341,7 +341,7 @@
                     fraseDestaque = linhas[0][11].trim();
                 }
                 if (linhas.length > 1 && linhas[1][11]) {
-                    linkGrupoWpp = linhas[1][11].trim();
+                    linkGrupoWpp = lines = linhas[1][11].trim();
                 }
 
                 // Configura e exibe o banner se houver frase cadastrada
@@ -366,7 +366,6 @@
                 let vendidos = [];
 
                 linhas.forEach((linha, index) => {
-                    // VERIFICAÇÃO CORRIGIDA: evita travar se a linha não tiver dados básicos
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
@@ -378,11 +377,13 @@
                     const fotoCapaRaw = linha[8] || ''; 
                     const fotosCarrosselRaw = linha[9] || ''; 
                     const descricaoRaw = linha[10] ? linha[10] : 'Sem observações adicionais para este veículo.'; 
+                    
+                    const modeloTextoCompleto = linha[1].trim();
 
                     const carro = {
                         id: index,
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                        modelo: linha[1].replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').replace(/hatch/i, '').replace(/sedan/i, '').replace(/suv/i, '').replace(/picape/i, '').replace(/camionete/i, '').trim(),
+                        modelo: modeloTextoCompleto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
                         cor: AppendingCor(linha[2]),
                         km: AppendingKM(linha[3]),
                         fipe: ServerCleanValue(linha[4]),
@@ -392,7 +393,7 @@
                         fotoCapa: fotoCapaRaw,
                         fotosCarrossel: fotosCarrosselRaw,
                         descricao: descricaoRaw,
-                        carroceria: identificarCarroceria(linha[1]),
+                        carroceria: identificarCarroceria(modeloTextoCompleto),
                         novidade: ehNovidade,
                         baixouPreco: ehBaixouPreco
                     };
@@ -448,7 +449,7 @@
             } else if (categoriaAtiva === 'baixou') {
                 listaFiltrada = listaFiltrada.filter(c => c.baixouPreco && !c.status.includes('vendido'));
             } else if (categoriaAtiva !== 'todos') {
-                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoryAtiva || c.carroceria === categoriaAtiva);
+                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
             }
 
             if (termoPesquisa !== '') {
