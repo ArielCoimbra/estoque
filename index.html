@@ -256,7 +256,7 @@
                         </button>
                     </div>
                     
-                    <!-- Ficha Técnica dentro do Modal -->
+                    <!-- Ficha Técnico dentro do Modal -->
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
@@ -334,8 +334,6 @@
                 });
 
                 // LER FRASE E LINK DO WHATSAPP (Coluna L -> Índice 11)
-                // Linha 0 (título/cabeçalho) -> célula L1 é índice 11
-                // Linha 1 (primeiro dado) -> célula L2 é índice 11
                 let fraseDestaque = "";
                 let linkGrupoWpp = "";
                 
@@ -368,7 +366,8 @@
                 let vendidos = [];
 
                 linhas.forEach((linha, index) => {
-                    if (!linha || linha.length < 2 || !linha[1] || inlineModelo === "") return; 
+                    // VERIFICAÇÃO CORRIGIDA: evita travar se a linha não tiver dados básicos
+                    if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
                     const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
@@ -449,7 +448,7 @@
             } else if (categoriaAtiva === 'baixou') {
                 listaFiltrada = listaFiltrada.filter(c => c.baixouPreco && !c.status.includes('vendido'));
             } else if (categoriaAtiva !== 'todos') {
-                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
+                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoryAtiva || c.carroceria === categoriaAtiva);
             }
 
             if (termoPesquisa !== '') {
