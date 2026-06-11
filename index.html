@@ -20,12 +20,49 @@
             background-color: var(--bg-principal); 
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color: #334155;
+            /* Compensação de espaço para a barra fixa não cobrir o topo */
+            padding-top: 40px; 
         }
 
         .navbar { 
             background: var(--azul-escuro); 
             border-bottom: 1px solid rgba(255,255,255,0.1); 
             padding: 1.5rem 0;
+        }
+
+        /* FAIXA DE NOVIDADES FIXA NO TOPO (TICKER PROPAGANDA) */
+        .faixa-novidades-container {
+            background-color: #1e293b;
+            color: #f8fafc;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 8px 0;
+            border-bottom: 2px solid #10b981; /* Borda verde combinando com lucro/margem */
+            font-size: 0.95rem;
+            font-weight: 600;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1050; /* Garante que fica por cima de tudo ao rolar */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .faixa-novidades-wrapper {
+            display: inline-block;
+            padding-left: 100%;
+            animation: letreiroCorrendo 25s linear infinite;
+        }
+        .faixa-novidades-wrapper:hover {
+            animation-play-state: paused;
+            cursor: pointer;
+        }
+        .item-ticker {
+            display: inline-block;
+            margin-right: 60px;
+        }
+        @keyframes letreiroCorrendo {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
         }
 
         /* Banner de Destaque Dinâmico (Coluna L) */
@@ -36,7 +73,7 @@
             padding: 20px;
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            display: none; /* Inicia oculto e aparece se houver texto */
+            display: none;
             animation: fadeIn 0.5s ease-in-out;
         }
         .btn-banner-wpp {
@@ -135,6 +172,9 @@
         .btn-whatsapp-header { background-color: #25d366; color: white; font-weight: 600; border-radius: 50px; padding: 8px 22px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37,211,102,0.2); }
         .btn-whatsapp-header:hover { background-color: #20ba59; color: white; transform: scale(1.02); }
         
+        .btn-endereco-header { background-color: var(--azul-destaque); color: white; font-weight: 600; border-radius: 50px; padding: 8px 22px; border: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .btn-endereco-header:hover { background-color: #1d4ed8; color: white; transform: scale(1.02); }
+
         .btn-wpp-card { background-color: var(--azul-escuro); color: white; font-weight: 600; font-size: 0.85rem; border-radius: 10px; width: 100%; padding: 10px; text-align: center; border: 1px solid var(--azul-escuro); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
         .btn-wpp-card:hover { background-color: #25d366; border-color: #25d366; color: white; box-shadow: 0 4px 12px rgba(37,211,102,0.15); }
         
@@ -142,7 +182,7 @@
         .input-busca { border-radius: 50px; padding: 12px 24px; border: 1px solid var(--cinza-borda); font-size: 0.95rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); transition: all 0.2s; }
         .input-busca:focus { border-color: #94a3b8; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); }
 
-        /* Estilos do Modal de Fotos */
+        /* Estilos do Modal de Fotos e Endereço */
         .modal-carousel-img {
             height: 250px;
             object-fit: contain;
@@ -166,19 +206,35 @@
             color: #334155;
             border-left: 4px solid var(--azul-destaque);
         }
+        .endereco-box {
+            background-color: #eff6ff;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 5px solid var(--azul-destaque);
+        }
     </style>
 </head>
 <body>
+
+    <!-- FAIXA DE NOVIDADES CORRENDO FIXA NO TOPO DA TELA -->
+    <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
+        <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo">
+            <!-- Injetado dinamicamente via JavaScript -->
+        </div>
+    </div>
 
     <!-- Topo do Site -->
     <nav class="navbar navbar-dark shadow-sm text-center">
         <div class="container">
             <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ARIEL UNIDAS ATACADO</span>
             <div class="w-100 mb-3 text-white-50 small" style="letter-spacing: 0.5px;">REPASSE E ESTOQUE DE VEÍCULOS EM TEMPO REAL</div>
-            <div class="w-100">
+            <div class="w-100 d-flex justify-content-center gap-2 flex-wrap">
                 <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header">
                     <i class="bi bi-whatsapp"></i> Contato Geral
                 </a>
+                <button class="btn-endereco-header" onclick="abrirModalEndereco()">
+                    <i class="bi bi-geo-alt-fill"></i> Ver Endereço
+                </button>
             </div>
         </div>
     </nav>
@@ -234,7 +290,7 @@
         </div>
     </div>
 
-    <!-- JANELA MODAL DE DETALHES (POP-UP) -->
+    <!-- JANELA MODAL DE DETALHES (POP-UP DO CARRO) -->
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -243,7 +299,6 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
-                    <!-- Carrossel Dinâmico de Fotos -->
                     <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner" id="modalFotosContainer">
                             <!-- Fotos injetadas via JS -->
@@ -256,7 +311,6 @@
                         </button>
                     </div>
                     
-                    <!-- Ficha Técnica dentro do Modal -->
                     <div class="p-4">
                         <div class="row g-3">
                             <div class="col-6 col-md-4">
@@ -282,7 +336,6 @@
                             <div><strong>Carroceria:</strong> <span id="modalCarroceria" class="text-capitalize">--</span></div>
                         </div>
 
-                        <!-- Caixa de Descrição Avançada -->
                         <div class="mb-3">
                             <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary"></i> Observações / Detalhes do Repasse:</h6>
                             <div class="desc-box" id="modalDescricao">
@@ -296,6 +349,39 @@
                     <div id="modalBotaoWppContainer" style="width: 60%;">
                         <!-- Botão Wpp dinâmico -->
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JANELA MODAL DE ENDEREÇO (POP-UP DO ENDEREÇO) -->
+    <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 bg-dark text-white">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-geo-alt-fill text-danger"></i> Localização e Contato</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="endereco-box mb-4">
+                        <h6 class="fw-bold text-primary mb-2"><i class="bi bi-map"></i> Endereço Oficial:</h6>
+                        <p class="mb-2 fs-6 fw-semibold text-dark">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
+                        <p class="mb-0 text-muted small"><i class="bi bi-chat-right-quote-fill text-warning"></i> Ao chegar, peça para falar com <strong>Ariel Coimbra da Unidas</strong>.</p>
+                    </div>
+                    
+                    <div class="p-3 bg-light rounded-3 border-start border-warning border-3 mb-3">
+                        <p class="mb-0 text-dark italic" style="font-size: 0.95rem; line-height: 1.5;">
+                            "Meu nome é <strong>Ariel Coimbra</strong>, vou ser seu vendedor pessoal, então não esqueça desse nome, pensou em Unidas lembre de Ariel Coimbra!"
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <span class="text-muted d-block small mb-1">WhatsApp Alternativo:</span>
+                        <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-5 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 bg-light">
+                    <button type="button" class="btn btn-secondary w-100 rounded-3" data-bs-dismiss="modal">Entendido</button>
                 </div>
             </div>
         </div>
@@ -333,7 +419,7 @@
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
                 });
 
-                // LER FRASE E LINK DO WHATSAPP (Coluna L -> Índice 11)
+                // LER FRASE E LINK DO WHATSAPP (Coluna L)
                 let fraseDestaque = "";
                 let linkGrupoWpp = "";
                 
@@ -341,10 +427,9 @@
                     fraseDestaque = linhas[0][11].trim();
                 }
                 if (linhas.length > 1 && linhas[1][11]) {
-                    linkGrupoWpp = lines = linhas[1][11].trim();
+                    linkGrupoWpp = BostonCleanUrl(linhas[1][11].trim());
                 }
 
-                // Configura e exibe o banner se houver frase cadastrada
                 const boxBanner = document.getElementById('box-banner-destaque');
                 if (fraseDestaque && fraseDestaque !== "" && fraseDestaque.toLowerCase() !== "null") {
                     document.getElementById('texto-banner-destaque').innerText = fraseDestaque;
@@ -364,6 +449,7 @@
                 
                 let disponiveis = [];
                 let vendidos = [];
+                let novidadesParaLetreiro = [];
 
                 linhas.forEach((linha, index) => {
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
@@ -402,15 +488,56 @@
                         vendidos.push(carro);
                     } else {
                         disponiveis.push(carro);
+                        if (ehNovidade) {
+                            novidadesParaLetreiro.push(carro);
+                        }
                     }
                 });
 
                 todosOsCarros = [...disponiveis, ...vendidos];
+                
+                // Montar e ativar a faixa de novidades correndo (Fixo no Topo)
+                montarFaixaLetreiro(novidadesParaLetreiro);
+
                 processarEstoque();
 
             } catch (erro) {
                 document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h3>⚠️ Erro ao carregar o estoque</h3></div>';
             }
+        }
+
+        function BostonCleanUrl(url) {
+            return url.replace(/["']/g, "").trim();
+        }
+
+        function montarFaixaLetreiro(listaNovidades) {
+            const divFaixa = document.getElementById('faixa-letreiro-container');
+            const conteudoFaixa = document.getElementById('faixa-letreiro-conteudo');
+
+            if (listaNovidades.length === 0) {
+                divFaixa.style.display = 'none';
+                return;
+            }
+
+            let htmlLetreiro = "";
+            // Duplicamos a lista para criar um loop infinito perfeito na tela
+            const listaDuplicada = [...listaNovidades, ...listaNovidades, ...listaNovidades];
+            
+            listaDuplicada.forEach(carro => {
+                htmlLetreiro += `
+                    <span class="item-ticker" onclick="abrirModalDetalhes(${carro.id})">
+                        <span class="text-warning fw-bold">✨ NOVIDADE:</span> ${carro.modelo} → <span class="text-success fw-bold">Margem de Lucro: ${carro.margem}</span>
+                    </span>
+                `;
+            });
+
+            conteudoFaixa.innerHTML = htmlLetreiro;
+            divFaixa.style.display = 'block';
+        }
+
+        function abrirModalEndereco() {
+            const modalEnd = new bootstrap.Modal(document.getElementById('modalEndereco'));
+            modalEnd.show();
         }
 
         function converterLinkDrive(link) {
@@ -532,7 +659,7 @@
             const esVendido = carro.status.includes('vendido');
             const containerBotao = document.getElementById('modalBotaoWppContainer');
             if (!esVendido) {
-                const textoMensagemWpp = encodeURIComponent(`Olá Ariel, estou vendo os detalhes do veículo *${carro.modelo}* no site e gostaria de negociar.`);
+                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou vendo os detalhes do veículo *${carro.modelo}* no site e gostaria de negociar.`);
                 containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn-wpp-card py-2"><i class="bi bi-whatsapp"></i> Negociar Agora</a>`;
             } else {
                 containerBotao.innerHTML = `<button class="btn-wpp-card bg-secondary border-secondary py-2" disabled>Vendido</button>`;
