@@ -20,7 +20,6 @@
             background-color: var(--bg-principal); 
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             color: #334155;
-            /* Compensação de espaço para a barra fixa não cobrir o topo */
             padding-top: 40px; 
         }
 
@@ -37,20 +36,20 @@
             overflow: hidden;
             white-space: nowrap;
             padding: 8px 0;
-            border-bottom: 2px solid #10b981; /* Borda verde combinando com lucro/margem */
+            border-bottom: 2px solid #10b981; 
             font-size: 0.95rem;
             font-weight: 600;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            z-index: 1050; /* Garante que fica por cima de tudo ao rolar */
+            z-index: 1050; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .faixa-novidades-wrapper {
             display: inline-block;
             padding-left: 100%;
-            animation: letreiroCorrendo 90s linear infinite;
+            animation: letreiroCorrendo 25s linear infinite; /* VELOCIDADE DO LETREIRO AQUI */
         }
         .faixa-novidades-wrapper:hover {
             animation-play-state: paused;
@@ -65,7 +64,6 @@
             100% { transform: translate3d(-100%, 0, 0); }
         }
 
-        /* Banner de Destaque Dinâmico (Coluna L) */
         .banner-destaque {
             background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             color: white;
@@ -175,6 +173,10 @@
         .btn-endereco-header { background-color: var(--azul-destaque); color: white; font-weight: 600; border-radius: 50px; padding: 8px 22px; border: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
         .btn-endereco-header:hover { background-color: #1d4ed8; color: white; transform: scale(1.02); }
 
+        /* NOVO BOTÃO MODO LOJA */
+        .btn-loja-header { background-color: #f59e0b; color: white; font-weight: 600; border-radius: 50px; padding: 8px 22px; border: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.9rem; transition: transform 0.2s; box-shadow: 0 4px 12px rgba(245,158,11,0.2); }
+        .btn-loja-header:hover { background-color: #d97706; color: white; transform: scale(1.02); }
+
         .btn-wpp-card { background-color: var(--azul-escuro); color: white; font-weight: 600; font-size: 0.85rem; border-radius: 10px; width: 100%; padding: 10px; text-align: center; border: 1px solid var(--azul-escuro); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s; }
         .btn-wpp-card:hover { background-color: #25d366; border-color: #25d366; color: white; box-shadow: 0 4px 12px rgba(37,211,102,0.15); }
         
@@ -182,64 +184,34 @@
         .input-busca { border-radius: 50px; padding: 12px 24px; border: 1px solid var(--cinza-borda); font-size: 0.95rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); transition: all 0.2s; }
         .input-busca:focus { border-color: #94a3b8; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.08); }
 
-        /* Estilos do Modal de Fotos e Endereço */
-        .modal-carousel-img {
-            height: 250px;
-            object-fit: contain;
-            background-color: #f8fafc;
-            width: 100%;
-        }
-        @media (min-width: 768px) {
-            .modal-carousel-img { height: 400px; }
-        }
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
-        }
-        .desc-box {
-            background-color: #f1f5f9;
-            border-radius: 12px;
-            padding: 15px;
-            font-size: 0.9rem;
-            color: #334155;
-            border-left: 4px solid var(--azul-destaque);
-        }
-        .endereco-box {
-            background-color: #eff6ff;
-            border-radius: 12px;
-            padding: 18px;
-            border-left: 5px solid var(--azul-destaque);
-        }
+        .modal-carousel-img { height: 250px; object-fit: contain; background-color: #f8fafc; width: 100%; }
+        @media (min-width: 768px) { .modal-carousel-img { height: 400px; } }
+        .modal-content { border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+        .desc-box { background-color: #f1f5f9; border-radius: 12px; padding: 15px; font-size: 0.9rem; color: #334155; border-left: 4px solid var(--azul-destaque); }
+        .endereco-box { background-color: #eff6ff; border-radius: 12px; padding: 18px; border-left: 5px solid var(--azul-destaque); }
+        
+        /* Customizações do Modal Modo Loja */
+        .loja-input-style { border-radius: 10px; padding: 12px; border: 1px solid var(--cinza-borda); font-size: 1.1rem; text-align: center; font-weight: 600; width: 100%; max-width: 280px; margin: 10px auto; display: block; }
     </style>
 </head>
 <body>
 
-    <!-- FAIXA DE NOVIDADES CORRENDO FIXA NO TOPO DA TELA -->
     <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
-        <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo">
-            <!-- Injetado dinamicamente via JavaScript -->
-        </div>
+        <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo"></div>
     </div>
 
-    <!-- Topo do Site -->
     <nav class="navbar navbar-dark shadow-sm text-center">
         <div class="container">
             <span class="navbar-brand mb-1 h1 w-100 fs-2 fw-bold text-white" style="letter-spacing:-0.5px;">ARIEL UNIDAS ATACADO</span>
             <div class="w-100 mb-3 text-white-50 small" style="letter-spacing: 0.5px;">REPASSE E ESTOQUE DE VEÍCULOS EM TEMPO REAL</div>
             <div class="w-100 d-flex justify-content-center gap-2 flex-wrap">
-                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header">
-                    <i class="bi bi-whatsapp"></i> Contato Geral
-                </a>
-                <button class="btn-endereco-header" onclick="abrirModalEndereco()">
-                    <i class="bi bi-geo-alt-fill"></i> Ver Endereço
-                </button>
+                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header"><i class="bi bi-whatsapp"></i> Contato Geral</a>
+                <button class="btn-endereco-header" onclick="abrirModalEndereco()"><i class="bi bi-geo-alt-fill"></i> Ver Endereço</button>
+                <button class="btn-loja-header" onclick="abrirModalLoja()"><i class="bi bi-shop"></i> Em Loja</button>
             </div>
         </div>
     </nav>
 
-    <!-- Barra de Pesquisa Flutuante -->
     <div class="container container-busca">
         <div class="input-group">
             <span class="input-group-text bg-white border-end-0" style="border-radius: 50px 0 0 50px; border: 1px solid var(--cinza-borda); padding-left: 20px;"><i class="bi bi-search text-muted"></i></span>
@@ -247,7 +219,6 @@
         </div>
     </div>
 
-    <!-- BANNER DE DESTAQUE DINÂMICO (Preenchido via Planilha Coluna L) -->
     <div class="container mb-4">
         <div id="box-banner-destaque" class="banner-destaque">
             <div class="row align-items-center text-center text-md-start g-3">
@@ -255,14 +226,11 @@
                     <h4 class="fw-bold mb-1"><i class="bi bi-megaphone-fill text-warning me-2"></i> Destaque do Dia</h4>
                     <p id="texto-banner-destaque" class="mb-0 fs-5 opacity-90">Carregando avisos...</p>
                 </div>
-                <div class="col-12 col-md-4 text-md-end" id="container-botao-banner">
-                    <!-- Injetado dinamicamente -->
-                </div>
+                <div class="col-12 col-md-4 text-md-end" id="container-botao-banner"></div>
             </div>
         </div>
     </div>
 
-    <!-- Filtros Integrados -->
     <div class="container mb-4">
         <div class="card p-2 border-0 bg-white rounded-4 shadow-sm">
             <div class="d-flex flex-wrap justify-content-center justify-content-md-start align-items-center p-1">
@@ -280,7 +248,6 @@
         </div>
     </div>
 
-    <!-- Grid de Carros -->
     <div class="container mb-5">
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
             <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
@@ -290,7 +257,33 @@
         </div>
     </div>
 
-    <!-- JANELA MODAL DE DETALHES (POP-UP DO CARRO) -->
+    <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 bg-warning text-dark">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-shop"></i> Área do Cliente - Modo Loja</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <div id="etapa-loja-senha">
+                        <h6 class="fw-bold mb-3 text-secondary">Digite a senha de liberação para revelar placas completas:</h6>
+                        <input type="password" id="input-loja-senha" class="form-control loja-input-style" placeholder="****">
+                        <button class="btn btn-warning fw-bold w-100 mt-3 rounded-3 py-2" onclick="verificarSenhaLoja()">Validar Senha</button>
+                    </div>
+
+                    <div id="etapa-loja-placa" style="display: none;">
+                        <div class="alert alert-success small py-2 mb-3">🔓 Acesso Autorizado!</div>
+                        <h6 class="fw-bold mb-3 text-secondary">Insira a placa do carro que você está vendo no pátio:</h6>
+                        <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase" placeholder="ABC1D23" maxlength="7">
+                        <button class="btn btn-success fw-bold w-100 mt-3 rounded-3 py-2" onclick="buscarCarroPorPlacaLoja()">Puxar Veículo</button>
+                        
+                        <div id="resultado-busca-loja" class="mt-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
@@ -300,9 +293,7 @@
                 </div>
                 <div class="modal-body p-0">
                     <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner" id="modalFotosContainer">
-                            <!-- Fotos injetadas via JS -->
-                        </div>
+                        <div class="carousel-inner" id="modalFotosContainer"></div>
                         <button class="carousel-control-prev" type="button" data-bs-target="#carrosselVeiculo" data-bs-slide="prev">
                             <span class="carousel-control-prev-icon bg-dark rounded-circle" aria-hidden="true"></span>
                         </button>
@@ -338,23 +329,18 @@
 
                         <div class="mb-3">
                             <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary"></i> Observações / Detalhes do Repasse:</h6>
-                            <div class="desc-box" id="modalDescricao">
-                                Nenhuma observação adicional cadastrada para este veículo.
-                            </div>
+                            <div class="desc-box" id="modalDescricao">Nenhuma observação adicional cadastrada para este veículo.</div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between">
                     <button type="button" class="btn btn-secondary rounded-3 px-4" data-bs-dismiss="modal">Fechar</button>
-                    <div id="modalBotaoWppContainer" style="width: 60%;">
-                        <!-- Botão Wpp dinâmico -->
-                    </div>
+                    <div id="modalBotaoWppContainer" style="width: 60%;"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JANELA MODAL DE ENDEREÇO (POP-UP DO ENDEREÇO) -->
     <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -368,13 +354,11 @@
                         <p class="mb-2 fs-6 fw-semibold text-dark">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
                         <p class="mb-0 text-muted small"><i class="bi bi-chat-right-quote-fill text-warning"></i> Ao chegar, peça para falar com <strong>Ariel Coimbra da Unidas</strong>.</p>
                     </div>
-                    
                     <div class="p-3 bg-light rounded-3 border-start border-warning border-3 mb-3">
                         <p class="mb-0 text-dark italic" style="font-size: 0.95rem; line-height: 1.5;">
                             "Meu nome é <strong>Ariel Coimbra</strong>, vou ser seu vendedor pessoal, então não esqueça desse nome, pensou em Unidas lembre de Ariel Coimbra!"
                         </p>
                     </div>
-
                     <div class="text-center mt-3">
                         <span class="text-muted d-block small mb-1">WhatsApp Alternativo:</span>
                         <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-5 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
@@ -394,6 +378,7 @@
         let categoriaAtiva = 'todos';
         let ordenarPorMargemAtivo = false;
         let termoPesquisa = '';
+        let senhaSalvaNaPlanilha = ''; // Armazenará dinamicamente o valor de L3
 
         function identificarCarroceria(modelo) {
             const mod = modelo.toLowerCase();
@@ -419,22 +404,20 @@
                     return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
                 });
 
-                // LER FRASE E LINK DO WHATSAPP (Coluna L)
+                // CARREGAR SENHA DA COLUNA L LINHA 3 (Índice de linha 2, Índice de Coluna 11)
+                if (linhas.length > 2 && linhas[2][11]) {
+                    senhaSalvaNaPlanilha = linhas[2][11].trim();
+                }
+
                 let fraseDestaque = "";
                 let linkGrupoWpp = "";
-                
-                if (linhas.length > 0 && linhas[0][11]) {
-                    fraseDestaque = linhas[0][11].trim();
-                }
-                if (linhas.length > 1 && linhas[1][11]) {
-                    linkGrupoWpp = BostonCleanUrl(linhas[1][11].trim());
-                }
+                if (linhas.length > 0 && linhas[0][11]) fraseDestaque = linhas[0][11].trim();
+                if (linhas.length > 1 && depthClean(linhas[1][11])) linkGrupoWpp = depthClean(linhas[1][11].trim());
 
                 const boxBanner = document.getElementById('box-banner-destaque');
                 if (fraseDestaque && fraseDestaque !== "" && fraseDestaque.toLowerCase() !== "null") {
                     document.getElementById('texto-banner-destaque').innerText = fraseDestaque;
                     const containerBotao = document.getElementById('container-botao-banner');
-                    
                     if (linkGrupoWpp && linkGrupoWpp.startsWith('http')) {
                         containerBotao.innerHTML = `<a href="${linkGrupoWpp}" target="_blank" class="btn-banner-wpp"><i class="bi bi-whatsapp"></i> Entrar no Grupo</a>`;
                     } else {
@@ -463,11 +446,11 @@
                     const fotoCapaRaw = linha[8] || ''; 
                     const fotosCarrosselRaw = linha[9] || ''; 
                     const descricaoRaw = linha[10] ? linha[10] : 'Sem observações adicionais para este veículo.'; 
-                    
                     const modeloTextoCompleto = linha[1].trim();
 
                     const carro = {
                         id: index,
+                        placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I', // Guardando a placa original
                         placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                         modelo: modeloTextoCompleto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
                         cor: AppendingCor(linha[2]),
@@ -488,17 +471,12 @@
                         vendidos.push(carro);
                     } else {
                         disponiveis.push(carro);
-                        if (ehNovidade) {
-                            novidadesParaLetreiro.push(carro);
-                        }
+                        if (ehNovidade) novidadesParaLetreiro.push(carro);
                     }
                 });
 
                 todosOsCarros = [...disponiveis, ...vendidos];
-                
-                // Montar e ativar a faixa de novidades correndo (Fixo no Topo)
                 montarFaixaLetreiro(novidadesParaLetreiro);
-
                 processarEstoque();
 
             } catch (erro) {
@@ -506,8 +484,8 @@
             }
         }
 
-        function BostonCleanUrl(url) {
-            return url.replace(/["']/g, "").trim();
+        function depthClean(url) {
+            return url ? url.replace(/["']/g, "").trim() : '';
         }
 
         function montarFaixaLetreiro(listaNovidades) {
@@ -520,7 +498,6 @@
             }
 
             let htmlLetreiro = "";
-            // Duplicamos a lista para criar um loop infinito perfeito na tela
             const listaDuplicada = [...listaNovidades, ...listaNovidades, ...listaNovidades];
             
             listaDuplicada.forEach(carro => {
@@ -535,9 +512,73 @@
             divFaixa.style.display = 'block';
         }
 
+        /* FUNÇÕES NOVAS DO MODO LOJA */
+        function abrirModalLoja() {
+            document.getElementById('etapa-loja-senha').style.display = 'block';
+            document.getElementById('etapa-loja-placa').style.display = 'none';
+            document.getElementById('input-loja-senha').value = '';
+            document.getElementById('input-loja-placa').value = '';
+            document.getElementById('resultado-busca-loja').innerHTML = '';
+            
+            const mLoja = new bootstrap.Modal(document.getElementById('modalLoja'));
+            mLoja.show();
+        }
+
+        function verificarSenhaLoja() {
+            const senhaDigitada = document.getElementById('input-loja-senha').value.trim();
+            if(!senhaDigitada) {
+                alert('Digite uma senha!');
+                return;
+            }
+            if(senhaDigitada === senhaSalvaNaPlanilha) {
+                document.getElementById('etapa-loja-senha').style.display = 'none';
+                document.getElementById('etapa-loja-placa').style.display = 'block';
+            } else {
+                alert('Senha incorreta! Verifique o valor cadastrado na sua Planilha Google (Coluna L, Linha 3).');
+            }
+        }
+
+        function buscarCarroPorPlacaLoja() {
+            const placaBuscada = document.getElementById('input-loja-placa').value.toUpperCase().trim();
+            const divResultado = document.getElementById('resultado-busca-loja');
+            
+            if(!placaBuscada) {
+                alert('Por favor, insira a placa do veículo.');
+                return;
+            }
+
+            // Busca nas placas originais que salvamos
+            const carroEncontrado = todosOsCarros.find(c => c.placaReal === placaBuscada);
+
+            if(carroEncontrado) {
+                divResultado.innerHTML = `
+                    <div class="card border-success text-start rounded-3 shadow-sm">
+                        <div class="card-header bg-success text-white fw-bold py-2">🚗 Carro Localizado no Pátio!</div>
+                        <div class="card-body bg-white p-3">
+                            <h5 class="fw-bold text-dark mb-2">${carroEncontrado.modelo}</h5>
+                            <p class="mb-1"><strong>Placa Completa:</strong> <span class="badge bg-dark fs-6">${carroEncontrado.placaReal}</span></p>
+                            <p class="mb-1"><strong>Cor:</strong> ${carroEncontrado.cor} | <strong>KM:</strong> ${carroEncontrado.km}</p>
+                            <p class="mb-1"><strong>Margem de Lucro:</strong> <span class="text-success fw-bold">${carroEncontrado.margem}</span></p>
+                            <p class="mb-3"><strong>Valor Atacado:</strong> <span class="text-primary fw-bold fs-5">${carroEncontrado.valor}</span></p>
+                            <button class="btn btn-primary btn-sm w-100" onclick="fecharLojaEVerCarro(${carroEncontrado.id})">Abrir Ficha de Fotos Completa</button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                divResultado.innerHTML = `<div class="alert alert-danger py-2 small">⚠️ Nenhum carro com a placa <strong>"${placaBuscada}"</strong> foi encontrado no pátio ativo.</div>`;
+            }
+        }
+
+        function fecharLojaEVerCarro(idCarro) {
+            bootstrap.Modal.getInstance(document.getElementById('modalLoja')).hide();
+            // Abre o modal tradicional passando a placa real revelada temporariamente nela
+            const carro = todosOsCarros.find(c => c.id === idCarro);
+            abrirModalDetalhes(idCarro);
+            document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
+        }
+
         function abrirModalEndereco() {
-            const modalEnd = new bootstrap.Modal(document.getElementById('modalEndereco'));
-            modalEnd.show();
+            new bootstrap.Modal(document.getElementById('modalEndereco')).show();
         }
 
         function converterLinkDrive(link) {
@@ -554,13 +595,11 @@
         }
         
         function AppendingCor(valor) {
-            if(!valor) return 'Não informada';
-            return valor;
+            return valor || 'Não informada';
         }
 
         function ServerCleanValue(val) {
-            if(!val) return 'N/A';
-            return val.replace(/^"|"$/g, '').trim();
+            return val ? val.replace(/^"|"$/g, '').trim() : 'N/A';
         }
 
         function filtrarPorTexto() {
@@ -583,7 +622,7 @@
                 listaFiltrada = listaFiltrada.filter(c => 
                     c.modelo.toLowerCase().includes(termoPesquisa) ||
                     c.cor.toLowerCase().includes(termoPesquisa) ||
-                    c.placa.toLowerCase().includes(termoPesquisa)
+                    c.placaReal.toLowerCase().includes(termoPesquisa)
                 );
             }
 
@@ -608,11 +647,7 @@
 
         function toggleMargem(botao) {
             ordenarPorMargemAtivo = !ordenarPorMargemAtivo;
-            if (ordenarPorMargemAtivo) {
-                botao.classList.add('active-margem');
-            } else {
-                botao.classList.remove('active-margem');
-            }
+            botao.classList.toggle('active-margem', ordenarPorMargemAtivo);
             processarEstoque();
         }
 
@@ -624,7 +659,7 @@
             document.getElementById('modalValor').innerText = carro.valor;
             document.getElementById('modalMargem').innerText = carro.margem;
             document.getElementById('modalFipe').innerText = carro.fipe;
-            document.getElementById('modalPlaca').innerText = carro.placa;
+            document.getElementById('modalPlaca').innerText = carro.placa; // Mantém oculta para o cliente comum
             document.getElementById('modalCor').innerText = carro.cor;
             document.getElementById('modalKm').innerText = carro.km;
             document.getElementById('modalCarroceria').innerText = carro.carroceria;
@@ -634,9 +669,7 @@
             containerFotos.innerHTML = '';
             
             let arrFotos = [];
-            if (carro.fotoCapa.trim() !== '') {
-                arrFotos.push(carro.fotoCapa);
-            }
+            if (carro.fotoCapa.trim() !== '') arrFotos.push(carro.fotoCapa);
             if (carro.fotosCarrossel.trim() !== '') {
                 const extras = carro.fotosCarrossel.split(',').filter(f => f.trim() !== '');
                 arrFotos = arrFotos.concat(extras);
@@ -665,8 +698,7 @@
                 containerBotao.innerHTML = `<button class="btn-wpp-card bg-secondary border-secondary py-2" disabled>Vendido</button>`;
             }
 
-            const meuModal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
-            meuModal.show();
+            new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
         }
 
         function renderizarCards(lista) {
