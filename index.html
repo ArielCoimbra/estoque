@@ -23,16 +23,37 @@
             padding-top: 36px; 
         }
 
+        /* BARRA DE NAVEGAÇÃO PRINCIPAL */
         .navbar { 
             background: var(--azul-escuro); 
             border-bottom: 1px solid rgba(255,255,255,0.1); 
-            padding: 1rem 0;
-        }
-        @media (max-width: 767px) {
-            .navbar { padding: 0.5rem 0; }
+            padding: 1.25rem 0;
+            position: relative;
+            z-index: 100; /* Garante que os botões fiquem acima de tudo e clicáveis */
         }
 
-        /* FAIXA DE NOVIDADES FIXA NO TOPO (TICKER PROPAGANDA) */
+        /* CONTAINER DOS BOTÕES DO HEADER */
+        .btn-header-group { 
+            display: flex; 
+            justify-content: flex-end; 
+            align-items: center;
+            gap: 12px; 
+        }
+        
+        .btn-whatsapp-header, .btn-endereco-header, .btn-loja-header { 
+            color: white; font-weight: 600; border-radius: 30px; border: none;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
+            font-size: 0.9rem; padding: 8px 20px; text-decoration: none; transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-whatsapp-header { background-color: #25d366; box-shadow: 0 4px 10px rgba(37,211,102,0.15); }
+        .btn-whatsapp-header:hover { background-color: #20ba5a; color: white; }
+        .btn-endereco-header { background-color: var(--azul-destaque); box-shadow: 0 4px 10px rgba(37,99,235,0.15); }
+        .btn-endereco-header:hover { background-color: #1d4ed8; color: white; }
+        .btn-loja-header { background-color: #f59e0b; box-shadow: 0 4px 10px rgba(245,158,11,0.15); }
+        .btn-loja-header:hover { background-color: #d97706; color: white; }
+
+        /* FAIXA DE NOVIDADES FIXA NO TOPO (ISOLADA) */
         .faixa-novidades-container {
             background-color: #1e293b;
             color: #f8fafc;
@@ -52,7 +73,7 @@
         .faixa-novidades-wrapper {
             display: inline-block;
             padding-left: 100%;
-            animation: letreiroCorrendo 90s linear infinite;
+            animation: letreiroCorrendo 85s linear infinite; /* Altere aqui os segundos se quiser mais rápido ou devagar */
         }
         .faixa-novidades-wrapper:hover {
             animation-play-state: paused;
@@ -67,6 +88,7 @@
             100% { transform: translate3d(-100%, 0, 0); }
         }
 
+        /* BANNER EM DESTAQUE */
         .banner-destaque {
             background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
             color: white;
@@ -75,7 +97,6 @@
             box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
             display: none;
-            animation: fadeIn 0.5s ease-in-out;
         }
         .btn-banner-wpp {
             background-color: #25d366;
@@ -91,7 +112,7 @@
             box-shadow: 0 4px 15px rgba(37,211,102,0.3);
         }
         
-        /* Card de Carro Clicável */
+        /* CARD DOS CARROS */
         .card-carro { 
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 1px solid var(--cinza-borda); 
@@ -150,22 +171,6 @@
         @media (min-width: 768px) { .detalhe-item { font-size: 0.85rem; margin-bottom: 4px; padding-bottom: 2px; } }
         .detalhe-item strong { color: var(--texto-mutado); font-weight: 500; }
         
-        /* BOTÕES HEADER COMPACTADOS NO MOBILE */
-        .btn-header-group { display: flex; justify-content: center; gap: 6px; width: 100%; }
-        .btn-whatsapp-header, .btn-endereco-header, .btn-loja-header { 
-            color: white; font-weight: 600; border-radius: 30px; border: none;
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
-            font-size: 0.8rem; padding: 6px 12px; text-decoration: none; transition: transform 0.2s;
-        }
-        .btn-whatsapp-header { background-color: #25d366; box-shadow: 0 4px 10px rgba(37,211,102,0.15); }
-        .btn-endereco-header { background-color: var(--azul-destaque); box-shadow: 0 4px 10px rgba(37,99,235,0.15); }
-        .btn-loja-header { background-color: #f59e0b; box-shadow: 0 4px 10px rgba(245,158,11,0.15); }
-        
-        @media (min-width: 768px) {
-            .btn-whatsapp-header, .btn-endereco-header, .btn-loja-header { font-size: 0.9rem; padding: 8px 22px; gap: 8px; }
-            .btn-header-group { gap: 8px; }
-        }
-
         .btn-wpp-card { background-color: var(--azul-escuro); color: white; font-weight: 600; font-size: 0.75rem; border-radius: 8px; width: 100%; padding: 6px; text-align: center; border: 1px solid var(--azul-escuro); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
         @media (min-width: 768px) { .btn-wpp-card { font-size: 0.85rem; padding: 10px; border-radius: 10px; gap: 8px; } }
         .btn-wpp-card:hover { background-color: #25d366; border-color: #25d366; color: white; }
@@ -175,21 +180,21 @@
         .input-busca { border-radius: 50px; padding: 8px 18px; border: 1px solid var(--cinza-borda); font-size: 0.85rem; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
         @media (min-width: 768px) { .input-busca { padding: 12px 24px; font-size: 0.95rem; } }
 
-        /* SCROLL HORIZONTAL DE CATEGORIAS NO MOBILE */
+        /* FILTROS DE CATEGORIA */
         .wrapper-filtros { background: #ffffff; border-radius: 12px; padding: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); border: 1px solid var(--cinza-borda); }
         @media (min-width: 768px) { .wrapper-filtros { border-radius: 16px; padding: 8px; } }
         
         .scroll-categorias { 
             display: flex; overflow-x: auto; white-space: nowrap; 
-            gap: 2px; padding-bottom: 2px; -webkit-overflow-scrolling: touch;
+            gap: 4px; padding-bottom: 2px; -webkit-overflow-scrolling: touch;
         }
-        .scroll-categorias::-webkit-scrollbar { display: none; } /* Esconde barra feia de scroll */
+        .scroll-categorias::-webkit-scrollbar { display: none; } 
         
-        .btn-filtro { border-radius: 30px; padding: 5px 12px; font-weight: 500; border: 1px solid transparent; background: transparent; color: #475569; font-size: 0.8rem; flex-shrink: 0; }
-        @media (min-width: 768px) { .btn-filtro { padding: 8px 20px; font-size: 0.9rem; border: 1px solid var(--cinza-borda); background: #ffffff; margin: 4px; } }
+        .btn-filtro { border-radius: 30px; padding: 6px 14px; font-weight: 500; border: 1px solid var(--cinza-borda); background: #ffffff; color: #475569; font-size: 0.8rem; flex-shrink: 0; }
+        @media (min-width: 768px) { .btn-filtro { padding: 8px 20px; font-size: 0.9rem; margin: 4px; } }
         .btn-filtro:hover { background: #f8fafc; color: var(--azul-escuro); }
-        .btn-filtro.active { background-color: var(--azul-escuro)!important; color: white!important; }
-        .btn-filtro.btn-margem-toggle.active-margem { background-color: #10b981!important; color: white!important; }
+        .btn-filtro.active { background-color: var(--azul-escuro)!important; color: white!important; border-color: var(--azul-escuro)!important; }
+        .btn-filtro.btn-margem-toggle.active-margem { background-color: #10b981!important; color: white!important; border-color: #10b981!important; }
 
         .modal-carousel-img { height: 220px; object-fit: contain; background-color: #f8fafc; width: 100%; }
         @media (min-width: 768px) { .modal-carousel-img { height: 400px; } }
@@ -197,29 +202,51 @@
         .desc-box { background-color: #f1f5f9; border-radius: 8px; padding: 10px; font-size: 0.85rem; color: #334155; border-left: 4px solid var(--azul-destaque); }
         .endereco-box { background-color: #eff6ff; border-radius: 8px; padding: 12px; border-left: 5px solid var(--azul-destaque); }
         .loja-input-style { border-radius: 10px; padding: 10px; border: 1px solid var(--cinza-borda); font-size: 1.1rem; text-align: center; font-weight: 600; width: 100%; max-width: 250px; margin: 10px auto; display: block; }
+
+        /* REGRAS EXCLUSIVAS DE AJUSTE PARA TELAS GRANDES (PC) */
+        @media (min-width: 768px) {
+            .navbar .row-pc-align {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+            .titulo-container-pc {
+                text-align: left;
+                max-width: 50%;
+            }
+        }
+
+        /* REGRAS EXCLUSIVAS PARA MOBILE (CELULAR) */
+        @media (max-width: 767px) {
+            .navbar { padding: 0.5rem 0; }
+            .btn-header-group { display: flex; justify-content: center; gap: 6px; width: 100%; margin-top: 5px; }
+            .btn-whatsapp-header, .btn-endereco-header, .btn-loja-header { font-size: 0.8rem; padding: 6px 12px; flex-grow: 1; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- FAIXA DE NOVIDADES CORRENDO FIXA NO TOPO DA TELA -->
     <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
         <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo"></div>
     </div>
 
-    <!-- Topo do Site -->
-    <nav class="navbar navbar-dark shadow-sm text-center">
+    <nav class="navbar navbar-dark shadow-sm">
         <div class="container px-2">
-            <span class="navbar-brand mb-0 h1 w-100 fs-4 fw-bold text-white" style="letter-spacing:-0.5px;">ARIEL UNIDAS ATACADO</span>
-            <div class="w-100 mb-2 text-white-50" style="letter-spacing: 0.3px; font-size: 0.7rem;">REPASSE E ESTOQUE EM TEMPO REAL</div>
-            <div class="btn-header-group">
-                <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header"><i class="bi bi-whatsapp"></i> Contato</a>
-                <button class="btn-endereco-header" onclick="abrirModalEndereco()"><i class="bi bi-geo-alt-fill"></i> Endereço</button>
-                <button class="btn-loja-header" onclick="abrirModalLoja()"><i class="bi bi-shop"></i> Em Loja</button>
+            <div class="row-pc-align w-100">
+                <div class="titulo-container-pc text-center text-md-start">
+                    <span class="navbar-brand mb-0 h1 fs-4 fw-bold text-white d-block" style="letter-spacing:-0.5px; margin-right: 0;">ARIEL UNIDAS ATACADO</span>
+                    <span class="text-white-50 d-block" style="letter-spacing: 0.3px; font-size: 0.7rem;">REPASSE E ESTOQUE EM TEMPO REAL</span>
+                </div>
+                <div class="btn-header-group">
+                    <a href="https://wa.me/5551986597751" target="_blank" class="btn-whatsapp-header"><i class="bi bi-whatsapp"></i> Contato</a>
+                    <button class="btn-endereco-header" onclick="abrirModalEndereco()"><i class="bi bi-geo-alt-fill"></i> Endereço</button>
+                    <button class="btn-loja-header" onclick="abrirModalLoja()"><i class="bi bi-shop"></i> Em Loja</button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <!-- Barra de Pesquisa Flutuante -->
     <div class="container container-busca">
         <div class="input-group">
             <span class="input-group-text bg-white border-end-0" style="border-radius: 50px 0 0 50px; border: 1px solid var(--cinza-borda); padding-left: 15px;"><i class="bi bi-search text-muted small"></i></span>
@@ -227,7 +254,6 @@
         </div>
     </div>
 
-    <!-- BANNER DE DESTAQUE DINÂMICO -->
     <div class="container mb-3 px-2">
         <div id="box-banner-destaque" class="banner-destaque">
             <div class="row align-items-center text-center text-md-start g-2">
@@ -240,7 +266,6 @@
         </div>
     </div>
 
-    <!-- Filtros Integrados com Scroll Horizontal no Mobile -->
     <div class="container mb-3 px-2">
         <div class="wrapper-filtros">
             <div class="scroll-categorias" id="barra-categorias">
@@ -256,7 +281,6 @@
         </div>
     </div>
 
-    <!-- Grid de Carros (2 colunas perfeitas no Mobile) -->
     <div class="container mb-5 px-2">
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
             <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
@@ -266,7 +290,6 @@
         </div>
     </div>
 
-    <!-- JANELA MODAL MODO LOJA -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
@@ -292,7 +315,6 @@
         </div>
     </div>
 
-    <!-- JANELA MODAL DE DETALHES -->
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered mx-2">
             <div class="modal-content">
@@ -343,14 +365,13 @@
                     </div>
                 </div>
                 <div class="modal-footer border-0 p-2 bg-light d-flex justify-content-between">
-                    <button type="button" class="btn btn-secondary btn-sm rounded-3 px-3" data-bs-modal="hide" data-bs-dismiss="modal">Voltar</button>
+                    <button type="button" class="btn btn-secondary btn-sm rounded-3 px-3" data-bs-dismiss="modal">Voltar</button>
                     <div id="modalBotaoWppContainer" style="width: 65%;"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JANELA MODAL DE ENDEREÇO -->
     <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
@@ -544,6 +565,15 @@
             const carro = todosOsCarros.find(c => c.id === idCarro);
             abrirModalDetalhes(idCarro);
             document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark fw-bold">${carro.placaReal}</span>`;
+        }
+
+        function abrirModalLoja() {
+            document.getElementById('etapa-loja-senha').style.display = 'block';
+            document.getElementById('etapa-loja-placa').style.display = 'none';
+            document.getElementById('input-loja-senha').value = '';
+            document.getElementById('input-loja-placa').value = '';
+            document.getElementById('resultado-busca-loja').innerHTML = '';
+            new bootstrap.Modal(document.getElementById('modalLoja')).show(); 
         }
 
         function abrirModalEndereco() { new bootstrap.Modal(document.getElementById('modalEndereco')).show(); }
