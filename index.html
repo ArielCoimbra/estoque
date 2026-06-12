@@ -28,7 +28,10 @@
             background-color: var(--bg-site); 
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: var(--text-main);
-            padding-top: 130px; /* Ajuste para o menu fixo + letreiro */
+            padding-top: 140px; /* Espaço ideal para o letreiro + menu fixo no celular */
+        }
+        @media (min-width: 768px) {
+            body { padding-top: 130px; }
         }
 
         /* LETREIRO EXCLUSIVO NO TOPO */
@@ -72,7 +75,7 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 1rem 0;
+            padding: 0.8rem 0;
             position: fixed;
             top: 32px; /* Logo abaixo do letreiro */
             left: 0;
@@ -82,10 +85,14 @@
         }
         .navbar-brand-title {
             font-weight: 800;
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             letter-spacing: -0.5px;
             color: var(--brand-dark);
             text-transform: uppercase;
+        }
+        @media (min-width: 768px) {
+            .navbar-brand-title { font-size: 1.4rem; }
+            .navbar-premium { padding: 1rem 0; }
         }
 
         /* GAVETA LATERAL DO MENU (OFFCANVAS) */
@@ -93,7 +100,7 @@
             border-left: none;
             background-color: var(--brand-dark);
             color: white;
-            width: 320px;
+            width: 300px;
         }
         .offcanvas-header {
             border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -129,7 +136,7 @@
             background: #ffffff;
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 6px 12px;
+            padding: 4px 10px;
             box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03);
             transition: all 0.3s;
         }
@@ -140,8 +147,8 @@
         .search-input {
             border: none;
             outline: none;
-            padding: 10px;
-            font-size: 1rem;
+            padding: 8px;
+            font-size: 0.95rem;
             font-weight: 500;
             color: var(--brand-dark);
             width: 100%;
@@ -151,42 +158,41 @@
         .banner-premium {
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             border-radius: 20px;
-            padding: 30px;
+            padding: 20px;
             color: white;
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.03);
             box-shadow: 0 20px 40px -15px rgba(15,23,42,0.15);
         }
+        @media (min-width: 768px) {
+            .banner-premium { padding: 30px; }
+        }
 
         /* BARRA DE FILTROS ESTILO APP */
         .filter-scroll-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             overflow-x: auto;
             padding: 5px 0 15px 0;
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
         }
         .filter-scroll-container::-webkit-scrollbar {
-            display: none; /* Chrome/Safari */
+            display: none;
         }
         .btn-filter-pill {
             background: #ffffff;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 8px 20px;
+            padding: 6px 16px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 0.88rem;
+            font-size: 0.82rem;
             white-space: nowrap;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-        }
-        .btn-filter-pill:hover {
-            background: #fafafa;
-            border-color: #cbd5e1;
+            gap: 4px;
         }
         .btn-filter-pill.active {
             background: var(--brand-dark)!important;
@@ -199,130 +205,176 @@
             border-color: var(--brand-success)!important;
         }
 
-        /* CARDS DOS VEÍCULOS - ESTILO PREMIUM DE ALTO PADRÃO */
+        /* CARDS DOS VEÍCULOS - AJUSTADO PARA MOBILE */
         .card-vehicle {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
+            border-radius: 16px;
             overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.215, 0.610, 0.355, 1);
+            transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
             display: flex;
             flex-direction: column;
             height: 100%;
             position: relative;
             cursor: pointer;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01);
         }
-        .card-vehicle:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.07);
-            border-color: #cbd5e1;
+        @media (min-width: 768px) {
+            .card-vehicle { border-radius: 24px; }
+            .card-vehicle:hover { transform: translateY(-6px); box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.07); border-color: #cbd5e1; }
         }
+        
         .img-vehicle-wrapper {
             position: relative;
             background-color: #f8fafc;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .img-vehicle {
-            height: 180px;
-            object-fit: cover;
+            height: 130px;
+            object-fit: contain;
             width: 100%;
-            transition: transform 0.5s ease;
+            padding: 6px;
         }
         @media (min-width: 768px) {
-            .img-vehicle { height: 230px; object-fit: contain; padding: 12px; }
-        }
-        .card-vehicle:hover .img-vehicle {
-            transform: scale(1.02);
+            .img-vehicle { height: 220px; padding: 12px; }
         }
 
-        /* BADGES DISCRETAS */
-        .tag-status { position: absolute; top: 16px; left: 16px; font-size: 0.7rem; font-weight: 700; padding: 6px 12px; border-radius: 12px; letter-spacing: 0.5px; z-index: 10; text-transform: uppercase; }
+        /* BADGES EXCLUSIVAS MOBILE */
+        .tag-status { position: absolute; top: 10px; left: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; letter-spacing: 0.3px; z-index: 10; text-transform: uppercase; }
         .tag-status-disponivel { background: rgba(16, 185, 129, 0.95); color: white; }
         .tag-status-vendido { background: rgba(100, 116, 139, 0.9); color: white; }
         
-        .tag-feature { position: absolute; top: 16px; right: 16px; font-size: 0.7rem; font-weight: 700; padding: 6px 12px; border-radius: 12px; color: white; z-index: 10; }
+        .tag-feature { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; color: white; z-index: 10; }
         .tag-feature-novidade { background: #f59e0b; }
-        .tag-feature-baixou { background: #ef4444; top: 48px; }
+        .tag-feature-baixou { background: #ef4444; top: 34px; }
 
         .card-vehicle-body {
-            padding: 1.5rem;
+            padding: 0.9rem;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             flex-grow: 1;
         }
+        @media (min-width: 768px) {
+            .card-vehicle-body { padding: 1.4rem; }
+        }
+
         .vehicle-title {
-            font-size: 1.15rem;
+            font-size: 0.9rem;
             font-weight: 700;
             color: var(--brand-dark);
             letter-spacing: -0.3px;
-            margin-bottom: 12px;
-            line-height: 1.3;
+            margin-bottom: 8px;
+            line-height: 1.2;
         }
+        @media (min-width: 768px) {
+            .vehicle-title { font-size: 1.15rem; margin-bottom: 12px; }
+        }
+
+        /* GRID DE ESPECIFICAÇÕES NO MOBILE */
         .specs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 4px;
+            margin-bottom: 10px;
         }
+        @media (min-width: 768px) {
+            .specs-grid { gap: 8px; margin-bottom: 16px; }
+        }
+
         .spec-pill {
             background: #f8fafc;
             border: 1px solid #f1f5f9;
-            padding: 6px 10px;
-            border-radius: 10px;
-            font-size: 0.78rem;
+            padding: 4px 6px;
+            border-radius: 8px;
+            font-size: 0.7rem;
             font-weight: 600;
             color: #475569;
+            line-height: 1.1;
         }
+        @media (min-width: 768px) {
+            .spec-pill { padding: 6px 10px; font-size: 0.78rem; }
+        }
+
         .spec-pill span {
             color: var(--text-muted);
             font-weight: 500;
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.58rem;
             text-transform: uppercase;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
+        }
+        @media (min-width: 768px) {
+            .spec-pill span { font-size: 0.7rem; margin-bottom: 2px; }
         }
 
+        /* CONTAINER DE PREÇO INTERNO */
         .price-container {
             border-top: 1px solid var(--border-color);
-            padding-top: 14px;
+            padding-top: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .price-label {
-            font-size: 0.68rem;
+            font-size: 0.58rem;
             font-weight: 700;
             color: var(--text-muted);
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
             display: block;
         }
+        @media (min-width: 768px) {
+            .price-label { font-size: 0.68rem; }
+        }
+
         .price-value {
-            font-size: 1.45rem;
+            font-size: 1.05rem;
             font-weight: 800;
             color: var(--brand-primary);
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
+        }
+        @media (min-width: 768px) {
+            .price-value { font-size: 1.45rem; }
+        }
+
+        .btn-acessar-card {
+            font-size: 0.65rem;
+            padding: 4px 10px;
+        }
+        @media (min-width: 768px) {
+            .btn-acessar-card { font-size: 0.75rem; padding: 6px 14px; }
+        }
+
+        /* DETALHES DAS FOTOS NO MODAL */
+        .modal-carousel-img {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            background-color: #090d16;
+        }
+        @media (min-width: 768px) {
+            .modal-carousel-img { height: 450px; }
         }
 
         /* MODAIS REESTILIZADOS */
         .modal-content {
-            border-radius: 28px;
+            border-radius: 20px;
             border: none;
-            box-shadow: 0 30px 60px -15px rgba(0,0,0,0.3);
         }
+        @media (min-width: 768px) {
+            .modal-content { border-radius: 28px; }
+        }
+        
         .loja-input-style {
             border-radius: 14px;
-            padding: 14px;
-            font-size: 1.2rem;
-            letter-spacing: 2px;
+            padding: 12px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
             font-weight: 700;
             border: 2px solid var(--border-color);
             text-align: center;
-        }
-        .loja-input-style:focus {
-            border-color: var(--brand-dark);
-            box-shadow: none;
         }
 
         .btn-premium-action {
@@ -332,11 +384,6 @@
             border-radius: 14px;
             padding: 12px;
             border: none;
-            transition: all 0.2s;
-        }
-        .btn-premium-action:hover {
-            background: #1e293b;
-            color: white;
         }
     </style>
 </head>
@@ -349,12 +396,12 @@
 
     <!-- NAVBAR PREMIUM FIXA -->
     <nav class="navbar-premium">
-        <div class="container d-flex justify-content-between align-items-center">
+        <div class="container d-flex justify-content-between align-items-center px-3">
             <span class="navbar-brand-title" onclick="window.location.reload()" style="cursor:pointer;">ARIEL UNIDAS</span>
             
             <!-- BOTÃO DO MENU HAMBÚRGUER -->
             <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
-                <i class="bi bi-list fs-1"></i>
+                <i class="bi bi-list fs-2"></i>
             </button>
         </div>
     </nav>
@@ -362,10 +409,10 @@
     <!-- GAVETA LATERAL DE NAVEGAÇÃO (MENU OFFCANVAS) -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
         <div class="offcanvas-header d-flex justify-content-between align-items-center">
-            <h5 class="offcanvas-title fs-4" id="menuLateralLabel">Navegação</h5>
+            <h5 class="offcanvas-title fs-5" id="menuLateralLabel">Navegação</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body p-4">
+        <div class="offcanvas-body p-3">
             <div class="d-flex flex-column h-100 justify-content-between">
                 <div>
                     <a href="#" class="menu-link-item active-item" data-bs-dismiss="offcanvas"><i class="bi bi-car-front-fill"></i> Estoque Completo</a>
@@ -373,8 +420,8 @@
                     <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalEndereco, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-geo-alt-fill"></i> Localização da Loja</a>
                 </div>
                 
-                <div class="pt-4 border-top border-secondary">
-                    <p class="small text-white-50 mb-3 text-center">Fale Direto com o Ariel Coimbra</p>
+                <div class="pt-3 border-top border-secondary">
+                    <p class="small text-white-50 mb-2 text-center">Atendimento Direto</p>
                     <a href="https://wa.me/5551986597751" target="_blank" class="btn btn-success w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
                         <i class="bi bi-whatsapp"></i> WhatsApp Geral
                     </a>
@@ -384,20 +431,20 @@
     </div>
 
     <!-- CAMPO DE BUSCA CENTRALIZADO -->
-    <div class="container mb-4" style="max-width: 600px;">
+    <div class="container mb-3 px-3" style="max-width: 600px;">
         <div class="search-wrapper d-flex align-items-center">
-            <i class="bi bi-search text-muted ms-2 fs-5"></i>
-            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar por marca, modelo, cor ou placa..." oninput="filtrarPorTexto()">
+            <i class="bi bi-search text-muted ms-2 fs-6"></i>
+            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar marca, modelo, cor ou placa..." oninput="filtrarPorTexto()">
         </div>
     </div>
 
     <!-- BANNER DINÂMICO DE AVISOS -->
-    <div class="container mb-5">
+    <div class="container mb-4 px-3">
         <div id="box-banner-destaque" class="banner-premium" style="display: none;">
-            <div class="row align-items-center g-4">
+            <div class="row align-items-center g-3">
                 <div class="col-12 col-md-8 text-center text-md-start">
-                    <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-2 rounded-pill text-uppercase">Comunicado</span>
-                    <h3 class="fw-extrabold mb-1" id="texto-banner-destaque">Carregando informações...</h3>
+                    <span class="badge bg-warning text-dark fw-bold mb-2 px-3 py-1.5 rounded-pill text-uppercase" style="font-size:0.65rem;">Comunicado</span>
+                    <h5 class="fw-bold mb-1" id="texto-banner-destaque">Carregando informações...</h5>
                 </div>
                 <div class="col-12 col-md-4 text-center text-md-end" id="container-botao-banner"></div>
             </div>
@@ -405,11 +452,11 @@
     </div>
 
     <!-- FILTROS ESTILO APLICATIVO EM CARROSSEL HORIZONTAL -->
-    <div class="container mb-4">
+    <div class="container mb-3 px-3">
         <div class="filter-scroll-container">
             <button class="btn-filter-pill active" onclick="filtrarCategoria('todos', this)"><i class="bi bi-grid-fill"></i> Todos</button>
             <button class="btn-filter-pill text-warning border-warning-subtle" onclick="filtrarCategoria('novidades', this)">✨ Novidades</button>
-            <button class="btn-filter-pill text-danger border-danger-subtle" onclick="filtrarCategoria('baixou', this)">🔥 Baixou o Preço</button>
+            <button class="btn-filter-pill text-danger border-danger-subtle" onclick="filtrarCategoria('baixou', this)">🔥 Baixou</button>
             <button class="btn-filter-pill" onclick="filtrarCategoria('hatch', this)">Hatch</button>
             <button class="btn-filter-pill" onclick="filtrarCategoria('sedan', this)">Sedan</button>
             <button class="btn-filter-pill" onclick="filtrarCategoria('suv', this)">SUV</button>
@@ -418,41 +465,41 @@
         </div>
     </div>
 
-    <!-- GRID DE PRODUTOS/VEÍCULOS -->
-    <div class="container mb-5">
-        <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-3 g-md-4">
+    <!-- GRID DE PRODUTOS/VEÍCULOS (2 COLUNAS LADO A LADO NO CELULAR) -->
+    <div class="container mb-5 px-2">
+        <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
             <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
                 <div class="spinner-border text-dark" role="status"></div>
-                <h5 class="mt-3 text-muted fw-normal">Sincronizando estoque com a base de dados...</h5>
+                <h6 class="mt-3 text-muted fw-normal">Sincronizando estoque com a base de dados...</h6>
             </div>
         </div>
     </div>
 
     <!-- MODAL MODO LOJA -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
                 <div class="modal-header border-0 p-4 pb-2">
-                    <h5 class="modal-title fw-bold fs-4"><i class="bi bi-shop text-warning"></i> Modo Loja Ativo</h5>
+                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-shop text-warning"></i> Modo Loja Ativo</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
                     <div id="etapa-loja-senha">
-                        <p class="text-muted mb-3">Insira o código de segurança para revelar informações internas:</p>
+                        <p class="text-muted small mb-3">Insira o código de segurança para revelar informações internas:</p>
                         <input type="password" id="input-loja-senha" class="form-control loja-input-style mb-3" placeholder="••••">
                         <button class="btn btn-premium-action w-100 py-2 fs-6" onclick="verificarSenhaLoja()">Autenticar Acesso</button>
                     </div>
 
                     <div id="etapa-loja-placa" style="display: none;">
                         <div class="d-flex justify-content-between align-items-center alert alert-secondary small py-2 mb-3 rounded-3">
-                            <span class="fw-bold"><i class="bi bi-shield-check text-success"></i> Dispositivo Conectado</span>
+                            <span class="fw-bold" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success"></i> Conectado</span>
                             <button class="btn btn-link p-0 text-danger fw-bold text-decoration-none" style="font-size: 0.75rem;" onclick="sairModoLoja()">Desconectar</button>
                         </div>
-                        <p class="text-muted mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
+                        <p class="text-muted small mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
                         <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase mb-3" placeholder="ABC1D23" maxlength="7">
                         <button class="btn btn-success fw-bold w-100 py-2 rounded-3" onclick="buscarCarroPorPlacaLoja()">Consultar Dados</button>
                         
-                        <div id="resultado-busca-loja" class="mt-4"></div>
+                        <div id="resultado-busca-loja" class="mt-3"></div>
                     </div>
                 </div>
             </div>
@@ -461,9 +508,9 @@
 
     <!-- MODAL DETALHES -->
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header border-0 p-4 pb-0 position-absolute w-100 d-flex justify-content-end" style="z-index: 100;">
+        <div class="modal-dialog modal-lg modal-dialog-centered m-0 m-sm-auto">
+            <div class="modal-content rounded-0 rounded-sm-4">
+                <div class="modal-header border-0 p-3 pb-0 position-absolute w-100 d-flex justify-content-end" style="z-index: 100;">
                     <button type="button" class="btn-close bg-white rounded-circle p-2 shadow-sm" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-0">
@@ -477,31 +524,31 @@
                         </button>
                     </div>
                     
-                    <div class="p-4 p-md-5">
-                        <h3 class="fw-extrabold text-dark mb-4" id="modalModelo">Modelo</h3>
+                    <div class="p-3 p-md-5">
+                        <h4 class="fw-extrabold text-dark mb-3" id="modalModelo">Modelo</h4>
                         
-                        <div class="row g-3 text-center mb-4">
+                        <div class="row g-2 text-center mb-3">
                             <div class="col-4">
-                                <div class="bg-light p-3 rounded-4">
-                                    <span class="text-muted small d-block mb-1 font-weight-bold" style="font-size:0.7rem;">REPASSE</span>
-                                    <span class="fs-5 fw-bold text-primary" id="modalValor">R$ --</span>
+                                <div class="bg-light p-2 rounded-3">
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">REPASSE</span>
+                                    <span class="fw-bold text-primary" style="font-size:0.95rem;" id="modalValor">R$ --</span>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="bg-light p-3 rounded-4">
-                                    <span class="text-muted small d-block mb-1 font-weight-bold" style="font-size:0.7rem;">MARGEM</span>
-                                    <span class="fs-5 fw-bold text-success" id="modalMargem">R$ --</span>
+                                <div class="bg-light p-2 rounded-3">
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">MARGEM</span>
+                                    <span class="fw-bold text-success" style="font-size:0.95rem;" id="modalMargem">R$ --</span>
                                 </div>
                             </div>
                             <div class="col-4">
-                                <div class="bg-light p-3 rounded-4">
-                                    <span class="text-muted small d-block mb-1 font-weight-bold" style="font-size:0.7rem;">TABELA FIPE</span>
-                                    <span class="fs-5 fw-bold text-secondary" id="modalFipe">R$ --</span>
+                                <div class="bg-light p-2 rounded-3">
+                                    <span class="text-muted d-block mb-1 font-weight-bold" style="font-size:0.6rem;">FIPE</span>
+                                    <span class="fw-bold text-secondary" style="font-size:0.95rem;" id="modalFipe">R$ --</span>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="specs-grid mb-4">
+                        <div class="specs-grid mb-3">
                             <div class="spec-pill"><span>Placa</span><div id="modalPlaca">--</div></div>
                             <div class="spec-pill"><span>Cor</span><div id="modalCor" class="text-truncate">--</div></div>
                             <div class="spec-pill"><span>Quilometragem</span><div id="modalKm">--</div></div>
@@ -509,13 +556,13 @@
                         </div>
 
                         <div class="mb-2">
-                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-chat-left-text-fill text-muted me-1"></i> Observações Técnicas:</h6>
-                            <div class="p-3 bg-light rounded-4 fs-6 text-secondary border-start border-primary border-3" id="modalDescricao">--</div>
+                            <h6 class="fw-bold text-dark mb-1" style="font-size:0.85rem;"><i class="bi bi-chat-left-text-fill text-muted me-1"></i> Observações Técnicas:</h6>
+                            <div class="p-3 bg-light rounded-3 text-secondary border-start border-primary border-3" style="font-size:0.85rem;" id="modalDescricao">--</div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer border-0 p-4 bg-light d-flex justify-content-between rounded-bottom-5">
-                    <button type="button" class="btn btn-outline-secondary rounded-3 px-4" data-bs-dismiss="modal">Fechar</button>
+                <div class="modal-footer border-0 p-3 bg-light d-flex justify-content-between rounded-0 rounded-bottom-sm-4">
+                    <button type="button" class="btn btn-outline-secondary rounded-3 px-3 btn-sm" data-bs-dismiss="modal">Fechar</button>
                     <div id="modalBotaoWppContainer" style="width: 65%;"></div>
                 </div>
             </div>
@@ -524,21 +571,21 @@
 
     <!-- MODAL ENDEREÇO -->
     <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
                 <div class="modal-header border-0 p-4 pb-0">
-                    <h5 class="modal-title fw-bold fs-4"><i class="bi bi-geo-alt-fill text-danger"></i> Onde Estamos</h5>
+                    <h5 class="modal-title fw-bold fs-5"><i class="bi bi-geo-alt-fill text-danger"></i> Onde Estamos</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div class="p-4 bg-light rounded-4 border-start border-primary border-4 mb-3">
-                        <h6 class="fw-bold text-dark mb-1">Unidas Atacado Porto Alegre</h6>
-                        <p class="mb-3 fs-5 font-weight-bold text-dark">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
-                        <p class="mb-0 text-muted small"><i class="bi bi-exclamation-circle-fill text-warning"></i> Importante: Ao chegar no pátio, solicite atendimento exclusivo com o vendedor <strong>Ariel Coimbra</strong>.</p>
+                    <div class="p-3 bg-light rounded-4 border-start border-primary border-4 mb-3">
+                        <h6 class="fw-bold text-dark mb-1" style="font-size:0.9rem;">Unidas Atacado Porto Alegre</h6>
+                        <p class="mb-2 fw-bold text-dark" style="font-size:1rem;">Av. Sertório, 5686 - Sarandi, Porto Alegre - RS</p>
+                        <p class="mb-0 text-muted" style="font-size: 0.75rem;"><i class="bi bi-exclamation-circle-fill text-warning"></i> Importante: Ao chegar no pátio, solicite atendimento exclusivo com o vendedor <strong>Ariel Coimbra</strong>.</p>
                     </div>
                     <div class="p-3 bg-light rounded-4 text-center">
                         <span class="text-muted small d-block mb-1">Contato Direto via WhatsApp:</span>
-                        <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-4 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
+                        <a href="https://wa.me/5551986597751" target="_blank" class="fw-bold fs-5 text-success text-decoration-none"><i class="bi bi-whatsapp"></i> (51) 98659-7751</a>
                     </div>
                 </div>
             </div>
@@ -592,7 +639,7 @@
                     document.getElementById('texto-banner-destaque').innerText = fraseDestaque;
                     const containerBotao = document.getElementById('container-botao-banner');
                     if (linkGrupoWpp && linkGrupoWpp.startsWith('http')) {
-                        containerBotao.innerHTML = `<a href="${linkGrupoWpp}" target="_blank" class="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
+                        containerBotao.innerHTML = `<a href="${linkGrupoWpp}" target="_blank" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
                     } else {
                         containerBotao.innerHTML = "";
                     }
@@ -611,7 +658,7 @@
                     if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
 
                     const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
-                    const textoColunaI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+                    const textoColunaI = mergeStatusCheck(linha[8]);
                     
                     const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
                     const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
@@ -653,12 +700,15 @@
                 processarEstoque();
 
             } catch (erro) {
-                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h3>⚠️ Falha ao carregar a base de dados.</h3></div>';
+                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar a base de dados.</h6></div>';
             }
         }
 
         function depthClean(url) {
             return url ? url.replace(/["']/g, "").trim() : '';
+        }
+        function mergeStatusCheck(col) {
+            return col ? col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
         }
 
         function montarFaixaLetreiro(listaNovidades) {
@@ -676,7 +726,7 @@
             listaDuplicada.forEach(carro => {
                 htmlLetreiro += `
                     <span class="item-ticker" onclick="abrirModalDetalhes(${carro.id})">
-                        <span class="text-warning fw-bold">⚡ NOVIDADE:</span> ${carro.modelo} → <span class="text-success fw-bold">Lucro estimado: ${carro.margem}</span>
+                        <span class="text-warning fw-bold">⚡ NOVIDADE:</span> ${carro.modelo} → <span class="text-success fw-bold">Lucro: ${carro.margem}</span>
                     </span>
                 `;
             });
@@ -730,18 +780,17 @@
             if(carroEncontrado) {
                 divResultado.innerHTML = `
                     <div class="card border-0 text-start rounded-4 shadow-sm bg-light">
-                        <div class="card-body p-4">
-                            <h5 class="fw-bold text-dark mb-3">${carroEncontrado.modelo}</h5>
-                            <p class="mb-2"><strong>Placa Identificada:</strong> <span class="badge bg-dark fs-6 rounded-3 px-3">${carroEncontrado.placaReal}</span></p>
-                            <p class="mb-2"><strong>Cor/Kms:</strong> ${carroEncontrado.cor} | ${carroEncontrado.km}</p>
-                            <p class="mb-2"><strong>Margem Estimada:</strong> <span class="text-success fw-bold">${carroEncontrado.margem}</span></p>
-                            <p class="mb-4"><strong>Valor Lote:</strong> <span class="text-primary fw-bold fs-5">${carroEncontrado.valor}</span></p>
-                            <button class="btn btn-premium-action w-100 btn-sm" onclick="fecharLojaEVerCarro(${carroEncontrado.id})">Visualizar Galeria de Fotos</button>
+                        <div class="card-body p-3">
+                            <h6 class="fw-bold text-dark mb-2">${carroEncontrado.modelo}</h6>
+                            <p class="mb-1 small"><strong>Placa:</strong> <span class="badge bg-dark rounded-2">${carroEncontrado.placaReal}</span></p>
+                            <p class="mb-1 small"><strong>Margem:</strong> <span class="text-success fw-bold">${carroEncontrado.margem}</span></p>
+                            <p class="mb-3 small"><strong>Lote:</strong> <span class="text-primary fw-bold">${carroEncontrado.valor}</span></p>
+                            <button class="btn btn-premium-action w-100 btn-sm" onclick="fecharLojaEVerCarro(${carroEncontrado.id})">Visualizar Fotos</button>
                         </div>
                     </div>
                 `;
             } else {
-                divResultado.innerHTML = `<div class="alert alert-danger py-2 small rounded-3">Nenhum veículo localizado com a placa "${placaBuscada}".</div>`;
+                divResultado.innerHTML = `<div class="alert alert-danger py-2 small rounded-3">Nenhum veículo com a placa "${placaBuscada}".</div>`;
             }
         }
 
@@ -868,9 +917,9 @@
             const containerBotao = document.getElementById('modalBotaoWppContainer');
             if (!esVendido) {
                 const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
-                containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn btn-success w-100 py-2 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-whatsapp"></i> Iniciar Negociação</a>`;
+                containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
             } else {
-                containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-2 rounded-3" disabled>Veículo Reservado</button>`;
+                containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
             }
 
             new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
@@ -881,19 +930,19 @@
             container.innerHTML = '';
 
             if(lista.length === 0) {
-                container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h5>Nenhum veículo corresponde à seleção ativa.</h5></div>';
+                container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h6>Nenhum veículo na seleção atual.</h6></div>';
                 return;
             }
 
             lista.forEach(carro => {
                 const esVendido = carro.status.includes('vendido');
                 const classeStatus = esVendido ? 'tag-status-vendido' : 'tag-status-disponivel';
-                const textoStatus = esVendido ? 'Reservado' : 'Disponível';
+                const textoStatus = esVendido ? 'RESERVADO' : 'DISPONÍVEL';
                 
                 const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/0f172a/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
                 
                 const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
-                const badgeBaixouHtml = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 OPORTUNIDADE</span>` : '';
+                const badgeBaixouHtml = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
 
                 const cardHtml = `
                     <div class="col" onclick="abrirModalDetalhes(${carro.id})">
@@ -910,16 +959,16 @@
                                     <div class="specs-grid">
                                         <div class="spec-pill"><span>Placa</span>${carro.placa}</div>
                                         <div class="spec-pill text-truncate"><span>Cor</span>${carro.cor}</div>
-                                        <div class="spec-pill"><span>KM</span>${carro.km}</div>
-                                        <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.78rem;">${carro.margem}</span></div>
+                                        <div class="spec-pill text-truncate"><span>KM</span>${carro.km}</div>
+                                        <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.68rem;">${carro.margem}</span></div>
                                     </div>
                                 </div>
                                 <div class="price-container">
                                     <div>
-                                        <span class="price-label">VALOR DE REPASSE</span>
+                                        <span class="price-label">REPASSE</span>
                                         <span class="price-value">${carro.valor}</span>
                                     </div>
-                                    <span class="btn btn-sm btn-outline-dark rounded-pill px-3 fw-bold" style="font-size:0.75rem;">Acessar</span>
+                                    <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
                                 </div>
                             </div>
                         </div>
