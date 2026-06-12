@@ -47,14 +47,14 @@
             top: 0;
             left: 0;
             width: 100%;
-            z-index: 1060;
+            z-index: 1030; /* Reduzido para não cobrir o X do modal */
             letter-spacing: 0.5px;
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .faixa-novidades-wrapper {
             display: inline-block;
             padding-left: 100%;
-            animation: letreiroCorrendo 85s linear infinite;
+            animation: letreiroCorrendo 30s linear infinite;
         }
         .faixa-novidades-wrapper:hover {
             animation-play-state: paused;
@@ -80,7 +80,7 @@
             top: 32px; /* Logo abaixo do letreiro */
             left: 0;
             width: 100%;
-            z-index: 1050;
+            z-index: 1020; /* Reduzido para respeitar modais */
             transition: all 0.3s;
         }
         .navbar-brand-title {
@@ -95,12 +95,16 @@
             .navbar-premium { padding: 1rem 0; }
         }
 
-        /* GAVETA LATERAL DO MENU (OFFCANVAS) */
+        /* GAVETA LATERAL DO MENU (OFFCANVAS) - CORRIGIDO CORTE */
         .offcanvas {
             border-left: none;
             background-color: var(--brand-dark);
             color: white;
             width: 300px;
+            z-index: 1070; /* Garante que fica por cima de tudo ao abrir */
+        }
+        .offcanvas-body {
+            padding-top: 50px !important; /* CORREÇÃO: Afasta os itens para baixo da barra do topo */
         }
         .offcanvas-header {
             border-bottom: 1px solid rgba(255,255,255,0.08);
@@ -116,13 +120,14 @@
             gap: 12px;
             color: rgba(255,255,255,0.8);
             text-decoration: none;
-            padding: 12px 16px;
+            padding: 14px 16px;
             border-radius: 12px;
-            font-weight: 500;
+            font-weight: 600;
             transition: all 0.2s;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            white-space: nowrap; /* Impede quebra feia de texto */
         }
-        .menu-link-item:hover {
+        .menu-link-item:hover, .menu-link-item:active {
             background: rgba(255,255,255,0.08);
             color: white;
         }
@@ -185,7 +190,7 @@
             background: #ffffff;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 5px 12px;
+            padding: 6px 12px;
             border-radius: 30px;
             font-weight: 600;
             font-size: 0.78rem;
@@ -194,8 +199,11 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            flex: 1 1 auto; /* Permite que os botões se ajustem dinamicamente preenchendo as linhas */
+            flex: 1 1 auto;
             justify-content: center;
+        }
+        .btn-filter-pill:active {
+            transform: scale(0.95); /* Feedback tátil ao clicar */
         }
         @media (min-width: 768px) {
             .btn-filter-pill { padding: 8px 18px; font-size: 0.85rem; flex: 0 1 auto; }
@@ -212,7 +220,7 @@
             border-color: var(--brand-success)!important;
         }
 
-        /* CARDS DOS VEÍCULOS - AJUSTADO PARA MOBILE */
+        /* CARDS DOS VEÍCULOS */
         .card-vehicle {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -224,6 +232,9 @@
             height: 100%;
             position: relative;
             cursor: pointer;
+        }
+        .card-vehicle:active {
+            transform: scale(0.98); /* Feedback de clique no celular */
         }
         @media (min-width: 768px) {
             .card-vehicle { border-radius: 24px; }
@@ -248,7 +259,7 @@
             .img-vehicle { height: 220px; padding: 12px; }
         }
 
-        /* BADGES EXCLUSIVAS MOBILE */
+        /* BADGES */
         .tag-status { position: absolute; top: 10px; left: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; letter-spacing: 0.3px; z-index: 10; text-transform: uppercase; }
         .tag-status-disponivel { background: rgba(16, 185, 129, 0.95); color: white; }
         .tag-status-vendido { background: rgba(100, 116, 139, 0.9); color: white; }
@@ -280,7 +291,6 @@
             .vehicle-title { font-size: 1.15rem; margin-bottom: 12px; }
         }
 
-        /* GRID DE ESPECIFICAÇÕES NO MOBILE */
         .specs-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -313,11 +323,7 @@
             text-transform: uppercase;
             margin-bottom: 1px;
         }
-        @media (min-width: 768px) {
-            .spec-pill span { font-size: 0.7rem; margin-bottom: 2px; }
-        }
 
-        /* CONTAINER DE PREÇO INTERNO */
         .price-container {
             border-top: 1px solid var(--border-color);
             padding-top: 8px;
@@ -331,9 +337,6 @@
             color: var(--text-muted);
             letter-spacing: 0.3px;
             display: block;
-        }
-        @media (min-width: 768px) {
-            .price-label { font-size: 0.68rem; }
         }
 
         .price-value {
@@ -350,11 +353,25 @@
             font-size: 0.65rem;
             padding: 4px 10px;
         }
-        @media (min-width: 768px) {
-            .btn-acessar-card { font-size: 0.75rem; padding: 6px 14px; }
+
+        /* MODAL DETALHES - CORRIGIDO BOTÃO FECHAR CORTADO */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+        .botao-fechar-modal-mestre {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 2000 !important; /* CORREÇÃO MÁXIMA: Fica acima de qualquer letreiro do site */
+            background-color: #ffffff !important;
+            border-radius: 50%;
+            padding: 10px !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            opacity: 1 !important;
+            border: none;
         }
 
-        /* DETALHES DAS FOTOS NO MODAL */
         .modal-carousel-img {
             width: 100%;
             height: 250px;
@@ -363,15 +380,6 @@
         }
         @media (min-width: 768px) {
             .modal-carousel-img { height: 450px; }
-        }
-
-        /* MODAIS REESTILIZADOS */
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-        }
-        @media (min-width: 768px) {
-            .modal-content { border-radius: 28px; }
         }
         
         .loja-input-style {
@@ -406,20 +414,19 @@
         <div class="container d-flex justify-content-between align-items-center px-3">
             <span class="navbar-brand-title" onclick="window.location.reload()" style="cursor:pointer;">ARIEL UNIDAS</span>
             
-            <!-- BOTÃO DO MENU HAMBÚRGUER -->
             <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
                 <i class="bi bi-list fs-2"></i>
             </button>
         </div>
     </nav>
 
-    <!-- GAVETA LATERAL DE NAVEGAÇÃO (MENU OFFCANVAS) -->
+    <!-- GAVETA LATERAL DE NAVEGAÇÃO -->
     <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
         <div class="offcanvas-header d-flex justify-content-between align-items-center">
             <h5 class="offcanvas-title fs-5" id="menuLateralLabel">Navegação</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body p-3">
+        <div class="offcanvas-body">
             <div class="d-flex flex-column h-100 justify-content-between">
                 <div>
                     <a href="#" class="menu-link-item active-item" data-bs-dismiss="offcanvas"><i class="bi bi-car-front-fill"></i> Estoque Completo</a>
@@ -458,7 +465,7 @@
         </div>
     </div>
 
-    <!-- FILTROS REORGANIZADOS EM GRID COMPACTO E 100% VISÍVEL (CLIN) -->
+    <!-- FILTROS REORGANIZADOS EM GRID COMPACTO -->
     <div class="container mb-3 px-3">
         <div class="filter-grid-container">
             <button class="btn-filter-pill active" onclick="filtrarCategoria('todos', this)"><i class="bi bi-grid-fill"></i> Todos</button>
@@ -472,7 +479,7 @@
         </div>
     </div>
 
-    <!-- GRID DE PRODUTOS/VEÍCULOS (2 COLUNAS LADO A LADO NO CELULAR) -->
+    <!-- GRID DE PRODUTOS -->
     <div class="container mb-5 px-2">
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
             <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
@@ -505,7 +512,6 @@
                         <p class="text-muted small mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
                         <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase mb-3" placeholder="ABC1D23" maxlength="7">
                         <button class="btn btn-success fw-bold w-100 py-2 rounded-3" onclick="buscarCarroPorPlacaLoja()">Consultar Dados</button>
-                        
                         <div id="resultado-busca-loja" class="mt-3"></div>
                     </div>
                 </div>
@@ -517,9 +523,9 @@
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered m-0 m-sm-auto">
             <div class="modal-content rounded-0 rounded-sm-4">
-                <div class="modal-header border-0 p-3 pb-0 position-absolute w-100 d-flex justify-content-end" style="z-index: 100;">
-                    <button type="button" class="btn-close bg-white rounded-circle p-2 shadow-sm" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+                <!-- CORREÇÃO DA CAMADA DO BOTÃO FECHAR -->
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal" aria-label="Close"></button>
+                
                 <div class="modal-body p-0">
                     <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner" id="modalFotosContainer"></div>
@@ -915,7 +921,7 @@
             const esVendido = carro.status.includes('vendido');
             const containerBotao = document.getElementById('modalBotaoWppContainer');
             if (!esVendido) {
-                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliating o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
+                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
                 containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
             } else {
                 containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
