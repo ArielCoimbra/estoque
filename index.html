@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ariel Unidas Atacado | Premium Car Stock</title>
-    <!-- Google Fonts para Tipografia Fina -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,419 +12,30 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <style>
-        :root {
-            --bg-site: #f6f8fa;
-            --brand-dark: #090d16;
-            --brand-primary: #1e40af;
-            --brand-success: #10b981;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-        }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 
-        body { 
-            background-color: var(--bg-site); 
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--text-main);
-            padding-top: 140px; /* Espaço ideal para o letreiro + menu fixo no celular */
-        }
-        @media (min-width: 768px) {
-            body { padding-top: 130px; }
-        }
-
-        /* LETREIRO EXCLUSIVO NO TOPO */
-        .faixa-novidades-container {
-            background-color: var(--brand-dark);
-            color: #ffffff;
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 6px 0;
-            font-size: 0.85rem;
-            font-weight: 600;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1030; /* Reduzido para não cobrir o X do modal */
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        .faixa-novidades-wrapper {
-            display: inline-block;
-            padding-left: 100%;
-            animation: letreiroCorrendo 30s linear infinite;
-        }
-        .faixa-novidades-wrapper:hover {
-            animation-play-state: paused;
-            cursor: pointer;
-        }
-        .item-ticker {
-            display: inline-block;
-            margin-right: 80px;
-        }
-        @keyframes letreiroCorrendo {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-
-        /* MENU SUPERIOR FIXO MINIMALISTA */
-        .navbar-premium {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-            padding: 0.8rem 0;
-            position: fixed;
-            top: 32px; /* Logo abaixo do letreiro */
-            left: 0;
-            width: 100%;
-            z-index: 1020; /* Reduzido para respeitar modais */
-            transition: all 0.3s;
-        }
-        .navbar-brand-title {
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: -0.5px;
-            color: var(--brand-dark);
-            text-transform: uppercase;
-        }
-        @media (min-width: 768px) {
-            .navbar-brand-title { font-size: 1.4rem; }
-            .navbar-premium { padding: 1rem 0; }
-        }
-
-        /* GAVETA LATERAL DO MENU (OFFCANVAS) - CORRIGIDO CORTE */
-        .offcanvas {
-            border-left: none;
-            background-color: var(--brand-dark);
-            color: white;
-            width: 300px;
-            z-index: 1070; /* Garante que fica por cima de tudo ao abrir */
-        }
-        .offcanvas-body {
-            padding-top: 50px !important; /* CORREÇÃO: Afasta os itens para baixo da barra do topo */
-        }
-        .offcanvas-header {
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding: 1.5rem;
-        }
-        .offcanvas-title {
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
-        .menu-link-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            transition: all 0.2s;
-            margin-bottom: 10px;
-            white-space: nowrap; /* Impede quebra feia de texto */
-        }
-        .menu-link-item:hover, .menu-link-item:active {
-            background: rgba(255,255,255,0.08);
-            color: white;
-        }
-        .menu-link-item.active-item {
-            background: var(--brand-primary);
-            color: white;
-        }
-
-        /* COMPONENTE DE BUSCA PREMIUM */
-        .search-wrapper {
-            background: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 4px 10px;
-            box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03);
-            transition: all 0.3s;
-        }
-        .search-wrapper:focus-within {
-            border-color: #94a3b8;
-            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.06);
-        }
-        .search-input {
-            border: none;
-            outline: none;
-            padding: 8px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--brand-dark);
-            width: 100%;
-        }
-
-        /* BANNER DE ANÚNCIO / GRUPO */
-        .banner-premium {
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-            border-radius: 20px;
-            padding: 20px;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.03);
-            box-shadow: 0 20px 40px -15px rgba(15,23,42,0.15);
-        }
-        @media (min-width: 768px) {
-            .banner-premium { padding: 30px; }
-        }
-
-        /* BARRA DE FILTROS TOTALMENTE VISÍVEL (FLEX-WRAP CLIN) */
-        .filter-grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: flex-start;
-            padding: 4px 0 10px 0;
-        }
-        @media (min-width: 768px) {
-            .filter-grid-container { gap: 10px; }
-        }
-
-        .btn-filter-pill {
-            background: #ffffff;
-            color: var(--text-main);
-            border: 1px solid var(--border-color);
-            padding: 6px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.78rem;
-            white-space: nowrap;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            flex: 1 1 auto;
-            justify-content: center;
-        }
-        .btn-filter-pill:active {
-            transform: scale(0.95); /* Feedback tátil ao clicar */
-        }
-        @media (min-width: 768px) {
-            .btn-filter-pill { padding: 8px 18px; font-size: 0.85rem; flex: 0 1 auto; }
-        }
-
-        .btn-filter-pill.active {
-            background: var(--brand-dark)!important;
-            color: #ffffff!important;
-            border-color: var(--brand-dark)!important;
-        }
-        .btn-filter-pill.btn-margem-toggle.active-margem {
-            background: var(--brand-success)!important;
-            color: white!important;
-            border-color: var(--brand-success)!important;
-        }
-
-        /* CARDS DOS VEÍCULOS */
-        .card-vehicle {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.215, 0.610, 0.355, 1);
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            position: relative;
-            cursor: pointer;
-        }
-        .card-vehicle:active {
-            transform: scale(0.98); /* Feedback de clique no celular */
-        }
-        @media (min-width: 768px) {
-            .card-vehicle { border-radius: 24px; }
-            .card-vehicle:hover { transform: translateY(-6px); box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.07); border-color: #cbd5e1; }
-        }
-        
-        .img-vehicle-wrapper {
-            position: relative;
-            background-color: #f8fafc;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .img-vehicle {
-            height: 130px;
-            object-fit: contain;
-            width: 100%;
-            padding: 6px;
-        }
-        @media (min-width: 768px) {
-            .img-vehicle { height: 220px; padding: 12px; }
-        }
-
-        /* BADGES */
-        .tag-status { position: absolute; top: 10px; left: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; letter-spacing: 0.3px; z-index: 10; text-transform: uppercase; }
-        .tag-status-disponivel { background: rgba(16, 185, 129, 0.95); color: white; }
-        .tag-status-vendido { background: rgba(100, 116, 139, 0.9); color: white; }
-        
-        .tag-feature { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; color: white; z-index: 10; }
-        .tag-feature-novidade { background: #f59e0b; }
-        .tag-feature-baixou { background: #ef4444; top: 34px; }
-
-        .card-vehicle-body {
-            padding: 0.9rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            flex-grow: 1;
-        }
-        @media (min-width: 768px) {
-            .card-vehicle-body { padding: 1.4rem; }
-        }
-
-        .vehicle-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--brand-dark);
-            letter-spacing: -0.3px;
-            margin-bottom: 8px;
-            line-height: 1.2;
-        }
-        @media (min-width: 768px) {
-            .vehicle-title { font-size: 1.15rem; margin-bottom: 12px; }
-        }
-
-        .specs-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 4px;
-            margin-bottom: 10px;
-        }
-        @media (min-width: 768px) {
-            .specs-grid { gap: 8px; margin-bottom: 16px; }
-        }
-
-        .spec-pill {
-            background: #f8fafc;
-            border: 1px solid #f1f5f9;
-            padding: 4px 6px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #475569;
-            line-height: 1.1;
-        }
-        @media (min-width: 768px) {
-            .spec-pill { padding: 6px 10px; font-size: 0.78rem; }
-        }
-
-        .spec-pill span {
-            color: var(--text-muted);
-            font-weight: 500;
-            display: block;
-            font-size: 0.58rem;
-            text-transform: uppercase;
-            margin-bottom: 1px;
-        }
-
-        .price-container {
-            border-top: 1px solid var(--border-color);
-            padding-top: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .price-label {
-            font-size: 0.58rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            letter-spacing: 0.3px;
-            display: block;
-        }
-
-        .price-value {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: var(--brand-primary);
-            letter-spacing: -0.3px;
-        }
-        @media (min-width: 768px) {
-            .price-value { font-size: 1.45rem; }
-        }
-
-        .btn-acessar-card {
-            font-size: 0.65rem;
-            padding: 4px 10px;
-        }
-
-        /* MODAL DETALHES - CORRIGIDO BOTÃO FECHAR CORTADO */
-        .modal-content {
-            border-radius: 20px;
-            border: none;
-        }
-        .botao-fechar-modal-mestre {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            z-index: 2000 !important; /* CORREÇÃO MÁXIMA: Fica acima de qualquer letreiro do site */
-            background-color: #ffffff !important;
-            border-radius: 50%;
-            padding: 10px !important;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            opacity: 1 !important;
-            border: none;
-        }
-
-        .modal-carousel-img {
-            width: 100%;
-            height: 250px;
-            object-fit: contain;
-            background-color: #090d16;
-        }
-        @media (min-width: 768px) {
-            .modal-carousel-img { height: 450px; }
-        }
-        
-        .loja-input-style {
-            border-radius: 14px;
-            padding: 12px;
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-            font-weight: 700;
-            border: 2px solid var(--border-color);
-            text-align: center;
-        }
-
-        .btn-premium-action {
-            background: var(--brand-dark);
-            color: white;
-            font-weight: 600;
-            border-radius: 14px;
-            padding: 12px;
-            border: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- FAIXA DE NOVIDADES SUPERIOR -->
     <div class="faixa-novidades-container" id="faixa-letreiro-container" style="display: none;">
         <div class="faixa-novidades-wrapper" id="faixa-letreiro-conteudo"></div>
     </div>
 
-    <!-- NAVBAR PREMIUM FIXA -->
     <nav class="navbar-premium">
         <div class="container d-flex justify-content-between align-items-center px-3">
-            <span class="navbar-brand-title" onclick="window.location.reload()" style="cursor:pointer;">ARIEL UNIDAS</span>
-            
-            <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral" aria-controls="menuLateral">
+            <span class="navbar-brand-title" onclick="window.location.reload()">ARIEL UNIDAS</span>
+            <button class="btn btn-link text-dark p-0 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#menuLateral">
                 <i class="bi bi-list fs-2"></i>
             </button>
         </div>
     </nav>
 
-    <!-- GAVETA LATERAL DE NAVEGAÇÃO -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral" aria-labelledby="menuLateralLabel">
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="menuLateral">
         <div class="offcanvas-header d-flex justify-content-between align-items-center">
-            <h5 class="offcanvas-title fs-5" id="menuLateralLabel">Navegação</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            <h5 class="offcanvas-title fs-5">Navegação</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
         </div>
         <div class="offcanvas-body">
             <div class="d-flex flex-column h-100 justify-content-between">
@@ -433,7 +44,6 @@
                     <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalLoja, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-shop"></i> Área do Cliente (Modo Loja)</a>
                     <a href="javascript:void(0)" class="menu-link-item" onclick="setTimeout(abrirModalEndereco, 400)" data-bs-dismiss="offcanvas"><i class="bi bi-geo-alt-fill"></i> Localização da Loja</a>
                 </div>
-                
                 <div class="pt-3 border-top border-secondary">
                     <p class="small text-white-50 mb-2 text-center">Atendimento Direto</p>
                     <a href="https://wa.me/5551986597751" target="_blank" class="btn btn-success w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2">
@@ -444,15 +54,24 @@
         </div>
     </div>
 
-    <!-- CAMPO DE BUSCA CENTRALIZADO -->
     <div class="container mb-3 px-3" style="max-width: 600px;">
-        <div class="search-wrapper d-flex align-items-center">
+        <div class="search-wrapper d-flex align-items-center mb-2">
             <i class="bi bi-search text-muted ms-2 fs-6"></i>
-            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar marca, modelo, cor ou placa..." oninput="filtrarPorTexto()">
+            <input type="text" id="campo-pesquisa" class="search-input" placeholder="Buscar marca, modelo, cor ou placa...">
+        </div>
+        
+        <div class="row g-2">
+            <div class="col-12">
+                <select id="filtro-preco" class="form-select select-premium-filtro">
+                    <option value="todos">Todas as faixas de preço</option>
+                    <option value="ate-50k">Até R$ 50.000</option>
+                    <option value="50k-80k">R$ 50.000 a R$ 80.000</option>
+                    <option value="acima-80k">Acima de R$ 80.000</option>
+                </select>
+            </div>
         </div>
     </div>
 
-    <!-- BANNER DINÂMICO DE AVISOS -->
     <div class="container mb-3 px-3">
         <div id="box-banner-destaque" class="banner-premium" style="display: none;">
             <div class="row align-items-center g-3">
@@ -465,53 +84,49 @@
         </div>
     </div>
 
-    <!-- FILTROS REORGANIZADOS EM GRID COMPACTO -->
-    <div class="container mb-3 px-3">
+    <div class="container mb-2 px-3">
         <div class="filter-grid-container">
-            <button class="btn-filter-pill active" onclick="filtrarCategoria('todos', this)"><i class="bi bi-grid-fill"></i> Todos</button>
-            <button class="btn-filter-pill text-warning border-warning-subtle" onclick="filtrarCategoria('novidades', this)">✨ Novidades</button>
-            <button class="btn-filter-pill text-danger border-danger-subtle" onclick="filtrarCategoria('baixou', this)">🔥 Baixou</button>
-            <button class="btn-filter-pill" onclick="filtrarCategoria('hatch', this)">Hatch</button>
-            <button class="btn-filter-pill" onclick="filtrarCategoria('sedan', this)">Sedan</button>
-            <button class="btn-filter-pill" onclick="filtrarCategoria('suv', this)">SUV</button>
-            <button class="btn-filter-pill" onclick="filtrarCategoria('picape', this)">🛻 Picape</button>
-            <button class="btn-filter-pill btn-margem-toggle" onclick="toggleMargem(this)">💰 Melhor Margem</button>
+            <button class="btn-filter-pill active" data-cat="todos"><i class="bi bi-grid-fill"></i> Todos</button>
+            <button class="btn-filter-pill text-warning border-warning-subtle" data-cat="novidades">✨ Novidades</button>
+            <button class="btn-filter-pill text-danger border-danger-subtle" data-cat="baixou">🔥 Baixou</button>
+            <button class="btn-filter-pill" data-cat="hatch">Hatch</button>
+            <button class="btn-filter-pill" data-cat="sedan">Sedan</button>
+            <button class="btn-filter-pill" data-cat="suv">SUV</button>
+            <button class="btn-filter-pill" data-cat="picape">🛻 Picape</button>
+            <button class="btn-filter-pill btn-margem-toggle">💰 Melhor Margem</button>
+        </div>
+        <div class="text-end px-1 mt-1">
+            <span id="contador-veiculos" class="text-muted" style="font-size: 0.75rem; font-weight: 600;">Carregando quantidade...</span>
         </div>
     </div>
 
-    <!-- GRID DE PRODUTOS -->
     <div class="container mb-5 px-2">
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4">
-            <div class="text-center w-100 my-5" style="grid-column: 1/-1;">
-                <div class="spinner-border text-dark" role="status"></div>
-                <h6 class="mt-3 text-muted fw-normal">Sincronizando estoque com a base de dados...</h6>
             </div>
-        </div>
     </div>
 
-    <!-- MODAL MODO LOJA -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
                 <div class="modal-header border-0 p-4 pb-2">
                     <h5 class="modal-title fw-bold fs-5"><i class="bi bi-shop text-warning"></i> Modo Loja Ativo</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4 text-center">
                     <div id="etapa-loja-senha">
                         <p class="text-muted small mb-3">Insira o código de segurança para revelar informações internas:</p>
                         <input type="password" id="input-loja-senha" class="form-control loja-input-style mb-3" placeholder="••••">
-                        <button class="btn btn-premium-action w-100 py-2 fs-6" onclick="verificarSenhaLoja()">Autenticar Acesso</button>
+                        <button class="btn btn-premium-action w-100 py-2 fs-6" id="btn-autenticar-loja">Autenticar Acesso</button>
                     </div>
 
                     <div id="etapa-loja-placa" style="display: none;">
                         <div class="d-flex justify-content-between align-items-center alert alert-secondary small py-2 mb-3 rounded-3">
                             <span class="fw-bold" style="font-size:0.75rem;"><i class="bi bi-shield-check text-success"></i> Conectado</span>
-                            <button class="btn btn-link p-0 text-danger fw-bold text-decoration-none" style="font-size: 0.75rem;" onclick="sairModoLoja()">Desconectar</button>
+                            <button class="btn btn-link p-0 text-danger fw-bold text-decoration-none" style="font-size: 0.75rem;" id="btn-desconectar-loja">Desconectar</button>
                         </div>
                         <p class="text-muted small mb-3">Busque o veículo instantaneamente pela placa do pátio:</p>
                         <input type="text" id="input-loja-placa" class="form-control loja-input-style text-uppercase mb-3" placeholder="ABC1D23" maxlength="7">
-                        <button class="btn btn-success fw-bold w-100 py-2 rounded-3" onclick="buscarCarroPorPlacaLoja()">Consultar Dados</button>
+                        <button class="btn btn-success fw-bold w-100 py-2 rounded-3" id="btn-consultar-placa">Consultar Dados</button>
                         <div id="resultado-busca-loja" class="mt-3"></div>
                     </div>
                 </div>
@@ -519,13 +134,10 @@
         </div>
     </div>
 
-    <!-- MODAL DETALHES -->
     <div class="modal fade" id="modalDetalhes" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered m-0 m-sm-auto">
             <div class="modal-content rounded-0 rounded-sm-4">
-                <!-- CORREÇÃO DA CAMADA DO BOTÃO FECHAR -->
-                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal" aria-label="Close"></button>
-                
+                <button type="button" class="btn-close botao-fechar-modal-mestre" data-bs-dismiss="modal"></button>
                 <div class="modal-body p-0">
                     <div id="carrosselVeiculo" class="carousel slide" data-bs-ride="carousel">
                         <div class="carousel-inner" id="modalFotosContainer"></div>
@@ -538,7 +150,12 @@
                     </div>
                     
                     <div class="p-3 p-md-5">
-                        <h4 class="fw-extrabold text-dark mb-3" id="modalModelo">Modelo</h4>
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h4 class="fw-extrabold text-dark m-0" id="modalModelo">Modelo</h4>
+                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1" id="btn-compartilhar-nativo" style="font-size: 0.75rem; font-weight:700;">
+                                <i class="bi bi-share-fill"></i> Enviar Ficha
+                            </button>
+                        </div>
                         
                         <div class="row g-2 text-center mb-3">
                             <div class="col-4">
@@ -582,13 +199,12 @@
         </div>
     </div>
 
-    <!-- MODAL ENDEREÇO -->
     <div class="modal fade" id="modalEndereco" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
                 <div class="modal-header border-0 p-4 pb-0">
                     <h5 class="modal-title fw-bold fs-5"><i class="bi bi-geo-alt-fill text-danger"></i> Onde Estamos</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="p-3 bg-light rounded-4 border-start border-primary border-4 mb-3">
@@ -606,384 +222,6 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
-        let todosOsCarros = []; 
-        let categoriaAtiva = 'todos';
-        let ordenarPorMargemAtivo = false;
-        let termoPesquisa = '';
-        let senhaSalvaNaPlanilha = ''; 
-
-        function identificarCarroceria(modelo) {
-            const mod = modelo.toLowerCase();
-            const hatches = ['onix', 'gol', 'hb20', 'uno', 'palio', 'sandero', 'ka', 'argo', 'polo', 'mobi', 'up', 'fiesta', 'fox', 'clio', 'c3', '208', 'etios hatch', 'golf', 'cruze sport'];
-            const sedans = ['corolla', 'civic', 'prisma', 'sentra', 'cronos', 'logan', 'virtus', 'voyage', 'city', 'versa', 'siena', 'etios', 'cruze', 'jetta', 'linea', 'fluence', 'cobalt'];
-            const suvs = ['compass', 'creta', 'renegade', 'kicks', 'tracker', 'hr-v', 'duster', 't-cross', 'nivus', 'pulse', 'fastback', 'ix35', 'sportage', 'asx', 'captur', 'tucson', 'tiguan', 'ecosport', 'wr-v'];
-            const picapes = ['hilux', 's10', 'toro', 'ranger', 'oroch', 'saveiro', 'strada', 'montana', 'fiorino', 'frontier', 'amarok', 'l200', 'ram', 'maverick', 'titano', 'hoggar', 'courier', 'picape', 'camionete', 'master', 'ducato', 'daily'];
-
-            if (picapes.some(p => mod.includes(p))) return 'picape';
-            if (suvs.some(suv => mod.includes(suv))) return 'suv';
-            if (sedans.some(s => mod.includes(s))) return 'sedan';
-            if (hatches.some(h => mod.includes(h))) return 'hatch';
-            return 'outros';
-        }
-
-        async function carregarEstoque() {
-            try {
-                const resposta = await fetch(urlPlanilha + '&nocache=' + new Date().getTime());
-                if (!resposta.ok) throw new Error();
-                
-                const textoCsv = await resposta.text();
-                const linhas = textoCsv.split(/\r?\n/).map(linha => {
-                    return linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(campo => campo.replace(/^"|"$/g, '').trim());
-                });
-
-                if (linhas.length > 2 && linhas[2][11]) {
-                    senhaSalvaNaPlanilha = linhas[2][11].trim();
-                }
-
-                let fraseDestaque = "";
-                let linkGrupoWpp = "";
-                if (linhas.length > 0 && linhas[0][11]) fraseDestaque = linhas[0][11].trim();
-                if (linhas.length > 1 && depthClean(linhas[1][11])) linkGrupoWpp = depthClean(linhas[1][11].trim());
-
-                const boxBanner = document.getElementById('box-banner-destaque');
-                if (fraseDestaque && fraseDestaque !== "" && fraseDestaque.toLowerCase() !== "null") {
-                    document.getElementById('texto-banner-destaque').innerText = fraseDestaque;
-                    const containerBotao = document.getElementById('container-botao-banner');
-                    if (linkGrupoWpp && linkGrupoWpp.startsWith('http')) {
-                        containerBotao.innerHTML = `<a href="${linkGrupoWpp}" target="_blank" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
-                    } else {
-                        containerBotao.innerHTML = "";
-                    }
-                    boxBanner.style.display = "block";
-                } else {
-                    boxBanner.style.display = "none";
-                }
-                
-                if (linhas.length > 0) linhas.shift(); 
-                
-                let disponiveis = [];
-                let vendidos = [];
-                let novidadesParaLetreiro = [];
-
-                linhas.forEach((linha, index) => {
-                    if (!linha || linha.length < 2 || !linha[1] || linha[1] === "") return; 
-
-                    const textoStatusColunaH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
-                    const textoColunaI = mergeStatusCheck(linha[8]);
-                    
-                    const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
-                    const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
-
-                    const fotoCapaRaw = WebkitBoxFix(linha[8]); 
-                    const fotosCarrosselRaw = linha[9] || ''; 
-                    const descricaoRaw = linha[10] ? linha[10] : 'Nenhuma observação cadastrada.'; 
-                    const modeloTextoCompleto = linha[1].trim();
-
-                    const carro = {
-                        id: index,
-                        placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I', 
-                        placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
-                        modelo: modeloTextoCompleto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
-                        cor: AppendingCor(linha[2]),
-                        km: AppendingKM(linha[3]),
-                        fipe: ServerCleanValue(linha[4]),
-                        valor: ServerCleanValue(linha[5]),
-                        margem: linha[6] || 'N/I',
-                        status: textoStatusColunaH,
-                        fotoCapa: fotoCapaRaw,
-                        fotosCarrossel: fotosCarrosselRaw,
-                        descricao: descricaoRaw,
-                        carroceria: identificarCarroceria(modeloTextoCompleto),
-                        novidade: ehNovidade,
-                        baixouPreco: ehBaixouPreco
-                    };
-
-                    if (carro.status.includes('vendido')) {
-                        vendidos.push(carro);
-                    } else {
-                        disponiveis.push(carro);
-                        if (ehNovidade) novidadesParaLetreiro.push(carro);
-                    }
-                });
-
-                todosOsCarros = [...disponiveis, ...vendidos];
-                montarFaixaLetreiro(novidadesParaLetreiro);
-                processarEstoque();
-
-            } catch (erro) {
-                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar a base de dados.</h6></div>';
-            }
-        }
-
-        function depthClean(url) { return url ? url.replace(/["']/g, "").trim() : ''; }
-        function mergeStatusCheck(col) { return col ? col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : ''; }
-        function WebkitBoxFix(str) { return str ? str.trim() : ''; }
-
-        function montarFaixaLetreiro(listaNovidades) {
-            const divFaixa = document.getElementById('faixa-letreiro-container');
-            const conteudoFaixa = document.getElementById('faixa-letreiro-conteudo');
-
-            if (listaNovidades.length === 0) {
-                divFaixa.style.display = 'none';
-                return;
-            }
-
-            let htmlLetreiro = "";
-            const listaDuplicada = [...listaNovidades, ...listaNovidades, ...listaNovidades];
-            
-            listaDuplicada.forEach(carro => {
-                htmlLetreiro += `
-                    <span class="item-ticker" onclick="abrirModalDetalhes(${carro.id})">
-                        <span class="text-warning fw-bold">⚡ NOVIDADE:</span> ${carro.modelo} → <span class="text-success fw-bold">Lucro: ${carro.margem}</span>
-                    </span>
-                `;
-            });
-
-            conteudoFaixa.innerHTML = htmlLetreiro;
-            divFaixa.style.display = 'block';
-        }
-
-        function abrirModalLoja() {
-            document.getElementById('input-loja-senha').value = '';
-            document.getElementById('input-loja-placa').value = '';
-            document.getElementById('resultado-busca-loja').innerHTML = '';
-
-            if (localStorage.getItem('modoLojaPermitido') === 'true') {
-                document.getElementById('etapa-loja-senha').style.display = 'none';
-                document.getElementById('etapa-loja-placa').style.display = 'block';
-            } else {
-                document.getElementById('etapa-loja-senha').style.display = 'block';
-                document.getElementById('etapa-loja-placa').style.display = 'none';
-            }
-            
-            new bootstrap.Modal(document.getElementById('modalLoja')).show();
-        }
-
-        function verificarSenhaLoja() {
-            const senhaDigitada = document.getElementById('input-loja-senha').value.trim();
-            if(!senhaDigitada) return alert('Digite a senha!');
-            if(senhaDigitada === senhaSalvaNaPlanilha) {
-                localStorage.setItem('modoLojaPermitido', 'true');
-                document.getElementById('etapa-loja-senha').style.display = 'none';
-                document.getElementById('etapa-loja-placa').style.display = 'block';
-            } else {
-                alert('Código de segurança incorreto.');
-            }
-        }
-
-        function sairModoLoja() {
-            localStorage.removeItem('modoLojaPermitido');
-            document.getElementById('etapa-loja-senha').style.display = 'block';
-            document.getElementById('etapa-loja-placa').style.display = 'none';
-            document.getElementById('resultado-busca-loja').innerHTML = '';
-        }
-
-        function buscarCarroPorPlacaLoja() {
-            const placaBuscada = document.getElementById('input-loja-placa').value.toUpperCase().trim();
-            const divResultado = document.getElementById('resultado-busca-loja');
-            if(!placaBuscada) return alert('Insira a placa para pesquisa.');
-
-            const carroEncontrado = todosOsCarros.find(c => c.placaReal === placaBuscada);
-
-            if(carroEncontrado) {
-                divResultado.innerHTML = `
-                    <div class="card border-0 text-start rounded-4 shadow-sm bg-light">
-                        <div class="card-body p-3">
-                            <h6 class="fw-bold text-dark mb-2">${carroEncontrado.modelo}</h6>
-                            <p class="mb-1 small"><strong>Placa:</strong> <span class="badge bg-dark rounded-2">${carroEncontrado.placaReal}</span></p>
-                            <p class="mb-1 small"><strong>Margem:</strong> <span class="text-success fw-bold">${carroEncontrado.margem}</span></p>
-                            <p class="mb-3 small"><strong>Lote:</strong> <span class="text-primary fw-bold">${carroEncontrado.valor}</span></p>
-                            <button class="btn btn-premium-action w-100 btn-sm" onclick="fecharLojaEVerCarro(${carroEncontrado.id})">Visualizar Fotos</button>
-                        </div>
-                    </div>
-                `;
-            } else {
-                divResultado.innerHTML = `<div class="alert alert-danger py-2 small rounded-3">Nenhum veículo com a placa "${placaBuscada}".</div>`;
-            }
-        }
-
-        function fecharLojaEVerCarro(idCarro) {
-            bootstrap.Modal.getInstance(document.getElementById('modalLoja')).hide();
-            const carro = todosOsCarros.find(c => c.id === idCarro);
-            abrirModalDetalhes(idCarro);
-            document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
-        }
-
-        function abrirModalEndereco() {
-            new bootstrap.Modal(document.getElementById('modalEndereco')).show();
-        }
-
-        function converterLinkDrive(link) {
-            if (link.includes('drive.google.com')) {
-                return 'https://lh3.googleusercontent.com/d/' + (link.includes('id=') ? link.split('id=')[1].split('&')[0] : link.split('/d/')[1].split('/')[0]);
-            }
-            return link.trim();
-        }
-
-        function AppendingKM(valor) {
-            if(!valor || valor === 'N/I') return 'N/I';
-            if(String(valor).toLowerCase().includes('km')) return valor;
-            return valor + ' KM';
-        }
-        
-        function AppendingCor(valor) { return valor || 'N/I'; }
-        function ServerCleanValue(val) { return val ? val.replace(/^"|"$/g, '').trim() : 'N/A'; }
-
-        function filtrarPorTexto() {
-            termoPesquisa = document.getElementById('campo-pesquisa').value.toLowerCase().trim();
-            processarEstoque();
-        }
-
-        function processarEstoque() {
-            let listaFiltrada = [...todosOsCarros];
-
-            if (categoriaAtiva === 'novidades') {
-                listaFiltrada = listaFiltrada.filter(c => c.novidade && !c.status.includes('vendido'));
-            } else if (categoriaAtiva === 'baixou') {
-                listaFiltrada = listaFiltrada.filter(c => c.baixouPreco && !c.status.includes('vendido'));
-            } else if (categoriaAtiva !== 'todos') {
-                listaFiltrada = listaFiltrada.filter(c => c.carroceria === categoriaAtiva);
-            }
-
-            if (termoPesquisa !== '') {
-                listaFiltrada = listaFiltrada.filter(c => 
-                    c.modelo.toLowerCase().includes(termoPesquisa) ||
-                    c.cor.toLowerCase().includes(termoPesquisa) ||
-                    c.placaReal.toLowerCase().includes(termoPesquisa)
-                );
-            }
-
-            if (ordenarPorMargemAtivo) {
-                const limparValor = (texto) => {
-                    if (!texto || texto === 'N/I') return 0;
-                    let limpo = texto.replace(/[^\d,.-]/g, '').replace(/\./g, '').replace(',', '.');
-                    return parseFloat(limpo) || 0;
-                };
-                listaFiltrada.sort((a, b) => limparValor(b.margem) - limparValor(a.margem));
-            }
-
-            renderizarCards(listaFiltrada);
-        }
-
-        function filtrarCategoria(cat, botao) {
-            categoriaAtiva = cat;
-            document.querySelectorAll('.btn-filter-pill:not(.btn-margem-toggle)').forEach(btn => btn.classList.remove('active'));
-            botao.classList.add('active');
-            processarEstoque();
-        }
-
-        function toggleMargem(botao) {
-            ordenarPorMargemAtivo = !ordenarPorMargemAtivo;
-            botao.classList.toggle('active-margem', ordenarPorMargemAtivo);
-            processarEstoque();
-        }
-
-        function abrirModalDetalhes(idCarro) {
-            const carro = todosOsCarros.find(c => c.id === idCarro);
-            if (!carro) return;
-
-            document.getElementById('modalModelo').innerText = carro.modelo;
-            document.getElementById('modalValor').innerText = carro.valor;
-            document.getElementById('modalMargem').innerText = carro.margem;
-            document.getElementById('modalFipe').innerText = carro.fipe;
-            document.getElementById('modalPlaca').innerText = carro.placa; 
-            document.getElementById('modalCor').innerText = carro.cor;
-            document.getElementById('modalKm').innerText = carro.km;
-            document.getElementById('modalCarroceria').innerText = carro.carroceria;
-            document.getElementById('modalDescricao').innerText = carro.descricao;
-
-            const containerFotos = document.getElementById('modalFotosContainer');
-            containerFotos.innerHTML = '';
-            
-            let arrFotos = [];
-            if (carro.fotoCapa.trim() !== '') arrFotos.push(carro.fotoCapa);
-            if (carro.fotosCarrossel.trim() !== '') {
-                const extras = carro.fotosCarrossel.split(',').filter(f => f.trim() !== '');
-                arrFotos = arrFotos.concat(extras);
-            }
-            
-            if (arrFotos.length === 0) {
-                arrFotos.push('https://placehold.co/600x400/0f172a/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]));
-            }
-
-            arrFotos.forEach((foto, index) => {
-                const urlLimpa = converterLinkDrive(foto);
-                const classeAtiva = index === 0 ? 'active' : '';
-                containerFotos.innerHTML += `
-                    <div class="carousel-item ${classeAtiva}">
-                        <img src="${urlLimpa}" class="modal-carousel-img" alt="Foto ${index + 1}">
-                    </div>
-                `;
-            });
-
-            const esVendido = carro.status.includes('vendido');
-            const containerBotao = document.getElementById('modalBotaoWppContainer');
-            if (!esVendido) {
-                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
-                containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
-            } else {
-                containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
-            }
-
-            new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
-        }
-
-        function renderizarCards(lista) {
-            const container = document.getElementById('lista-carros');
-            container.innerHTML = '';
-
-            if(lista.length === 0) {
-                container.innerHTML = '<div class="text-center w-100 my-5 text-muted"><h6>Nenhum veículo na seleção atual.</h6></div>';
-                return;
-            }
-
-            lista.forEach(carro => {
-                const esVendido = carro.status.includes('vendido');
-                const classeStatus = esVendido ? 'tag-status-vendido' : 'tag-status-disponivel';
-                const textoStatus = esVendido ? 'RESERVADO' : 'DISPONÍVEL';
-                
-                const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/0f172a/ffffff?text=' + encodeURIComponent(carro.modelo.split(' ')[0]);
-                
-                const badgeNovidadeHtml = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
-                const badgeBaixouHtml = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
-
-                const cardHtml = `
-                    <div class="col" onclick="abrirModalDetalhes(${carro.id})">
-                        <div class="card-vehicle">
-                            <div class="img-vehicle-wrapper">
-                                <span class="tag-status ${classeStatus}">${textoStatus}</span>
-                                ${badgeNovidadeHtml}
-                                ${badgeBaixouHtml}
-                                <img src="${fotoUrl}" class="img-vehicle" alt="${carro.modelo}">
-                            </div>
-                            <div class="card-vehicle-body">
-                                <div>
-                                    <h5 class="vehicle-title text-truncate" title="${carro.modelo}">${carro.modelo}</h5>
-                                    <div class="specs-grid">
-                                        <div class="spec-pill"><span>Placa</span>${carro.placa}</div>
-                                        <div class="spec-pill text-truncate"><span>Cor</span>${carro.cor}</div>
-                                        <div class="spec-pill text-truncate"><span>KM</span>${carro.km}</div>
-                                        <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.68rem;">${carro.margem}</span></div>
-                                    </div>
-                                </div>
-                                <div class="price-container">
-                                    <div>
-                                        <span class="price-label">REPASSE</span>
-                                        <span class="price-value">${carro.valor}</span>
-                                    </div>
-                                    <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += cardHtml;
-            });
-        }
-
-        carregarEstoque();
-    </script>
+    <script src="app.js"></script>
 </body>
 </html>
