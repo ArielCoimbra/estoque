@@ -54,7 +54,7 @@
         .faixa-novidades-wrapper {
             display: inline-block;
             padding-left: 100%;
-            animation: letreiroCorrendo 30s linear infinite;
+            animation: letreiroCorrendo 85s linear infinite;
         }
         .faixa-novidades-wrapper:hover {
             animation-play-state: paused;
@@ -169,31 +169,38 @@
             .banner-premium { padding: 30px; }
         }
 
-        /* BARRA DE FILTROS ESTILO APP */
-        .filter-scroll-container {
+        /* BARRA DE FILTROS TOTALMENTE VISÍVEL (FLEX-WRAP CLIN) */
+        .filter-grid-container {
             display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 5px 0 15px 0;
-            scrollbar-width: none;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: flex-start;
+            padding: 4px 0 10px 0;
         }
-        .filter-scroll-container::-webkit-scrollbar {
-            display: none;
+        @media (min-width: 768px) {
+            .filter-grid-container { gap: 10px; }
         }
+
         .btn-filter-pill {
             background: #ffffff;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 6px 16px;
-            border-radius: 40px;
+            padding: 5px 12px;
+            border-radius: 30px;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             white-space: nowrap;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            flex: 1 1 auto; /* Permite que os botões se ajustem dinamicamente preenchendo as linhas */
+            justify-content: center;
         }
+        @media (min-width: 768px) {
+            .btn-filter-pill { padding: 8px 18px; font-size: 0.85rem; flex: 0 1 auto; }
+        }
+
         .btn-filter-pill.active {
             background: var(--brand-dark)!important;
             color: #ffffff!important;
@@ -439,7 +446,7 @@
     </div>
 
     <!-- BANNER DINÂMICO DE AVISOS -->
-    <div class="container mb-4 px-3">
+    <div class="container mb-3 px-3">
         <div id="box-banner-destaque" class="banner-premium" style="display: none;">
             <div class="row align-items-center g-3">
                 <div class="col-12 col-md-8 text-center text-md-start">
@@ -451,9 +458,9 @@
         </div>
     </div>
 
-    <!-- FILTROS ESTILO APLICATIVO EM CARROSSEL HORIZONTAL -->
+    <!-- FILTROS REORGANIZADOS EM GRID COMPACTO E 100% VISÍVEL (CLIN) -->
     <div class="container mb-3 px-3">
-        <div class="filter-scroll-container">
+        <div class="filter-grid-container">
             <button class="btn-filter-pill active" onclick="filtrarCategoria('todos', this)"><i class="bi bi-grid-fill"></i> Todos</button>
             <button class="btn-filter-pill text-warning border-warning-subtle" onclick="filtrarCategoria('novidades', this)">✨ Novidades</button>
             <button class="btn-filter-pill text-danger border-danger-subtle" onclick="filtrarCategoria('baixou', this)">🔥 Baixou</button>
@@ -663,7 +670,7 @@
                     const ehNovidade = textoStatusColunaH.includes('novidade') || textoColunaI.includes('novidade');
                     const ehBaixouPreco = textoStatusColunaH.includes('baixou') || textoColunaI.includes('baixou') || textoStatusColunaH.includes('preco');
 
-                    const fotoCapaRaw = linha[8] || ''; 
+                    const fotoCapaRaw = WebkitBoxFix(linha[8]); 
                     const fotosCarrosselRaw = linha[9] || ''; 
                     const descricaoRaw = linha[10] ? linha[10] : 'Nenhuma observação cadastrada.'; 
                     const modeloTextoCompleto = linha[1].trim();
@@ -704,12 +711,9 @@
             }
         }
 
-        function depthClean(url) {
-            return url ? url.replace(/["']/g, "").trim() : '';
-        }
-        function mergeStatusCheck(col) {
-            return col ? col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
-        }
+        function depthClean(url) { return url ? url.replace(/["']/g, "").trim() : ''; }
+        function mergeStatusCheck(col) { return col ? col.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : ''; }
+        function WebkitBoxFix(str) { return str ? str.trim() : ''; }
 
         function montarFaixaLetreiro(listaNovidades) {
             const divFaixa = document.getElementById('faixa-letreiro-container');
@@ -818,13 +822,8 @@
             return valor + ' KM';
         }
         
-        function AppendingCor(valor) {
-            return valor || 'N/I';
-        }
-
-        function ServerCleanValue(val) {
-            return val ? val.replace(/^"|"$/g, '').trim() : 'N/A';
-        }
+        function AppendingCor(valor) { return valor || 'N/I'; }
+        function ServerCleanValue(val) { return val ? val.replace(/^"|"$/g, '').trim() : 'N/A'; }
 
         function filtrarPorTexto() {
             termoPesquisa = document.getElementById('campo-pesquisa').value.toLowerCase().trim();
@@ -916,7 +915,7 @@
             const esVendido = carro.status.includes('vendido');
             const containerBotao = document.getElementById('modalBotaoWppContainer');
             if (!esVendido) {
-                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
+                const textoMensagemWpp = encodeURIComponent(`Olá Ariel Coimbra, estou avaliating o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
                 containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${textoMensagemWpp}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
             } else {
                 containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
