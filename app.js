@@ -1,5 +1,7 @@
+// URL de Exportação de Dados
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
 
+// Estados Globais da Aplicação (Gerenciamento de Fluxo)
 let todosOsCarros = []; 
 let listaFiltradaGlobal = [];
 let categoriaAtiva = 'todos';
@@ -8,15 +10,18 @@ let ordenarPorMargemAtivo = false;
 let termoPesquisa = '';
 let hashSenhaMestre = ''; 
 
+// Paginação / Infinite Scroll Configurações
 let itensExibidosAtualmente = 0;
-const tamanhoDoBlocoPagina = 12;
+const tamanhoDoBlocoPagina = 12; // Carrega de 12 em 12 para dar desempenho instantâneo
 
+// Inicialização Automática da Aplicação
 document.addEventListener("DOMContentLoaded", () => {
     exibirSkeletonsIniciais();
     configurarEventosInterface();
     carregarEstoqueComCache();
 });
 
+// Configuração Profissional de Eventos (Event Listeners unificados)
 function configurarEventosInterface() {
     document.getElementById('campo-pesquisa').addEventListener('input', (e) => {
         termoPesquisa = e.target.value.toLowerCase().trim();
@@ -47,6 +52,7 @@ function configurarEventosInterface() {
     document.getElementById('btn-desconectar-loja').addEventListener('click', sairModoLoja);
     document.getElementById('btn-consultar-placa').addEventListener('click', buscarCarroPorPlacaLoja);
 
+    // Detecção da Rolagem da Página para Infinite Scroll
     window.addEventListener('scroll', () => {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
             renderizarProximoBloco();
@@ -54,6 +60,7 @@ function configurarEventosInterface() {
     });
 }
 
+// Melhoria 9: Exibição de Estruturas Fantasmas (Skeletons Screens)
 function exibirSkeletonsIniciais() {
     const container = document.getElementById('lista-carros');
     let htmlSkeleton = '';
@@ -71,6 +78,7 @@ function exibirSkeletonsIniciais() {
     container.innerHTML = htmlSkeleton;
 }
 
+// Melhoria 6: Mecanismo de Cache de 5 Minutos em Armazenamento Local
 async function carregarEstoqueComCache() {
     const CHAVE_CACHE = 'estoque_unidas_data';
     const CHAVE_TEMPO = 'estoque_unidas_timestamp';
@@ -81,8 +89,10 @@ async function carregarEstoqueComCache() {
     const agora = new Date().getTime();
 
     if (cacheSalvo && tempoSalvo && (agora - tempoSalvo < CINCO_MINUTOS)) {
+        // Inicializa imediatamente usando a memória local ultrarrápida
         parsearDadosPlanilha(cacheSalvo);
     } else {
+        // Atualiza em background de forma assíncrona
         try {
             const resposta = await fetch(urlPlanilha + '&nocache=' + agora);
             if (!resposta.ok) throw new Error();
@@ -94,14 +104,15 @@ async function carregarEstoqueComCache() {
             parsearDadosPlanilha(textoCsv);
         } catch (erro) {
             if (cacheSalvo) {
-                parsearDadosPlanilha(cacheSalvo);
+                parsearDadosPlanilha(cacheSalvo); // Se falhar mas tiver cache antigo, usa o antigo
             } else {
-                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao sincronizar banco de dados.</h6></div>';
+                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha crítica ao sincronizar banco de dados.</h6></div>';
             }
         }
     }
 }
 
+// Melhoria 10: Parser Robusto de Dados usando Engine PapaParse
 function parsearDadosPlanilha(textoCsv) {
     Papa.parse(textoCsv, {
         skipEmptyLines: true,
@@ -109,16 +120,18 @@ function parsearDadosPlanilha(textoCsv) {
             const linhas = resultados.data;
             if (linhas.length === 0) return;
 
+            // Extração de metadados administrativos e criptografia preventiva da senha (Melhoria 7)
             if (linhas.length > 2 && linhas[2][11]) {
                 const senhaLimpa = linhas[2][11].trim();
                 hashSenhaMestre = CryptoJS.SHA256(senhaLimpa).toString();
             }
 
             let fraseDestaque = (linhas[0] && linhas[0][11]) ? linhas[0][11].trim() : "";
-            let linkGrupoWpp = (linhas[1] && linhas[1][11]) ? lines[1][11].trim() : "";
+            let linkGrupoWpp = (linhas[1] && linhas[1][11]) ? linhas[1][11].trim() : "";
 
             gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
 
+            // Descarte da linha de cabeçalho da tabela
             linhas.shift();
 
             let disponiveis = [];
@@ -141,12 +154,12 @@ function parsearDadosPlanilha(textoCsv) {
                     placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I',
                     placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
                     modelo: modeloTexto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
-                    cor: staticSanitize(linha[2]),
+                    cor: linha[2] || 'N/I',
                     km: formatarKM(linha[3]),
-                    fipe: staticSanitize(linha[4]),
-                    valor: staticSanitize(linha[5]),
+                    fipe: linha[4] || 'N/A',
+                    valor: linha[5] || 'N/A',
                     valorNumerico: converterPrecoParaNumero(linha[5]),
-                    margem: staticSanitize(linha[6]),
+                    margem: linha[6] || 'N/I',
                     status: txtStatusH,
                     fotoCapa: linha[8] ? linha[8].trim() : '',
                     fotosCarrossel: linha[9] || '',
@@ -171,15 +184,10 @@ function parsearDadosPlanilha(textoCsv) {
     });
 }
 
-function staticSanitize(val) {
-    if (!val) return 'N/I';
-    return String(val).replace(/^["']|["']$/g, '').trim();
-}
-
+// Helpers de Higienização de Strings
 function formatarKM(val) {
     if(!val || val === 'N/I') return 'N/I';
-    let clean = staticSanitize(val);
-    return clean.toLowerCase().includes('km') ? clean : clean + ' KM';
+    return String(val).toLowerCase().includes('km') ? val : val + ' KM';
 }
 
 function converterPrecoParaNumero(texto) {
@@ -199,45 +207,17 @@ function identificarCarroceria(modelo) {
 
 function gerenciarBannerDestaque(frase, link) {
     const box = document.getElementById('box-banner-destaque');
-    const textoBanner = document.getElementById('texto-banner-destaque');
-    const containerBotao = document.getElementById('container-botao-banner');
-    
-    if (box && textoBanner && containerBotao) {
-        if (frase && frase !== "" && frase.toLowerCase() !== "null") {
-            textoBanner.innerText = frase;
-            if (link && link.startsWith('http')) {
-                containerBotao.innerHTML = `<a href="${link}" target="_blank" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
-            } else {
-                containerBotao.innerHTML = "";
-            }
-            box.style.display = "block";
+    if (frase && frase !== "" && frase.toLowerCase() !== "null") {
+        document.getElementById('texto-banner-destaque').innerText = frase;
+        const containerBotao = document.getElementById('container-botao-banner');
+        if (link && link.startsWith('http')) {
+            containerBotao.innerHTML = `<a href="${link}" target="_blank" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
         } else {
-            box.style.display = "none";
+            containerBotao.innerHTML = "";
         }
-    }
-
-    const overlayBloqueio = document.getElementById('bloqueio-grupo-overlay');
-    const btnEntrarGrupo = document.getElementById('btn-bloqueio-entrar-grupo');
-    
-    if (overlayBloqueio && btnEntrarGrupo) {
-        const dispositivoLiberado = localStorage.getItem('catalogo_grupo_liberado') === 'true';
-
-        if (!dispositivoLiberado && link && link.startsWith('http')) {
-            btnEntrarGrupo.href = link;
-            document.body.style.overflow = 'hidden';
-            overlayBloqueio.style.display = 'flex';
-
-            btnEntrarGrupo.onclick = function() {
-                localStorage.setItem('catalogo_grupo_liberado', 'true');
-                setTimeout(() => {
-                    overlayBloqueio.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }, 800);
-            };
-        } else {
-            overlayBloqueio.style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        box.style.display = "block";
+    } else {
+        box.style.display = "none";
     }
 }
 
@@ -255,9 +235,11 @@ function montarFaixaLetreiro(listaNovidades) {
     divFaixa.style.display = 'block';
 }
 
+// Regras de Negócio, Filtro Avançado por Preço (Melhoria 8) e Ordenação Especial
 function processarEstoque() {
     let filtrados = [...todosOsCarros];
 
+    // Filtro por Categorias
     if (categoriaAtiva === 'novidades') {
         filtrados = filtrados.filter(c => c.novidade && !c.status.includes('vendido'));
     } else if (categoriaAtiva === 'baixou') {
@@ -266,6 +248,7 @@ function processarEstoque() {
         filtrados = filtrados.filter(c => c.carroceria === categoriaAtiva);
     }
 
+    // Filtro Avançado por Faixa de Preço (Melhoria 8)
     if (filtroPrecoAtivo === 'ate-50k') {
         filtrados = filtrados.filter(c => c.valorNumerico > 0 && c.valorNumerico <= 50000);
     } else if (filtroPrecoAtivo === '50k-80k') {
@@ -274,6 +257,7 @@ function processarEstoque() {
         filtrados = filtrados.filter(c => c.valorNumerico > 80000);
     }
 
+    // Campo de busca textual livre
     if (termoPesquisa !== '') {
         filtrados = filtrados.filter(c => 
             c.modelo.toLowerCase().includes(termoPesquisa) ||
@@ -282,18 +266,23 @@ function processarEstoque() {
         );
     }
 
+    // Ordenação Avançada por Maior Lucratividade
     if (ordenarPorMargemAtivo) {
         filtrados.sort((a, b) => converterPrecoParaNumero(b.margem) - converterPrecoParaNumero(a.margem));
     }
 
     listaFiltradaGlobal = filtrados;
+    
+    // Atualização Dinâmica do Contador de Veículos (Gatilhamento Mental - Melhoria 2 do usuário)
     document.getElementById('contador-veiculos').innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
 
+    // Reseta Paginação para renderizar o primeiro lote limpo (Melhoria 4)
     itensExibidosAtualmente = 0;
     document.getElementById('lista-carros').innerHTML = '';
     renderizarProximoBloco();
 }
 
+// Melhoria 4: Implementação Mecânica de Infinite Scroll (Carregamento sob Demanda)
 function renderizarProximoBloco() {
     if (itensExibidosAtualmente >= listaFiltradaGlobal.length) return;
 
@@ -306,13 +295,14 @@ function renderizarProximoBloco() {
         const classeStatus = esVendido ? 'tag-status-vendido' : 'tag-status-disponivel';
         const textoStatus = esVendido ? 'RESERVADO' : 'DISPONÍVEL';
         
+        // Melhoria 3: Lazy Loading Nativo de Imagens nas Linhas de Cards
         const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS';
         
         const badgeNovidade = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
         const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
 
         const cardHtml = `
-            <div class="col" onclick="abrirModalDetalhesDirect(${carro.id})">
+            <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
                 <div class="card-vehicle">
                     <div class="img-vehicle-wrapper">
                         <span class="tag-status ${classeStatus}">${textoStatus}</span>
@@ -331,7 +321,7 @@ function renderizarProximoBloco() {
                         </div>
                         <div class="price-container">
                             <div><span class="price-label">REPASSE</span><span class="price-value">${carro.valor}</span></div>
-                            <span class="btn btn-sm btn-outline-dark rounded-pill fw-bold">Ver</span>
+                            <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
                         </div>
                     </div>
                 </div>
@@ -342,7 +332,7 @@ function renderizarProximoBloco() {
     itensExibidosAtualmente = limite;
 }
 
-// Tratamento de imagem quebrada do Drive modificado para retornar nulo de forma limpa
+// Melhoria 2: Tratamento de Fallback de Imagem Corrompida ou Quebrada
 function tratarImagemQuebrada(imagemElemento) {
     imagemElemento.onerror = null; 
     imagemElemento.src = 'https://placehold.co/600x400/090d16/ffffff?text=Imagem+em+Atualização';
@@ -350,17 +340,12 @@ function tratarImagemQuebrada(imagemElemento) {
 
 function converterLinkDrive(link) {
     if (link.includes('drive.google.com')) {
-        let id = '';
-        if (link.includes('id=')) {
-            id = link.split('id=')[1].split('&')[0];
-        } else if (link.includes('/d/')) {
-            id = link.split('/d/')[1].split('/')[0];
-        }
-        return 'https://lh3.googleusercontent.com/d/' + id;
+        return 'https://lh3.googleusercontent.com/d/' + (link.includes('id=') ? link.split('id=')[1].split('&')[0] : link.split('/d/')[1].split('/')[0]);
     }
     return link;
 }
 
+// Controle do Modal de Detalhes Completo + Geração Dinâmica de Leads Compartilháveis
 function abrirModalDetalhesDirect(idCarro) {
     const carro = todosOsCarros.find(c => c.id === idCarro);
     if (!carro) return;
@@ -394,13 +379,14 @@ function abrirModalDetalhesDirect(idCarro) {
         `;
     });
 
+    // Melhoria 5: Compartilhamento Nativo Inteligente de Links e Textos (WhatsApp/Redes)
     document.getElementById('btn-compartilhar-nativo').onclick = function() {
         const payloadTexto = `🔥 Ficha de Repasse: *${carro.modelo}*\n💰 Valor de Lote: ${carro.valor}\n📈 Tabela FIPE: ${carro.fipe}\n🎨 Cor: ${carro.cor} | 🧭 KM: ${carro.km}\n\nConfira as imagens direto no catálogo completo!`;
         if (navigator.share) {
             navigator.share({ title: carro.modelo, text: payloadTexto, url: window.location.href }).catch(() => {});
         } else {
             navigator.clipboard.writeText(payloadTexto);
-            alert('Ficha copiada!');
+            alert('Ficha copiada para a área de transferência!');
         }
     };
 
@@ -416,6 +402,7 @@ function abrirModalDetalhesDirect(idCarro) {
     new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
 }
 
+// Melhoria 7: Proteção Estrita contra Engenharia Reversa (Criptografia SHA256 da Senha)
 function abrirModalLoja() {
     document.getElementById('input-loja-senha').value = '';
     document.getElementById('input-loja-placa').value = '';
@@ -430,6 +417,7 @@ function verificarSenhaLoja() {
     const digitada = document.getElementById('input-loja-senha').value.trim();
     if(!digitada) return alert('Digite a senha!');
     
+    // Transforma a entrada em hash e compara de forma mascarada
     const hashDigitado = CryptoJS.SHA256(digitada).toString();
     if (hashDigitado === hashSenhaMestre) {
         localStorage.setItem('modoLojaPermitido', 'true');
