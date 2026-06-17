@@ -464,3 +464,13 @@ function fecharLojaEVerCarroDireto(idCarro) {
     abrirModalDetalhesDirect(idCarro);
     document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
 }
+
+// Função Profissional para Abrir o Modal de Endereço
+function abrirModalEndereco() {
+    const modalElemento = document.getElementById('modalEndereco');
+    if (modalElemento) {
+        // Inicializa e exibe o modal nativo do Bootstrap
+        const meuModal = new bootstrap.Modal(modalElemento);
+        meuModal.show();
+    }
+}
