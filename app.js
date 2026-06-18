@@ -345,12 +345,11 @@ function converterLinkDrive(link) {
     return link;
 }
 
-// Nova versão inteligente que lê pastas inteiras do Google Drive automaticamente
-async function abrirModalDetalhesDirect(idCarro) {
+// Controle do Modal de Detalhes Completo + Geração Dinâmica de Leads Compartilháveis
+function abrirModalDetalhesDirect(idCarro) {
     const carro = todosOsCarros.find(c => c.id === idCarro);
     if (!carro) return;
 
-    // Preenche os dados de texto no modal
     document.getElementById('modalModelo').innerText = carro.modelo;
     document.getElementById('modalValor').innerText = carro.valor;
     document.getElementById('modalMargem').innerText = carro.margem;
@@ -362,98 +361,24 @@ async function abrirModalDetalhesDirect(idCarro) {
     document.getElementById('modalDescricao').innerText = carro.descricao;
 
     const containerFotos = document.getElementById('modalFotosContainer');
-    // Mostra um aviso de "Carregando fotos..." elegante enquanto busca na pasta
-    containerFotos.innerHTML = `
-        <div class="carousel-item active">
-            <div class="d-flex flex-column align-items-center justify-content-center text-white" style="height: 250px; background: #090d16;">
-                <div class="spinner-border text-warning mb-2" role="status"></div>
-                <span style="font-size: 0.85rem; font-weight:600;">Buscando álbum de fotos...</span>
-            </div>
-        </div>
-    `;
-
-    // Abre o Modal na tela
-    const meuModal = new bootstrap.Modal(document.getElementById('modalDetalhes'));
-    meuModal.show();
-
-    let listaDeFotosFinais = [];
-
-    // Se houver uma foto de capa definida, ela será a primeira do carrossel
-    if (carro.fotoCapa && carro.fotoCapa !== '') {
-        listaDeFotosFinais.push(converterLinkDrive(carro.fotoCapa));
-    }
-
-    // MÁGICA DA PASTA DO DRIVE: Verifica se o campo de fotos contém um link de pasta
-    if (carro.fotosCarrossel && carro.fotosCarrossel.includes('drive.google.com/drive/folders/')) {
-        try {
-            // Extrai o ID da pasta do link
-            const urlPartes = carro.fotosCarrossel.split('/folders/');
-            const pastaId = urlPartes[1].split('?')[0].split('/')[0].trim();
-
-            // Faz uma requisição para ler o HTML público da pasta do Drive
-            const respostaPasta = await fetch(`https://images-opensocial.googleusercontent.com/gadgets/proxy?container=fb&url=${encodeURIComponent(carro.fotosCarrossel)}`);
-            const htmlDaPasta = await respostaPasta.text();
-
-            // Expressão regular para varrer o código da pasta atrás de IDs de imagens escondidas
-            const regexIdsImagens = /"([^"]+)"\s*,\s*\[\s*"id"\s*,\s*"([^"]+)"/g;
-            let match;
-            const idsEncontrados = new Set();
-
-            while ((match = regexIdsImagens.exec(htmlDaPasta)) !== null) {
-                if (match[2] && match[2].length > 15) {
-                    idsEncontrados.add(match[2]);
-                }
-            }
-
-            // Transforma os IDs encontrados em links diretos de imagem
-            idsEncontrados.forEach(idImg => {
-                listaDeFotosFinais.push(`https://drive.google.com/uc?export=view&id=${idImg}`);
-            });
-
-        } catch (erro) {
-            console.error("Erro ao ler pasta do Drive, usando método alternativo por quebra de string:", erro);
-        }
-    } else if (carro.fotosCarrossel && carro.fotosCarrossel !== '') {
-        // Se não for pasta, mas sim fotos separadas por vírgula, processa normalmente
-        const fotosSeparadas = carro.fotosCarrossel.split(',').map(f => f.trim()).filter(f => f !== '');
-        fotosSeparadas.forEach(foto => listaDeFotosFinais.push(converterLinkDrive(foto)));
-    }
-
-    // Se no fim das contas não achar nenhuma foto, coloca a imagem padrão cinza
-    if (listaDeFotosFinais.length === 0) {
-        listaDeFotosFinais.push('https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS');
-    }
-
-    // Renderiza todas as fotos capturadas dentro do carrossel do Bootstrap
     containerFotos.innerHTML = '';
-    listaDeFotosFinais.forEach((urlFoto, index) => {
+    
+    let arrFotos = [];
+    if (carro.fotoCapa !== '') arrFotos.push(carro.fotoCapa);
+    if (carro.fotosCarrossel !== '') {
+        arrFotos = arrFotos.concat(carro.fotosCarrossel.split(',').map(f => f.trim()).filter(f => f !== ''));
+    }
+    if (arrFotos.length === 0) arrFotos.push('https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS');
+
+    arrFotos.forEach((foto, index) => {
+        const urlLimpa = converterLinkDrive(foto);
         containerFotos.innerHTML += `
             <div class="carousel-item ${index === 0 ? 'active' : ''}">
-                <img src="${urlFoto}" class="modal-carousel-img" alt="Foto do Veículo" onerror="tratarImagemQuebrada(this)">
+                <img src="${urlLimpa}" class="modal-carousel-img" alt="Foto" onerror="tratarImagemQuebrada(this)">
             </div>
         `;
     });
 
-    // Configurações extras do botão de compartilhar e WhatsApp
-    document.getElementById('btn-compartilhar-nativo').onclick = function() {
-        const payloadTexto = `🔥 Ficha de Repasse: *${carro.modelo}*\n💰 Valor de Lote: ${carro.valor}\n📈 Tabela FIPE: ${carro.fipe}\n🎨 Cor: ${carro.cor} | 🧭 KM: ${carro.km}\n\nConfira as imagens direto no catálogo completo!`;
-        if (navigator.share) {
-            navigator.share({ title: carro.modelo, text: payloadTexto, url: window.location.href }).catch(() => {});
-        } else {
-            navigator.clipboard.writeText(payloadTexto);
-            alert('Ficha copiada!');
-        }
-    };
-
-    const esVendido = carro.status.includes('vendido');
-    const containerBotao = document.getElementById('modalBotaoWppContainer');
-    if (!esVendido) {
-        const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
-        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
-    } else {
-        containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
-    }
-}
     // Melhoria 5: Compartilhamento Nativo Inteligente de Links e Textos (WhatsApp/Redes)
     document.getElementById('btn-compartilhar-nativo').onclick = function() {
         const payloadTexto = `🔥 Ficha de Repasse: *${carro.modelo}*\n💰 Valor de Lote: ${carro.valor}\n📈 Tabela FIPE: ${carro.fipe}\n🎨 Cor: ${carro.cor} | 🧭 KM: ${carro.km}\n\nConfira as imagens direto no catálogo completo!`;
