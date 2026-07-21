@@ -15,8 +15,11 @@ body {
     color: var(--text-main);
     padding-top: 140px;
 }
+
 @media (min-width: 768px) {
-    body { padding-top: 130px; }
+    body { 
+        padding-top: 130px; 
+    }
 }
 
 /* LETREIRO EXCLUSIVO NO TOPO */
@@ -36,19 +39,23 @@ body {
     letter-spacing: 0.5px;
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
+
 .faixa-novidades-wrapper {
     display: inline-block;
     padding-left: 100%;
     animation: letreiroCorrendo 30s linear infinite;
 }
+
 .faixa-novidades-wrapper:hover {
     animation-play-state: paused;
     cursor: pointer;
 }
+
 .item-ticker {
     display: inline-block;
     margin-right: 80px;
 }
+
 @keyframes letreiroCorrendo {
     0% { transform: translate3d(0, 0, 0); }
     100% { transform: translate3d(-100%, 0, 0); }
@@ -67,6 +74,7 @@ body {
     width: 100%;
     z-index: 1020;
 }
+
 .navbar-brand-title {
     font-weight: 800;
     font-size: 1.2rem;
@@ -84,9 +92,11 @@ body {
     width: 300px;
     z-index: 1070;
 }
+
 .offcanvas-body {
     padding-top: 50px !important;
 }
+
 .menu-link-item {
     display: flex;
     align-items: center;
@@ -100,10 +110,12 @@ body {
     margin-bottom: 10px;
     white-space: nowrap;
 }
+
 .menu-link-item:hover, .menu-link-item:active {
     background: rgba(255,255,255,0.08);
     color: white;
 }
+
 .menu-link-item.active-item {
     background: var(--brand-primary);
     color: white;
@@ -117,6 +129,7 @@ body {
     padding: 4px 10px;
     box-shadow: 0 4px 20px -2px rgba(0,0,0,0.03);
 }
+
 .search-input {
     border: none;
     outline: none;
@@ -126,6 +139,7 @@ body {
     color: var(--brand-dark);
     width: 100%;
 }
+
 .select-premium-filtro {
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -153,6 +167,7 @@ body {
     gap: 6px;
     justify-content: flex-start;
 }
+
 .btn-filter-pill {
     background: #ffffff;
     color: var(--text-main);
@@ -169,17 +184,25 @@ body {
     flex: 1 1 auto;
     justify-content: center;
 }
+
 .btn-filter-pill:active {
     transform: scale(0.95);
 }
+
 @media (min-width: 768px) {
-    .btn-filter-pill { padding: 8px 18px; font-size: 0.85rem; flex: 0 1 auto; }
+    .btn-filter-pill { 
+        padding: 8px 18px; 
+        font-size: 0.85rem; 
+        flex: 0 1 auto; 
+    }
 }
+
 .btn-filter-pill.active {
     background: var(--brand-dark)!important;
     color: #ffffff!important;
     border-color: var(--brand-dark)!important;
 }
+
 .btn-filter-pill.btn-margem-toggle.active-margem {
     background: var(--brand-success)!important;
     color: white!important;
@@ -199,12 +222,20 @@ body {
     position: relative;
     cursor: pointer;
 }
+
 .card-vehicle:active {
     transform: scale(0.98);
 }
+
 @media (min-width: 768px) {
-    .card-vehicle { border-radius: 24px; }
-    .card-vehicle:hover { transform: translateY(-6px); box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.07); border-color: #cbd5e1; }
+    .card-vehicle { 
+        border-radius: 24px; 
+    }
+    .card-vehicle:hover { 
+        transform: translateY(-6px); 
+        box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.07); 
+        border-color: #cbd5e1; 
+    }
 }
 
 .img-vehicle-wrapper {
@@ -215,6 +246,7 @@ body {
     align-items: center;
     justify-content: center;
 }
+
 .img-vehicle {
     height: 130px;
     object-fit: contain;
@@ -222,17 +254,73 @@ body {
     padding: 6px;
     transition: opacity 0.3s ease;
 }
+
 @media (min-width: 768px) {
-    .img-vehicle { height: 220px; padding: 12px; }
+    .img-vehicle { 
+        height: 220px; 
+        padding: 12px; 
+    }
 }
 
 /* BADGES */
-.tag-status { position: absolute; top: 10px; left: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; z-index: 10; text-transform: uppercase; }
-.tag-status-disponivel { background: rgba(16, 185, 129, 0.95); color: white; }
-.tag-status-vendido { background: rgba(100, 116, 139, 0.9); color: white; }
-.tag-feature { position: absolute; top: 10px; right: 10px; font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 8px; color: white; z-index: 10; }
-.tag-feature-novidade { background: #f59e0b; }
-.tag-feature-baixou { background: #ef4444; top: 34px; }
+.tag-status { 
+    position: absolute; 
+    top: 10px; 
+    left: 10px; 
+    font-size: 0.6rem; 
+    font-weight: 700; 
+    padding: 4px 8px; 
+    border-radius: 8px; 
+    z-index: 10; 
+    text-transform: uppercase; 
+}
+
+.tag-status-disponivel { 
+    background: rgba(16, 185, 129, 0.95); 
+    color: white; 
+}
+
+.tag-status-vendido { 
+    background: rgba(100, 116, 139, 0.9); 
+    color: white; 
+}
+
+.tag-feature { 
+    position: absolute; 
+    top: 10px; 
+    right: 10px; 
+    font-size: 0.6rem; 
+    font-weight: 700; 
+    padding: 4px 8px; 
+    border-radius: 8px; 
+    color: white; 
+    z-index: 10; 
+}
+
+.tag-feature-novidade { 
+    background: #f59e0b; 
+}
+
+.tag-feature-baixou { 
+    background: #ef4444; 
+    top: 34px; 
+}
+
+/* BADGE EXCLUSIVO DO LAUDO CAUTELAR */
+.tag-feature-laudo {
+    background: #1e3a8a; /* Azul escuro corporativo */
+    top: 58px; /* Fica abaixo do badge 'baixou' se houver */
+}
+
+@media (max-width: 767px) {
+    .tag-feature-laudo {
+        top: 34px; /* Fica alinhado caso não tenha tantos badges no mobile */
+    }
+    /* Se tiver novidade E baixou no mobile, ajustamos para não sobrepor */
+    .tag-feature-baixou {
+        top: 34px;
+    }
+}
 
 .card-vehicle-body {
     padding: 0.9rem;
@@ -241,6 +329,7 @@ body {
     justify-content: space-between;
     flex-grow: 1;
 }
+
 .vehicle-title {
     font-size: 0.9rem;
     font-weight: 700;
@@ -255,6 +344,7 @@ body {
     gap: 4px;
     margin-bottom: 10px;
 }
+
 .spec-pill {
     background: #f8fafc;
     border: 1px solid #f1f5f9;
@@ -264,6 +354,7 @@ body {
     font-weight: 600;
     color: #475569;
 }
+
 .spec-pill span {
     color: var(--text-muted);
     font-weight: 500;
@@ -279,23 +370,53 @@ body {
     justify-content: space-between;
     align-items: center;
 }
-.price-label { font-size: 0.58rem; font-weight: 700; color: var(--text-muted); display: block; }
-.price-value { font-size: 1.05rem; font-weight: 800; color: var(--brand-primary); }
+
+.price-label { 
+    font-size: 0.58rem; 
+    font-weight: 700; 
+    color: var(--text-muted); 
+    display: block; 
+}
+
+.price-value { 
+    font-size: 1.05rem; 
+    font-weight: 800; 
+    color: var(--brand-primary); 
+}
 
 /* DESIGN SKELETON (EFEITO CARREGANDO GHOST) */
 .skeleton {
     animation: skeleton-loading 1.2s linear infinite alternate;
 }
+
 @keyframes skeleton-loading {
     0% { background-color: #e2e8f0; }
     100% { background-color: #f1f5f9; }
 }
-.skeleton-img { width: 100%; height: 130px; border-radius: 16px 16px 0 0; }
-.skeleton-text { height: 14px; margin-bottom: 8px; border-radius: 4px; width: 80%; }
-.skeleton-text.short { width: 50%; }
+
+.skeleton-img { 
+    width: 100%; 
+    height: 130px; 
+    border-radius: 16px 16px 0 0; 
+}
+
+.skeleton-text { 
+    height: 14px; 
+    margin-bottom: 8px; 
+    border-radius: 4px; 
+    width: 80%; 
+}
+
+.skeleton-text.short { 
+    width: 50%; 
+}
 
 /* FIX MODAL BUTTON CLOSER */
-.modal-content { border-radius: 20px; border: none; }
+.modal-content { 
+    border-radius: 20px; 
+    border: none; 
+}
+
 .botao-fechar-modal-mestre {
     position: absolute;
     top: 16px;
@@ -308,6 +429,28 @@ body {
     opacity: 1 !important;
     border: none;
 }
-.modal-carousel-img { width: 100%; height: 250px; object-fit: contain; background-color: #090d16; }
-.loja-input-style { border-radius: 14px; padding: 12px; font-size: 1.1rem; font-weight: 700; border: 2px solid var(--border-color); text-align: center; }
-.btn-premium-action { background: var(--brand-dark); color: white; font-weight: 600; border-radius: 14px; padding: 12px; border: none; }
+
+.modal-carousel-img { 
+    width: 100%; 
+    height: 250px; 
+    object-fit: contain; 
+    background-color: #090d16; 
+}
+
+.loja-input-style { 
+    border-radius: 14px; 
+    padding: 12px; 
+    font-size: 1.1rem; 
+    font-weight: 700; 
+    border: 2px solid var(--border-color); 
+    text-align: center; 
+}
+
+.btn-premium-action { 
+    background: var(--brand-dark); 
+    color: white; 
+    font-weight: 600; 
+    border-radius: 14px; 
+    padding: 12px; 
+    border: none; 
+}
