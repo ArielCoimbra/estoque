@@ -117,28 +117,28 @@ function parsearDadosPlanilha(textoCsv) {
     Papa.parse(textoCsv, {
         skipEmptyLines: true,
         complete: function(resultados) {
-            const linhas = resultados.data;
-            if (linhas.length === 0) return;
+            const lines = resultados.data;
+            if (lines.length === 0) return;
 
             // Extração de metadados administrativos e criptografia preventiva da senha (Melhoria 7)
-            if (linhas.length > 2 && linhas[2][11]) {
-                const senhaLimpa = linhas[2][11].trim();
+            if (lines.length > 2 && lines[2][11]) {
+                const senhaLimpa = lines[2][11].trim();
                 hashSenhaMestre = CryptoJS.SHA256(senhaLimpa).toString();
             }
 
-            let fraseDestaque = (linhas[0] && linhas[0][11]) ? linhas[0][11].trim() : "";
-            let linkGrupoWpp = (linhas[1] && linhas[1][11]) ? linhas[1][11].trim() : "";
+            let fraseDestaque = (lines[0] && lines[0][11]) ? lines[0][11].trim() : "";
+            let linkGrupoWpp = (lines[1] && lines[1][11]) ? lines[1][11].trim() : "";
 
             gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
 
             // Descarte da linha de cabeçalho da tabela
-            linhas.shift();
+            lines.shift();
 
             let disponiveis = [];
             let vendidos = [];
             let novidadesParaLetreiro = [];
 
-            linhas.forEach((linha, index) => {
+            lines.forEach((linha, index) => {
                 if (linha.length < 2 || !linha[1] || linha[1].trim() === "") return;
 
                 const txtStatusH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
@@ -148,6 +148,9 @@ function parsearDadosPlanilha(textoCsv) {
                 const ehBaixou = txtStatusH.includes('baixou') || txtStatusI.includes('baixou') || txtStatusH.includes('preco');
 
                 const modeloTexto = linha[1].trim();
+
+                // Captura a coluna M (índice 12) para o link do Laudo Cautelar
+                const linkLaudoInput = (linha[12] && linha[12].trim().startsWith('http')) ? linha[12].trim() : '';
 
                 const carro = {
                     id: index,
@@ -166,7 +169,8 @@ function parsearDadosPlanilha(textoCsv) {
                     descricao: linha[10] || 'Nenhuma observação técnica cadastrada.',
                     carroceria: identificarCarroceria(modeloTexto),
                     novidade: ehNovidade,
-                    baixouPreco: ehBaixou
+                    baixouPreco: ehBaixou,
+                    laudoUrl: linkLaudoInput // Salva a URL do laudo no objeto do carro
                 };
 
                 if (carro.status.includes('vendido')) {
@@ -300,13 +304,16 @@ function renderizarProximoBloco() {
         
         const badgeNovidade = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
         const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
+        
+        // Badge do Laudo Cautelar adicionado dinamicamente no topo do card se houver link
+        const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
 
         const cardHtml = `
             <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
                 <div class="card-vehicle">
                     <div class="img-vehicle-wrapper">
                         <span class="tag-status ${classeStatus}">${textoStatus}</span>
-                        ${badgeNovidade} ${badgeBaixou}
+                        ${badgeNovidade} ${badgeBaixou} ${badgeLaudo}
                         <img src="${fotoUrl}" class="img-vehicle" loading="lazy" alt="${carro.modelo}" onerror="tratarImagemQuebrada(this)">
                     </div>
                     <div class="card-vehicle-body">
@@ -360,6 +367,18 @@ function abrirModalDetalhesDirect(idCarro) {
     document.getElementById('modalCarroceria').innerText = carro.carroceria;
     document.getElementById('modalDescricao').innerText = carro.descricao;
 
+    // Gerenciador do Botão do Laudo Cautelar dentro do modal
+    const containerLaudo = document.getElementById('modalLaudoContainer');
+    if (carro.laudoUrl && carro.laudoUrl !== '') {
+        containerLaudo.innerHTML = `
+            <a href="${carro.laudoUrl}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
+                <i class="bi bi-file-earmark-check-fill"></i> Visualizar Laudo Cautelar
+            </a>
+        `;
+    } else {
+        containerLaudo.innerHTML = '';
+    }
+
     const containerFotos = document.getElementById('modalFotosContainer');
     containerFotos.innerHTML = '';
     
@@ -393,7 +412,8 @@ function abrirModalDetalhesDirect(idCarro) {
     const esVendido = carro.status.includes('vendido');
     const containerBotao = document.getElementById('modalBotaoWppContainer');
     if (!esVendido) {
-        const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* no catálogo digital e gostaria de iniciar a negociação.`);
+        // Atualização Solicitada (2): Mensagem incluindo a Placa Real do veículo automaticamente
+        const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* (Placa: ${carro.placaReal}) no catálogo digital e gostaria de iniciar a negociação.`);
         containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
     } else {
         containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
