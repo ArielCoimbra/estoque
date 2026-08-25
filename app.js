@@ -60,7 +60,7 @@ function configurarEventosInterface() {
     });
 }
 
-// Melhoria 9: Exibição de Estruturas Fantasmas (Skeletons Screens)
+// Exibição de Estruturas Fantasmas (Skeletons Screens)
 function exibirSkeletonsIniciais() {
     const container = document.getElementById('lista-carros');
     let htmlSkeleton = '';
@@ -78,7 +78,7 @@ function exibirSkeletonsIniciais() {
     container.innerHTML = htmlSkeleton;
 }
 
-// Melhoria 6: Mecanismo de Cache de 5 Minutos em Armazenamento Local
+// Mecanismo de Cache de 5 Minutos em Armazenamento Local
 async function carregarEstoqueComCache() {
     const CHAVE_CACHE = 'estoque_unidas_data';
     const CHAVE_TEMPO = 'estoque_unidas_timestamp';
@@ -89,10 +89,8 @@ async function carregarEstoqueComCache() {
     const agora = new Date().getTime();
 
     if (cacheSalvo && tempoSalvo && (agora - tempoSalvo < CINCO_MINUTOS)) {
-        // Inicializa imediatamente usando a memória local ultrarrápida
         parsearDadosPlanilha(cacheSalvo);
     } else {
-        // Atualiza em background de forma assíncrona
         try {
             const resposta = await fetch(urlPlanilha + '&nocache=' + agora);
             if (!resposta.ok) throw new Error();
@@ -104,7 +102,7 @@ async function carregarEstoqueComCache() {
             parsearDadosPlanilha(textoCsv);
         } catch (erro) {
             if (cacheSalvo) {
-                parsearDadosPlanilha(cacheSalvo); // Se falhar mas tiver cache antigo, usa o antigo
+                parsearDadosPlanilha(cacheSalvo); 
             } else {
                 document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha crítica ao sincronizar banco de dados.</h6></div>';
             }
@@ -112,7 +110,7 @@ async function carregarEstoqueComCache() {
     }
 }
 
-// Melhoria 10: Parser Robusto de Dados usando Engine PapaParse
+// Parser Robusto de Dados usando Engine PapaParse
 function parsearDadosPlanilha(textoCsv) {
     Papa.parse(textoCsv, {
         skipEmptyLines: true,
@@ -120,18 +118,22 @@ function parsearDadosPlanilha(textoCsv) {
             const lines = resultados.data;
             if (lines.length === 0) return;
 
-            // Extração de metadados administrativos e criptografia preventiva da senha (Melhoria 7)
-            if (lines.length > 2 && lines[2][11]) {
+            // 1. Extração de metadados administrativos ANTES de remover o cabeçalho
+            let fraseDestaque = "";
+            let linkGrupoWpp = "";
+            
+            if (lines.length > 1 && lines[1].length > 11) {
+                fraseDestaque = lines[1][11] ? lines[1][11].trim() : "";
+            }
+            if (lines.length > 2 && lines[2].length > 11) {
+                linkGrupoWpp = lines[2][11] ? lines[2][11].trim() : "";
                 const senhaLimpa = lines[2][11].trim();
                 hashSenhaMestre = CryptoJS.SHA256(senhaLimpa).toString();
             }
 
-            let fraseDestaque = (lines[0] && lines[0][11]) ? lines[0][11].trim() : "";
-            let linkGrupoWpp = (lines[1] && lines[1][11]) ? lines[1][11].trim() : "";
-
             gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
 
-            // Descarte da linha de cabeçalho da tabela
+            // 2. Remove a primeira linha (cabeçalho)
             lines.shift();
 
             let disponiveis = [];
@@ -149,8 +151,23 @@ function parsearDadosPlanilha(textoCsv) {
 
                 const modeloTexto = linha[1].trim();
 
-                // Captura a coluna M (índice 12) para o link do Laudo Cautelar
-                const linkLaudoInput = (linha[12] && linha[12].trim().startsWith('http')) ? linha[12].trim() : '';
+                // Leitura da Coluna K (índice 10) para Link do Vídeo
+                let linkVideoInput = '';
+                if (linha.length > 10 && linha[10]) {
+                    const possivelVideo = linha[10].trim();
+                    if (possivelVideo.startsWith('http')) {
+                        linkVideoInput = possivelVideo;
+                    }
+                }
+
+                // Leitura da Coluna M (índice 12) para Laudo Cautelar
+                let linkLaudoInput = '';
+                if (linha.length > 12 && linha[12]) {
+                    const possivelLink = linha[12].trim();
+                    if (possivelLink.startsWith('http')) {
+                        linkLaudoInput = possivelLink;
+                    }
+                }
 
                 const carro = {
                     id: index,
@@ -166,11 +183,12 @@ function parsearDadosPlanilha(textoCsv) {
                     status: txtStatusH,
                     fotoCapa: linha[8] ? linha[8].trim() : '',
                     fotosCarrossel: linha[9] || '',
-                    descricao: linha[10] || 'Nenhuma observação técnica cadastrada.',
+                    videoUrl: linkVideoInput, // Guardado a partir da Coluna K
+                    descricao: linkVideoInput ? '' : (linha[10] || ''), // Se não for link, usa como texto
                     carroceria: identificarCarroceria(modeloTexto),
                     novidade: ehNovidade,
                     baixouPreco: ehBaixou,
-                    laudoUrl: linkLaudoInput // Salva a URL do laudo no objeto do carro
+                    laudoUrl: linkLaudoInput 
                 };
 
                 if (carro.status.includes('vendido')) {
@@ -239,7 +257,7 @@ function montarFaixaLetreiro(listaNovidades) {
     divFaixa.style.display = 'block';
 }
 
-// Regras de Negócio, Filtro Avançado por Preço (Melhoria 8) e Ordenação Especial
+// Filtro Avançado por Preço e Ordenação Especial
 function processarEstoque() {
     let filtrados = [...todosOsCarros];
 
@@ -252,7 +270,7 @@ function processarEstoque() {
         filtrados = filtrados.filter(c => c.carroceria === categoriaAtiva);
     }
 
-    // Filtro Avançado por Faixa de Preço (Melhoria 8)
+    // Filtro Avançado por Faixa de Preço
     if (filtroPrecoAtivo === 'ate-50k') {
         filtrados = filtrados.filter(c => c.valorNumerico > 0 && c.valorNumerico <= 50000);
     } else if (filtroPrecoAtivo === '50k-80k') {
@@ -277,16 +295,16 @@ function processarEstoque() {
 
     listaFiltradaGlobal = filtrados;
     
-    // Atualização Dinâmica do Contador de Veículos (Gatilhamento Mental - Melhoria 2 do usuário)
+    // Atualização Dinâmica do Contador de Veículos
     document.getElementById('contador-veiculos').innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
 
-    // Reseta Paginação para renderizar o primeiro lote limpo (Melhoria 4)
+    // Reseta Paginação para renderizar o primeiro lote
     itensExibidosAtualmente = 0;
     document.getElementById('lista-carros').innerHTML = '';
     renderizarProximoBloco();
 }
 
-// Melhoria 4: Implementação Mecânica de Infinite Scroll (Carregamento sob Demanda)
+// Infinite Scroll (Carregamento sob Demanda)
 function renderizarProximoBloco() {
     if (itensExibidosAtualmente >= listaFiltradaGlobal.length) return;
 
@@ -299,21 +317,19 @@ function renderizarProximoBloco() {
         const classeStatus = esVendido ? 'tag-status-vendido' : 'tag-status-disponivel';
         const textoStatus = esVendido ? 'RESERVADO' : 'DISPONÍVEL';
         
-        // Melhoria 3: Lazy Loading Nativo de Imagens nas Linhas de Cards
         const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS';
         
         const badgeNovidade = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
         const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
-        
-        // Badge do Laudo Cautelar adicionado dinamicamente no topo do card se houver link
         const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
+        const badgeVideo = (carro.videoUrl && !esVendido) ? `<span class="tag-feature" style="background:#dc2626; color:#fff;"><i class="bi bi-play-btn-fill"></i> VÍDEO</span>` : '';
 
         const cardHtml = `
             <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
                 <div class="card-vehicle">
                     <div class="img-vehicle-wrapper">
                         <span class="tag-status ${classeStatus}">${textoStatus}</span>
-                        ${badgeNovidade} ${badgeBaixou} ${badgeLaudo}
+                        ${badgeNovidade} ${badgeBaixou} ${badgeVideo} ${badgeLaudo}
                         <img src="${fotoUrl}" class="img-vehicle" loading="lazy" alt="${carro.modelo}" onerror="tratarImagemQuebrada(this)">
                     </div>
                     <div class="card-vehicle-body">
@@ -339,7 +355,6 @@ function renderizarProximoBloco() {
     itensExibidosAtualmente = limite;
 }
 
-// Melhoria 2: Tratamento de Fallback de Imagem Corrompida ou Quebrada
 function tratarImagemQuebrada(imagemElemento) {
     imagemElemento.onerror = null; 
     imagemElemento.src = 'https://placehold.co/600x400/090d16/ffffff?text=Imagem+em+Atualização';
@@ -352,7 +367,7 @@ function converterLinkDrive(link) {
     return link;
 }
 
-// Controle do Modal de Detalhes Completo + Geração Dinâmica de Leads Compartilháveis
+// Controle do Modal de Detalhes Completo
 function abrirModalDetalhesDirect(idCarro) {
     const carro = todosOsCarros.find(c => c.id === idCarro);
     if (!carro) return;
@@ -365,18 +380,37 @@ function abrirModalDetalhesDirect(idCarro) {
     document.getElementById('modalCor').innerText = carro.cor;
     document.getElementById('modalKm').innerText = carro.km;
     document.getElementById('modalCarroceria').innerText = carro.carroceria;
-    document.getElementById('modalDescricao').innerText = carro.descricao;
 
-    // Gerenciador do Botão do Laudo Cautelar dentro do modal
+    // Área da Observação / Vídeo / Laudo
+    const elDescricao = document.getElementById('modalDescricao');
+    if (elDescricao) {
+        elDescricao.innerText = carro.descricao;
+    }
+
+    // Gerenciador de Botões Dinâmicos (Laudo + Vídeo) no Modal
     const containerLaudo = document.getElementById('modalLaudoContainer');
-    if (carro.laudoUrl && carro.laudoUrl !== '') {
-        containerLaudo.innerHTML = `
-            <a href="${carro.laudoUrl}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
-                <i class="bi bi-file-earmark-check-fill"></i> Visualizar Laudo Cautelar
-            </a>
-        `;
-    } else {
-        containerLaudo.innerHTML = '';
+    if (containerLaudo) {
+        let htmlBotoes = '';
+        
+        // Botão de Vídeo (Coluna K)
+        if (carro.videoUrl && carro.videoUrl !== '') {
+            htmlBotoes += `
+                <a href="${carro.videoUrl}" target="_blank" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
+                    <i class="bi bi-play-circle-fill fs-6"></i> Assistir Vídeo do Veículo
+                </a>
+            `;
+        }
+
+        // Botão de Laudo (Coluna M)
+        if (carro.laudoUrl && carro.laudoUrl !== '') {
+            htmlBotoes += `
+                <a href="${carro.laudoUrl}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
+                    <i class="bi bi-file-earmark-check-fill fs-6"></i> Visualizar Laudo Cautelar
+                </a>
+            `;
+        }
+
+        containerLaudo.innerHTML = htmlBotoes;
     }
 
     const containerFotos = document.getElementById('modalFotosContainer');
@@ -398,7 +432,6 @@ function abrirModalDetalhesDirect(idCarro) {
         `;
     });
 
-    // Melhoria 5: Compartilhamento Nativo Inteligente de Links e Textos (WhatsApp/Redes)
     document.getElementById('btn-compartilhar-nativo').onclick = function() {
         const payloadTexto = `🔥 Ficha de Repasse: *${carro.modelo}*\n💰 Valor de Lote: ${carro.valor}\n📈 Tabela FIPE: ${carro.fipe}\n🎨 Cor: ${carro.cor} | 🧭 KM: ${carro.km}\n\nConfira as imagens direto no catálogo completo!`;
         if (navigator.share) {
@@ -412,7 +445,6 @@ function abrirModalDetalhesDirect(idCarro) {
     const esVendido = carro.status.includes('vendido');
     const containerBotao = document.getElementById('modalBotaoWppContainer');
     if (!esVendido) {
-        // Atualização Solicitada (2): Mensagem incluindo a Placa Real do veículo automaticamente
         const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* (Placa: ${carro.placaReal}) no catálogo digital e gostaria de iniciar a negociação.`);
         containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
     } else {
@@ -422,7 +454,6 @@ function abrirModalDetalhesDirect(idCarro) {
     new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
 }
 
-// Melhoria 7: Proteção Estrita contra Engenharia Reversa (Criptografia SHA256 da Senha)
 function abrirModalLoja() {
     document.getElementById('input-loja-senha').value = '';
     document.getElementById('input-loja-placa').value = '';
@@ -437,7 +468,6 @@ function verificarSenhaLoja() {
     const digitada = document.getElementById('input-loja-senha').value.trim();
     if(!digitada) return alert('Digite a senha!');
     
-    // Transforma a entrada em hash e compara de forma mascarada
     const hashDigitado = CryptoJS.SHA256(digitada).toString();
     if (hashDigitado === hashSenhaMestre) {
         localStorage.setItem('modoLojaPermitido', 'true');
@@ -485,11 +515,9 @@ function fecharLojaEVerCarroDireto(idCarro) {
     document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
 }
 
-// Função Profissional para Abrir o Modal de Endereço
 function abrirModalEndereco() {
     const modalElemento = document.getElementById('modalEndereco');
     if (modalElemento) {
-        // Inicializa e exibe o modal nativo do Bootstrap
         const meuModal = new bootstrap.Modal(modalElemento);
         meuModal.show();
     }
