@@ -12,7 +12,7 @@ let hashSenhaMestre = '';
 
 // Paginação / Infinite Scroll Configurações
 let itensExibidosAtualmente = 0;
-const tamanhoDoBlocoPagina = 12; // Carrega de 12 em 12 para dar desempenho instantâneo
+const tamanhoDoBlocoPagina = 12;
 
 // Inicialização Automática da Aplicação
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarEstoqueComCache();
 });
 
-// Configuração Profissional de Eventos (Event Listeners unificados)
+// Configuração Profissional de Eventos
 function configurarEventosInterface() {
     document.getElementById('campo-pesquisa').addEventListener('input', (e) => {
         termoPesquisa = e.target.value.toLowerCase().trim();
@@ -60,7 +60,7 @@ function configurarEventosInterface() {
     });
 }
 
-// Exibição de Estruturas Fantasmas (Skeletons Screens)
+// Exibição de Skeletons (Carregamento Fantasma)
 function exibirSkeletonsIniciais() {
     const container = document.getElementById('lista-carros');
     let htmlSkeleton = '';
@@ -104,13 +104,13 @@ async function carregarEstoqueComCache() {
             if (cacheSalvo) {
                 parsearDadosPlanilha(cacheSalvo); 
             } else {
-                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha crítica ao sincronizar banco de dados.</h6></div>';
+                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar estoque. Verifique sua conexão.</h6></div>';
             }
         }
     }
 }
 
-// Parser Robusto de Dados usando Engine PapaParse
+// Parser de Dados PapaParse
 function parsearDadosPlanilha(textoCsv) {
     Papa.parse(textoCsv, {
         skipEmptyLines: true,
@@ -118,22 +118,31 @@ function parsearDadosPlanilha(textoCsv) {
             const lines = resultados.data;
             if (lines.length === 0) return;
 
-            // 1. Extração de metadados administrativos ANTES de remover o cabeçalho
+            // 1. Leitura robusta do Banner e Botão do WhatsApp (Coluna L / índice 11)
             let fraseDestaque = "";
             let linkGrupoWpp = "";
-            
-            if (lines.length > 1 && lines[1].length > 11) {
-                fraseDestaque = lines[1][11] ? lines[1][11].trim() : "";
+
+            if (lines.length > 1 && lines[1] && lines[1][11]) {
+                fraseDestaque = lines[1][11].trim();
             }
-            if (lines.length > 2 && lines[2].length > 11) {
-                linkGrupoWpp = lines[2][11] ? lines[2][11].trim() : "";
-                const senhaLimpa = lines[2][11].trim();
-                hashSenhaMestre = CryptoJS.SHA256(senhaLimpa).toString();
+            if (lines.length > 2 && lines[2] && lines[2][11]) {
+                const valL3 = lines[2][11].trim();
+                if (valL3.startsWith('http')) {
+                    linkGrupoWpp = valL3;
+                } else {
+                    hashSenhaMestre = CryptoJS.SHA256(valL3).toString();
+                }
+            }
+            if (lines.length > 3 && lines[3] && lines[3][11] && !linkGrupoWpp) {
+                const valL4 = lines[3][11].trim();
+                if (valL4.startsWith('http')) {
+                    linkGrupoWpp = valL4;
+                }
             }
 
             gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
 
-            // 2. Remove a primeira linha (cabeçalho)
+            // 2. Remove o cabeçalho
             lines.shift();
 
             let disponiveis = [];
@@ -151,7 +160,7 @@ function parsearDadosPlanilha(textoCsv) {
 
                 const modeloTexto = linha[1].trim();
 
-                // Leitura da Coluna K (índice 10) para Link do Vídeo
+                // Leitura do Link de Vídeo (Coluna K / índice 10)
                 let linkVideoInput = '';
                 if (linha.length > 10 && linha[10]) {
                     const possivelVideo = linha[10].trim();
@@ -160,7 +169,7 @@ function parsearDadosPlanilha(textoCsv) {
                     }
                 }
 
-                // Leitura da Coluna M (índice 12) para Laudo Cautelar
+                // Leitura do Laudo Cautelar (Coluna M / índice 12)
                 let linkLaudoInput = '';
                 if (linha.length > 12 && linha[12]) {
                     const possivelLink = linha[12].trim();
@@ -183,8 +192,8 @@ function parsearDadosPlanilha(textoCsv) {
                     status: txtStatusH,
                     fotoCapa: linha[8] ? linha[8].trim() : '',
                     fotosCarrossel: linha[9] || '',
-                    videoUrl: linkVideoInput, // Guardado a partir da Coluna K
-                    descricao: linkVideoInput ? '' : (linha[10] || ''), // Se não for link, usa como texto
+                    videoUrl: linkVideoInput,
+                    descricao: linkVideoInput ? '' : (linha[10] || ''),
                     carroceria: identificarCarroceria(modeloTexto),
                     novidade: ehNovidade,
                     baixouPreco: ehBaixou,
@@ -206,7 +215,7 @@ function parsearDadosPlanilha(textoCsv) {
     });
 }
 
-// Helpers de Higienização de Strings
+// Helpers de Higienização
 function formatarKM(val) {
     if(!val || val === 'N/I') return 'N/I';
     return String(val).toLowerCase().includes('km') ? val : val + ' KM';
@@ -227,13 +236,14 @@ function identificarCarroceria(modelo) {
     return 'outros';
 }
 
+// Banner com Garantia de Botão Estilizado
 function gerenciarBannerDestaque(frase, link) {
     const box = document.getElementById('box-banner-destaque');
     if (frase && frase !== "" && frase.toLowerCase() !== "null") {
         document.getElementById('texto-banner-destaque').innerText = frase;
         const containerBotao = document.getElementById('container-botao-banner');
         if (link && link.startsWith('http')) {
-            containerBotao.innerHTML = `<a href="${link}" target="_blank" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm"><i class="bi bi-whatsapp"></i> Acessar Grupo</a>`;
+            containerBotao.innerHTML = `<a href="${link}" target="_blank" rel="noopener" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2"><i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo</a>`;
         } else {
             containerBotao.innerHTML = "";
         }
@@ -257,11 +267,9 @@ function montarFaixaLetreiro(listaNovidades) {
     divFaixa.style.display = 'block';
 }
 
-// Filtro Avançado por Preço e Ordenação Especial
 function processarEstoque() {
     let filtrados = [...todosOsCarros];
 
-    // Filtro por Categorias
     if (categoriaAtiva === 'novidades') {
         filtrados = filtrados.filter(c => c.novidade && !c.status.includes('vendido'));
     } else if (categoriaAtiva === 'baixou') {
@@ -270,7 +278,6 @@ function processarEstoque() {
         filtrados = filtrados.filter(c => c.carroceria === categoriaAtiva);
     }
 
-    // Filtro Avançado por Faixa de Preço
     if (filtroPrecoAtivo === 'ate-50k') {
         filtrados = filtrados.filter(c => c.valorNumerico > 0 && c.valorNumerico <= 50000);
     } else if (filtroPrecoAtivo === '50k-80k') {
@@ -279,7 +286,6 @@ function processarEstoque() {
         filtrados = filtrados.filter(c => c.valorNumerico > 80000);
     }
 
-    // Campo de busca textual livre
     if (termoPesquisa !== '') {
         filtrados = filtrados.filter(c => 
             c.modelo.toLowerCase().includes(termoPesquisa) ||
@@ -288,23 +294,18 @@ function processarEstoque() {
         );
     }
 
-    // Ordenação Avançada por Maior Lucratividade
     if (ordenarPorMargemAtivo) {
         filtrados.sort((a, b) => converterPrecoParaNumero(b.margem) - converterPrecoParaNumero(a.margem));
     }
 
     listaFiltradaGlobal = filtrados;
-    
-    // Atualização Dinâmica do Contador de Veículos
     document.getElementById('contador-veiculos').innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
 
-    // Reseta Paginação para renderizar o primeiro lote
     itensExibidosAtualmente = 0;
     document.getElementById('lista-carros').innerHTML = '';
     renderizarProximoBloco();
 }
 
-// Infinite Scroll (Carregamento sob Demanda)
 function renderizarProximoBloco() {
     if (itensExibidosAtualmente >= listaFiltradaGlobal.length) return;
 
@@ -321,8 +322,8 @@ function renderizarProximoBloco() {
         
         const badgeNovidade = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
         const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
-        const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
         const badgeVideo = (carro.videoUrl && !esVendido) ? `<span class="tag-feature" style="background:#dc2626; color:#fff;"><i class="bi bi-play-btn-fill"></i> VÍDEO</span>` : '';
+        const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
 
         const cardHtml = `
             <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
@@ -367,7 +368,7 @@ function converterLinkDrive(link) {
     return link;
 }
 
-// Controle do Modal de Detalhes Completo
+// Modal de Detalhes com Abertura em Nova Aba sem perder o site
 function abrirModalDetalhesDirect(idCarro) {
     const carro = todosOsCarros.find(c => c.id === idCarro);
     if (!carro) return;
@@ -381,30 +382,29 @@ function abrirModalDetalhesDirect(idCarro) {
     document.getElementById('modalKm').innerText = carro.km;
     document.getElementById('modalCarroceria').innerText = carro.carroceria;
 
-    // Área da Observação / Vídeo / Laudo
     const elDescricao = document.getElementById('modalDescricao');
     if (elDescricao) {
         elDescricao.innerText = carro.descricao;
     }
 
-    // Gerenciador de Botões Dinâmicos (Laudo + Vídeo) no Modal
+    // Botões com target="_blank" para abrir em nova aba sem fechar o site
     const containerLaudo = document.getElementById('modalLaudoContainer');
     if (containerLaudo) {
         let htmlBotoes = '';
         
-        // Botão de Vídeo (Coluna K)
+        // Botão de Vídeo (Abre em nova aba)
         if (carro.videoUrl && carro.videoUrl !== '') {
             htmlBotoes += `
-                <a href="${carro.videoUrl}" target="_blank" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
+                <a href="${carro.videoUrl}" target="_blank" rel="noopener" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
                     <i class="bi bi-play-circle-fill fs-6"></i> Assistir Vídeo do Veículo
                 </a>
             `;
         }
 
-        // Botão de Laudo (Coluna M)
+        // Botão de Laudo (Abre em nova aba)
         if (carro.laudoUrl && carro.laudoUrl !== '') {
             htmlBotoes += `
-                <a href="${carro.laudoUrl}" target="_blank" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
+                <a href="${carro.laudoUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
                     <i class="bi bi-file-earmark-check-fill fs-6"></i> Visualizar Laudo Cautelar
                 </a>
             `;
@@ -446,7 +446,7 @@ function abrirModalDetalhesDirect(idCarro) {
     const containerBotao = document.getElementById('modalBotaoWppContainer');
     if (!esVendido) {
         const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* (Placa: ${carro.placaReal}) no catálogo digital e gostaria de iniciar a negociação.`);
-        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
+        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" rel="noopener" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
     } else {
         containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
     }
