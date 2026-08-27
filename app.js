@@ -1,7 +1,7 @@
 // URL de Exportação de Dados
 const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
 
-// Estados Globais da Aplicação (Gerenciamento de Fluxo)
+// Estados Globais da Aplicação
 let todosOsCarros = []; 
 let listaFiltradaGlobal = [];
 let categoriaAtiva = 'todos';
@@ -21,14 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarEstoqueComCache();
 });
 
-// Configuração Profissional de Eventos
+// Configuração de Eventos da Interface
 function configurarEventosInterface() {
-    document.getElementById('campo-pesquisa').addEventListener('input', (e) => {
+    document.getElementById('campo-pesquisa')?.addEventListener('input', (e) => {
         termoPesquisa = e.target.value.toLowerCase().trim();
         processarEstoque();
     });
 
-    document.getElementById('filtro-preco').addEventListener('change', (e) => {
+    document.getElementById('filtro-preco')?.addEventListener('change', (e) => {
         filtroPrecoAtivo = e.target.value;
         processarEstoque();
     });
@@ -42,17 +42,16 @@ function configurarEventosInterface() {
         });
     });
 
-    document.querySelector('.btn-margem-toggle').addEventListener('click', function() {
+    document.querySelector('.btn-margem-toggle')?.addEventListener('click', function() {
         ordenarPorMargemAtivo = !ordenarPorMargemAtivo;
         this.classList.toggle('active-margem', ordenarPorMargemAtivo);
         processarEstoque();
     });
 
-    document.getElementById('btn-autenticar-loja').addEventListener('click', verificarSenhaLoja);
-    document.getElementById('btn-desconectar-loja').addEventListener('click', sairModoLoja);
-    document.getElementById('btn-consultar-placa').addEventListener('click', buscarCarroPorPlacaLoja);
+    document.getElementById('btn-autenticar-loja')?.addEventListener('click', verificarSenhaLoja);
+    document.getElementById('btn-desconectar-loja')?.addEventListener('click', sairModoLoja);
+    document.getElementById('btn-consultar-placa')?.addEventListener('click', buscarCarroPorPlacaLoja);
 
-    // Detecção da Rolagem da Página para Infinite Scroll
     window.addEventListener('scroll', () => {
         if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
             renderizarProximoBloco();
@@ -63,6 +62,7 @@ function configurarEventosInterface() {
 // Exibição de Skeletons (Carregamento Fantasma)
 function exibirSkeletonsIniciais() {
     const container = document.getElementById('lista-carros');
+    if (!container) return;
     let htmlSkeleton = '';
     for (let i = 0; i < 6; i++) {
         htmlSkeleton += `
@@ -78,35 +78,16 @@ function exibirSkeletonsIniciais() {
     container.innerHTML = htmlSkeleton;
 }
 
-// Mecanismo de Cache de 5 Minutos em Armazenamento Local
+// Mecanismo de Carregamento de Dados
 async function carregarEstoqueComCache() {
-    const CHAVE_CACHE = 'estoque_unidas_data';
-    const CHAVE_TEMPO = 'estoque_unidas_timestamp';
-    const CINCO_MINUTOS = 5 * 60 * 1000;
-
-    const cacheSalvo = localStorage.getItem(CHAVE_CACHE);
-    const tempoSalvo = localStorage.getItem(CHAVE_TEMPO);
     const agora = new Date().getTime();
-
-    if (cacheSalvo && tempoSalvo && (agora - tempoSalvo < CINCO_MINUTOS)) {
-        parsearDadosPlanilha(cacheSalvo);
-    } else {
-        try {
-            const resposta = await fetch(urlPlanilha + '&nocache=' + agora);
-            if (!resposta.ok) throw new Error();
-            const textoCsv = await resposta.text();
-            
-            localStorage.setItem(CHAVE_CACHE, textoCsv);
-            localStorage.setItem(CHAVE_TEMPO, agora.toString());
-            
-            parsearDadosPlanilha(textoCsv);
-        } catch (erro) {
-            if (cacheSalvo) {
-                parsearDadosPlanilha(cacheSalvo); 
-            } else {
-                document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar estoque. Verifique sua conexão.</h6></div>';
-            }
-        }
+    try {
+        const resposta = await fetch(urlPlanilha + '&nocache=' + agora);
+        if (!resposta.ok) throw new Error();
+        const textoCsv = await resposta.text();
+        parsearDadosPlanilha(textoCsv);
+    } catch (erro) {
+        document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar estoque. Verifique sua conexão.</h6></div>';
     }
 }
 
@@ -118,38 +99,44 @@ function parsearDadosPlanilha(textoCsv) {
             const lines = resultados.data;
             if (lines.length === 0) return;
 
-            // 1. Leitura robusta do Banner e Botão do WhatsApp (Coluna L / índice 11)
             let fraseDestaque = "";
             let linkGrupoWpp = "";
 
+            // Leitura da frase do banner (Linha 2, Coluna L / índice 11)
             if (lines.length > 1 && lines[1] && lines[1][11]) {
                 fraseDestaque = lines[1][11].trim();
             }
+
+            // Busca por Link do WhatsApp em qualquer célula do topo da planilha (Linhas 1 a 5)
+            for (let r = 0; r < Math.min(lines.length, 5); r++) {
+                for (let c = 0; c < lines[r].length; c++) {
+                    const celula = lines[r][c] ? lines[r][c].trim() : '';
+                    if (celula.includes('chat.whatsapp.com') || (celula.startsWith('http') && celula.includes('wa.me'))) {
+                        linkGrupoWpp = celula;
+                        break;
+                    }
+                }
+                if (linkGrupoWpp) break;
+            }
+
+            // Busca pela Senha Mestre (Linha 3, Coluna L)
             if (lines.length > 2 && lines[2] && lines[2][11]) {
                 const valL3 = lines[2][11].trim();
-                if (valL3.startsWith('http')) {
-                    linkGrupoWpp = valL3;
-                } else {
+                if (!valL3.startsWith('http')) {
                     hashSenhaMestre = CryptoJS.SHA256(valL3).toString();
-                }
-            }
-            if (lines.length > 3 && lines[3] && lines[3][11] && !linkGrupoWpp) {
-                const valL4 = lines[3][11].trim();
-                if (valL4.startsWith('http')) {
-                    linkGrupoWpp = valL4;
                 }
             }
 
             gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
 
-            // 2. Remove o cabeçalho
-            lines.shift();
+            // Removendo o cabeçalho
+            const linhasDados = lines.slice(1);
 
             let disponiveis = [];
             let vendidos = [];
             let novidadesParaLetreiro = [];
 
-            lines.forEach((linha, index) => {
+            linhasDados.forEach((linha, index) => {
                 if (linha.length < 2 || !linha[1] || linha[1].trim() === "") return;
 
                 const txtStatusH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
@@ -215,7 +202,7 @@ function parsearDadosPlanilha(textoCsv) {
     });
 }
 
-// Helpers de Higienização
+// Helpers
 function formatarKM(val) {
     if(!val || val === 'N/I') return 'N/I';
     return String(val).toLowerCase().includes('km') ? val : val + ' KM';
@@ -239,13 +226,33 @@ function identificarCarroceria(modelo) {
 // Banner com Garantia de Botão Estilizado
 function gerenciarBannerDestaque(frase, link) {
     const box = document.getElementById('box-banner-destaque');
+    if (!box) return;
+
+    const elTexto = document.getElementById('texto-banner-destaque');
+    const containerBotao = document.getElementById('container-botao-banner');
+
     if (frase && frase !== "" && frase.toLowerCase() !== "null") {
-        document.getElementById('texto-banner-destaque').innerText = frase;
-        const containerBotao = document.getElementById('container-botao-banner');
-        if (link && link.startsWith('http')) {
-            containerBotao.innerHTML = `<a href="${link}" target="_blank" rel="noopener" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2"><i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo</a>`;
-        } else {
-            containerBotao.innerHTML = "";
+        if (elTexto) elTexto.innerText = frase;
+        
+        if (containerBotao) {
+            if (link && link.startsWith('http')) {
+                containerBotao.innerHTML = `
+                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+                        <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
+                    </a>`;
+            } else {
+                containerBotao.innerHTML = "";
+            }
+        }
+        box.style.display = "block";
+    } else if (link && link.startsWith('http')) {
+        // Se não tiver texto mas tiver o link do grupo, exibe o banner só com o botão
+        if (elTexto) elTexto.innerText = "Entre no nosso grupo oficial do WhatsApp!";
+        if (containerBotao) {
+            containerBotao.innerHTML = `
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+                    <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
+                </a>`;
         }
         box.style.display = "block";
     } else {
@@ -256,6 +263,8 @@ function gerenciarBannerDestaque(frase, link) {
 function montarFaixaLetreiro(listaNovidades) {
     const divFaixa = document.getElementById('faixa-letreiro-container');
     const conteudoFaixa = document.getElementById('faixa-letreiro-conteudo');
+    if (!divFaixa || !conteudoFaixa) return;
+
     if (listaNovidades.length === 0) { divFaixa.style.display = 'none'; return; }
 
     let htmlLetreiro = "";
@@ -299,10 +308,12 @@ function processarEstoque() {
     }
 
     listaFiltradaGlobal = filtrados;
-    document.getElementById('contador-veiculos').innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
+    const elContador = document.getElementById('contador-veiculos');
+    if (elContador) elContador.innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
 
     itensExibidosAtualmente = 0;
-    document.getElementById('lista-carros').innerHTML = '';
+    const container = document.getElementById('lista-carros');
+    if (container) container.innerHTML = '';
     renderizarProximoBloco();
 }
 
@@ -310,6 +321,7 @@ function renderizarProximoBloco() {
     if (itensExibidosAtualmente >= listaFiltradaGlobal.length) return;
 
     const container = document.getElementById('lista-carros');
+    if (!container) return;
     const limite = Math.min(itensExibidosAtualmente + tamanhoDoBlocoPagina, listaFiltradaGlobal.length);
 
     for (let i = itensExibidosAtualmente; i < limite; i++) {
@@ -368,7 +380,7 @@ function converterLinkDrive(link) {
     return link;
 }
 
-// Modal de Detalhes com Abertura em Nova Aba sem perder o site
+// Modal de Detalhes
 function abrirModalDetalhesDirect(idCarro) {
     const carro = todosOsCarros.find(c => c.id === idCarro);
     if (!carro) return;
@@ -387,24 +399,24 @@ function abrirModalDetalhesDirect(idCarro) {
         elDescricao.innerText = carro.descricao;
     }
 
-    // Botões com target="_blank" para abrir em nova aba sem fechar o site
+    // Botões de Vídeo e Laudo configurados com target="_blank"
     const containerLaudo = document.getElementById('modalLaudoContainer');
     if (containerLaudo) {
         let htmlBotoes = '';
         
-        // Botão de Vídeo (Abre em nova aba)
+        // Botão de Vídeo (Nova Aba)
         if (carro.videoUrl && carro.videoUrl !== '') {
             htmlBotoes += `
-                <a href="${carro.videoUrl}" target="_blank" rel="noopener" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
+                <a href="${carro.videoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
                     <i class="bi bi-play-circle-fill fs-6"></i> Assistir Vídeo do Veículo
                 </a>
             `;
         }
 
-        // Botão de Laudo (Abre em nova aba)
+        // Botão de Laudo Cautelar (Nova Aba)
         if (carro.laudoUrl && carro.laudoUrl !== '') {
             htmlBotoes += `
-                <a href="${carro.laudoUrl}" target="_blank" rel="noopener" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
+                <a href="${carro.laudoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
                     <i class="bi bi-file-earmark-check-fill fs-6"></i> Visualizar Laudo Cautelar
                 </a>
             `;
@@ -446,7 +458,7 @@ function abrirModalDetalhesDirect(idCarro) {
     const containerBotao = document.getElementById('modalBotaoWppContainer');
     if (!esVendido) {
         const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* (Placa: ${carro.placaReal}) no catálogo digital e gostaria de iniciar a negociação.`);
-        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" rel="noopener" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
+        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
     } else {
         containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
     }
