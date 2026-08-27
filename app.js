@@ -534,3 +534,20 @@ function abrirModalEndereco() {
         meuModal.show();
     }
 }
+// Dentro do seu arquivo script.js
+function abrirVideo(urlVideo) {
+  let embedUrl = urlVideo;
+  if (urlVideo.includes('watch?v=')) {
+    embedUrl = urlVideo.replace('watch?v=', 'embed/');
+  } else if (urlVideo.includes('youtu.be/')) {
+    embedUrl = urlVideo.replace('youtu.be/', 'www.youtube.com/embed/');
+  }
+
+  document.getElementById('videoPlayer').src = embedUrl;
+  document.getElementById('videoModal').style.display = 'flex';
+}
+
+function fecharVideo() {
+  document.getElementById('videoPlayer').src = '';
+  document.getElementById('videoModal').style.display = 'none';
+}
