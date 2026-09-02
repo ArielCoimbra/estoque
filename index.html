@@ -104,6 +104,7 @@
         <div id="lista-carros" class="row row-cols-2 row-cols-md-2 row-cols-lg-3 g-2 g-md-4"></div>
     </div>
 
+    <!-- Modais da Aplicação -->
     <div class="modal fade" id="modalLoja" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered mx-3">
             <div class="modal-content">
@@ -184,7 +185,6 @@
                             <div class="spec-pill"><span>Categoria</span><div id="modalCarroceria" class="text-capitalize">--</div></div>
                         </div>
 
-                        <!-- Botão Dinâmico do Laudo Cautelar adicionado aqui -->
                         <div id="modalLaudoContainer" class="mb-3"></div>
 
                         <div class="mb-2">
@@ -223,41 +223,17 @@
         </div>
     </div>
 
+    <!-- Modal Customizado para Player de Vídeo -->
+    <div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
+        <button onclick="fecharVideo()" style="position:absolute; top:20px; left:20px; background:#f0c040; color:#000; border:none; padding:10px 20px; border-radius:25px; font-weight:bold; cursor:pointer;">
+            ← Voltar para o site
+        </button>
+        <div style="width:90%; max-width:800px; height:60vh;">
+            <iframe id="videoPlayer" src="" style="width:100%; height:100%; border:none; border-radius:12px;" allowfullscreen></iframe>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="app.js?v=2.0"></script>
 </body>
 </html>
-
-<!-- Modal do Vídeo -->
-<div id="videoModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; justify-content:center; align-items:center; flex-direction:column;">
-  
-  <!-- Botão Voltar no Topo -->
-  <button onclick="fecharVideo()" style="position:absolute; top:20px; left:20px; background:#f0c040; color:#000; border:none; padding:10px 20px; border-radius:25px; font-weight:bold; cursor:pointer;">
-    ← Voltar para o site
-  </button>
-  
-  <!-- Container do Vídeo -->
-  <div style="width:90%; max-width:800px; height:60vh;">
-    <iframe id="videoPlayer" src="" style="width:100%; height:100%; border:none; border-radius:12px;" allowfullscreen></iframe>
-  </div>
-  
-</div>
-// Função para abrir o vídeo na própria tela
-function abrirVideo(urlVideo) {
-  // Ajusta links do YouTube normais para o formato de exibição (embed)
-  let embedUrl = urlVideo;
-  if (urlVideo.includes('watch?v=')) {
-    embedUrl = urlVideo.replace('watch?v=', 'embed/');
-  } else if (urlVideo.includes('youtu.be/')) {
-    embedUrl = urlVideo.replace('youtu.be/', 'www.youtube.com/embed/');
-  }
-
-  document.getElementById('videoPlayer').src = embedUrl;
-  document.getElementById('videoModal').style.display = 'flex';
-}
-
-// Função para fechar e pausar o vídeo
-function fecharVideo() {
-  document.getElementById('videoPlayer').src = '';
-  document.getElementById('videoModal').style.display = 'none';
-}
