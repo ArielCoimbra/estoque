@@ -1,515 +1,1105 @@
-/* ==========================================================================
-   CONFIGURAÇÕES GERAIS E VARIÁVEIS DE ESTADO
-   ========================================================================== */
-const PLANILHA_CSV_URL = "https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv";
+// URL de Exportação de Dados
 
-let todosVeiculos = [];
-let veiculosFiltrados = [];
-let blocoAtual = 0;
-const ITENS_POR_BLOCO = 12;
-let modoLojaAtivo = false;
-let filtroMargemAtivo = false;
+const urlPlanilha = 'https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv&gid=0';
 
-/* ==========================================================================
-   INICIALIZAÇÃO DA APLICAÇÃO
-   ========================================================================== */
+
+
+// Estados Globais da Aplicação
+
+let todosOsCarros = []; 
+
+let listaFiltradaGlobal = [];
+
+let categoriaAtiva = 'todos';
+
+let filtroPrecoAtivo = 'todos';
+
+let ordenarPorMargemAtivo = false;
+
+let termoPesquisa = '';
+
+let hashSenhaMestre = ''; 
+
+
+
+// Paginação / Infinite Scroll Configurações
+
+let itensExibidosAtualmente = 0;
+
+const tamanhoDoBlocoPagina = 12;
+
+
+
+// Inicialização Automática da Aplicação
+
 document.addEventListener("DOMContentLoaded", () => {
-    carregarDadosCSV();
-    configurarEventosFiltros();
-    configurarEventosModais();
-    verificarModoLojaSalvo();
+
+    exibirSkeletonsIniciais();
+
+    configurarEventosInterface();
+
+    carregarEstoqueComCache();
+
 });
 
-/* ==========================================================================
-   CARREGAMENTO E PARSING DO CSV (PAPA PARSE)
-   ========================================================================== */
-function carregarDadosCSV() {
-    exibirSkeletons();
 
-    Papa.parse(PLANILHA_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-            processarDadosPlanilha(results.data);
-        },
-        error: function (error) {
-            console.error("Erro ao carregar CSV:", error);
-            const container = document.getElementById("lista-carros");
-            if (container) {
-                container.innerHTML = `<div class="col-12 text-center py-5 text-danger">
-                    <i class="bi bi-exclamation-triangle fs-1"></i>
-                    <p class="mt-2 fw-bold">Não foi possível carregar o estoque no momento.</p>
-                </div>`;
-            }
+
+// Configuração de Eventos da Interface
+
+function configurarEventosInterface() {
+
+    document.getElementById('campo-pesquisa')?.addEventListener('input', (e) => {
+
+        termoPesquisa = e.target.value.toLowerCase().trim();
+
+        processarEstoque();
+
+    });
+
+
+
+    document.getElementById('filtro-preco')?.addEventListener('change', (e) => {
+
+        filtroPrecoAtivo = e.target.value;
+
+        processarEstoque();
+
+    });
+
+
+
+    document.querySelectorAll('.btn-filter-pill:not(.btn-margem-toggle)').forEach(btn => {
+
+        btn.addEventListener('click', function() {
+
+            document.querySelectorAll('.btn-filter-pill:not(.btn-margem-toggle)').forEach(b => b.classList.remove('active'));
+
+            this.classList.add('active');
+
+            categoriaAtiva = this.getAttribute('data-cat');
+
+            processarEstoque();
+
+        });
+
+    });
+
+
+
+    document.querySelector('.btn-margem-toggle')?.addEventListener('click', function() {
+
+        ordenarPorMargemAtivo = !ordenarPorMargemAtivo;
+
+        this.classList.toggle('active-margem', ordenarPorMargemAtivo);
+
+        processarEstoque();
+
+    });
+
+
+
+    document.getElementById('btn-autenticar-loja')?.addEventListener('click', verificarSenhaLoja);
+
+    document.getElementById('btn-desconectar-loja')?.addEventListener('click', sairModoLoja);
+
+    document.getElementById('btn-consultar-placa')?.addEventListener('click', buscarCarroPorPlacaLoja);
+
+
+
+    window.addEventListener('scroll', () => {
+
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+
+            renderizarProximoBloco();
+
         }
-    });
-}
 
-function processarDadosPlanilha(dados) {
-    todosVeiculos = dados.map((item, index) => {
-        const id = index + 1;
-        const modelo = (item.Modelo || item.modelo || "Veículo não identificado").trim();
-        const marca = (item.Marca || item.marca || "").trim();
-        const placa = (item.Placa || item.placa || "N/A").trim().toUpperCase();
-        const cor = (item.Cor || item.cor || "N/A").trim();
-        const km = (item.KM || item.km || item.Quilometragem || "N/A").trim();
-        const valorRaw = (item.Valor || item.valor || item.Preco || "0").toString();
-        const fipeRaw = (item.Fipe || item.fipe || "0").toString();
-        const margemRaw = (item.Margem || item.margem || "0").toString();
-        
-        const valorNum = parseMoedaNum(valorRaw);
-        const fipeNum = parseMoedaNum(fipeRaw);
-        const margemNum = parseMoedaNum(margemRaw);
-
-        const status = (item.Status || item.status || "disponivel").toLowerCase().trim();
-        const carroceria = (item.Carroceria || item.carroceria || item.Tipo || "outros").toLowerCase().trim();
-        
-        const novidade = (item.Novidade || item.novidade || "").toString().toLowerCase() === "sim";
-        const baixou = (item.Baixou || item.baixou || "").toString().toLowerCase() === "sim";
-        const laudo = (item.Laudo || item.laudo || "").trim();
-        const video = (item.Video || item.video || "").trim();
-        const descricao = (item.Descricao || item.descricao || item.Observacoes || "Veículo em excelente estado para repasse.").trim();
-
-        // Fotos
-        const foto1 = (item.Foto1 || item.foto1 || item.Imagem || "").trim();
-        const foto2 = (item.Foto2 || item.foto2 || "").trim();
-        const foto3 = (item.Foto3 || item.foto3 || "").trim();
-        const foto4 = (item.Foto4 || item.foto4 || "").trim();
-        const fotos = [foto1, foto2, foto3, foto4].filter(url => url !== "");
-
-        return {
-            id,
-            modelo,
-            marca,
-            placa,
-            cor,
-            km,
-            valorRaw,
-            valorNum,
-            valor: formatarMoeda(valorNum),
-            fipeNum,
-            fipe: formatarMoeda(fipeNum),
-            margemNum,
-            margem: formatarMoeda(margemNum),
-            status,
-            carroceria,
-            novidade,
-            baixou,
-            laudo,
-            video,
-            descricao,
-            fotos
-        };
     });
 
-    veiculosFiltrados = [...todosVeiculos];
-    blocoAtual = 0;
-    renderizarProximoBloco(true);
-    atualizarContador();
 }
 
-/* ==========================================================================
-   RENDERIZAÇÃO DOS CARDS DE VEÍCULOS
-   ========================================================================== */
-function renderizarProximoBloco(limparAnterior = false) {
-    const container = document.getElementById("lista-carros");
+
+
+// Exibição de Skeletons (Carregamento Fantasma)
+
+function exibirSkeletonsIniciais() {
+
+    const container = document.getElementById('lista-carros');
+
     if (!container) return;
 
-    if (limparAnterior) {
-        container.innerHTML = "";
-        blocoAtual = 0;
-    }
+    let htmlSkeleton = '';
 
-    if (veiculosFiltrados.length === 0) {
-        container.innerHTML = `
-            <div class="col-12 text-center py-5">
-                <i class="bi bi-search fs-1 text-muted"></i>
-                <h6 class="fw-bold mt-2 text-secondary">Nenhum veículo encontrado com os filtros selecionados.</h6>
-            </div>`;
-        return;
-    }
+    for (let i = 0; i < 6; i++) {
 
-    const inicio = blocoAtual * ITENS_POR_BLOCO;
-    const fim = inicio + ITENS_POR_BLOCO;
-    const bloco = veiculosFiltrados.slice(inicio, fim);
+        htmlSkeleton += `
 
-    bloco.forEach(carro => {
-        const fotoUrl = carro.fotos.length > 0 ? carro.fotos[0] : "https://via.placeholder.com/400x300?text=Sem+Foto";
-        
-        const badgeNovidade = carro.novidade ? `<span class="tag-feature tag-feature-novidade">✨ Novidade</span>` : "";
-        const badgeBaixou = carro.baixou ? `<span class="tag-feature tag-feature-baixou">🔥 Baixou</span>` : "";
-        const badgeLaudo = carro.laudo ? `<span class="tag-feature tag-feature-laudo">📋 Laudo</span>` : "";
-        const badgeVideo = carro.video ? `<span class="tag-feature tag-feature-video">🎥 Vídeo</span>` : "";
+            <div class="col">
 
-        const isVendido = carro.status === "vendido";
-        const classeStatus = isVendido ? "tag-status-vendido" : "tag-status-disponivel";
-        const textoStatus = isVendido ? "Vendido" : "Disponível";
+                <div class="card border-0 bg-white p-2 rounded-4 shadow-sm" style="height: 260px;">
 
-        const cardHtml = `
-            <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
-                <div class="card-vehicle ${isVendido ? 'opacity-75' : ''}">
-                    <div class="img-vehicle-wrapper">
-                        <span class="tag-status ${classeStatus}">${textoStatus}</span>
-                        <div class="badges-container-card">
-                            ${badgeNovidade}
-                            ${badgeBaixou}
-                            ${badgeVideo}
-                            ${badgeLaudo}
-                        </div>
-                        <img src="${fotoUrl}" class="img-vehicle" loading="lazy" alt="${carro.modelo}" onerror="tratarImagemQuebrada(this)">
-                    </div>
-                    <div class="card-vehicle-body">
-                        <div>
-                            <h5 class="vehicle-title text-truncate" title="${carro.modelo}">${carro.modelo}</h5>
-                            <div class="specs-grid">
-                                <div class="spec-pill"><span>Placa</span>${modoLojaAtivo ? carro.placa : '***-***'}</div>
-                                <div class="spec-pill text-truncate"><span>Cor</span>${carro.cor}</div>
-                                <div class="spec-pill text-truncate"><span>KM</span>${carro.km}</div>
-                                <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.68rem;">${carro.margem}</span></div>
-                            </div>
-                        </div>
-                        <div class="price-container">
-                            <div><span class="price-label">REPASSE</span><span class="price-value">${carro.valor}</span></div>
-                            <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
-                        </div>
-                    </div>
+                    <div class="skeleton skeleton-img mb-2"></div>
+
+                    <div class="skeleton skeleton-text"></div>
+
+                    <div class="skeleton skeleton-text short"></div>
+
                 </div>
+
             </div>
+
         `;
 
-        container.insertAdjacentHTML("beforeend", cardHtml);
-    });
+    }
 
-    blocoAtual++;
+    container.innerHTML = htmlSkeleton;
+
 }
 
-// Efeito Ghost Skeleton enquanto carrega
-function exibirSkeletons() {
-    const container = document.getElementById("lista-carros");
+
+
+// Mecanismo de Carregamento de Dados
+
+async function carregarEstoqueComCache() {
+
+    const agora = new Date().getTime();
+
+    try {
+
+        const resposta = await fetch(urlPlanilha + '&nocache=' + agora);
+
+        if (!resposta.ok) throw new Error();
+
+        const textoCsv = await resposta.text();
+
+        parsearDadosPlanilha(textoCsv);
+
+    } catch (erro) {
+
+        document.getElementById('lista-carros').innerHTML = '<div class="text-center w-100 my-5 text-danger"><h6>⚠️ Falha ao carregar estoque. Verifique sua conexão.</h6></div>';
+
+    }
+
+}
+
+
+
+// Parser de Dados PapaParse
+
+function parsearDadosPlanilha(textoCsv) {
+
+    Papa.parse(textoCsv, {
+
+        skipEmptyLines: true,
+
+        complete: function(resultados) {
+
+            const lines = resultados.data;
+
+            if (lines.length === 0) return;
+
+
+
+            let fraseDestaque = "";
+
+            let linkGrupoWpp = "";
+
+
+
+            // Leitura da frase do banner (Linha 2, Coluna L / índice 11)
+
+            if (lines.length > 1 && lines[1] && lines[1][11]) {
+
+                fraseDestaque = lines[1][11].trim();
+
+            }
+
+
+
+            // Busca por Link do WhatsApp em qualquer célula do topo da planilha (Linhas 1 a 5)
+
+            for (let r = 0; r < Math.min(lines.length, 5); r++) {
+
+                for (let c = 0; c < lines[r].length; c++) {
+
+                    const celula = lines[r][c] ? lines[r][c].trim() : '';
+
+                    if (celula.includes('chat.whatsapp.com') || (celula.startsWith('http') && celula.includes('wa.me'))) {
+
+                        linkGrupoWpp = celula;
+
+                        break;
+
+                    }
+
+                }
+
+                if (linkGrupoWpp) break;
+
+            }
+
+
+
+            // Busca pela Senha Mestre (Linha 3, Coluna L)
+
+            if (lines.length > 2 && lines[2] && lines[2][11]) {
+
+                const valL3 = lines[2][11].trim();
+
+                if (!valL3.startsWith('http')) {
+
+                    hashSenhaMestre = CryptoJS.SHA256(valL3).toString();
+
+                }
+
+            }
+
+
+
+            gerenciarBannerDestaque(fraseDestaque, linkGrupoWpp);
+
+
+
+            // Removendo o cabeçalho
+
+            const linhasDados = lines.slice(1);
+
+
+
+            let disponiveis = [];
+
+            let vendidos = [];
+
+            let novidadesParaLetreiro = [];
+
+
+
+            linhasDados.forEach((linha, index) => {
+
+                if (linha.length < 2 || !linha[1] || linha[1].trim() === "") return;
+
+
+
+                const txtStatusH = linha[7] ? linha[7].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : 'disponivel';
+
+                const txtStatusI = linha[8] ? linha[8].toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") : '';
+
+                
+
+                const ehNovidade = txtStatusH.includes('novidade') || txtStatusI.includes('novidade');
+
+                const ehBaixou = txtStatusH.includes('baixou') || txtStatusI.includes('baixou') || txtStatusH.includes('preco');
+
+
+
+                const modeloTexto = linha[1].trim();
+
+
+
+                // Leitura do Link de Vídeo (Coluna K / índice 10)
+
+                let linkVideoInput = '';
+
+                if (linha.length > 10 && linha[10]) {
+
+                    const possivelVideo = linha[10].trim();
+
+                    if (possivelVideo.startsWith('http')) {
+
+                        linkVideoInput = possivelVideo;
+
+                    }
+
+                }
+
+
+
+                // Leitura do Laudo Cautelar (Coluna M / índice 12)
+
+                let linkLaudoInput = '';
+
+                if (linha.length > 12 && linha[12]) {
+
+                    const possivelLink = linha[12].trim();
+
+                    if (possivelLink.startsWith('http')) {
+
+                        linkLaudoInput = possivelLink;
+
+                    }
+
+                }
+
+
+
+                const carro = {
+
+                    id: index,
+
+                    placaReal: linha[0] ? linha[0].toUpperCase().trim() : 'N/I',
+
+                    placa: linha[0] ? '*****' + linha[0].trim().slice(-2) : 'N/I',
+
+                    modelo: modeloTexto.replace(/novidade/i, '').replace(/baixou o preco/i, '').replace(/baixou/i, '').trim(),
+
+                    cor: linha[2] || 'N/I',
+
+                    km: formatarKM(linha[3]),
+
+                    fipe: linha[4] || 'N/A',
+
+                    valor: linha[5] || 'N/A',
+
+                    valorNumerico: converterPrecoParaNumero(linha[5]),
+
+                    margem: linha[6] || 'N/I',
+
+                    status: txtStatusH,
+
+                    fotoCapa: linha[8] ? linha[8].trim() : '',
+
+                    fotosCarrossel: linha[9] || '',
+
+                    videoUrl: linkVideoInput,
+
+                    descricao: linkVideoInput ? '' : (linha[10] || ''),
+
+                    carroceria: identificarCarroceria(modeloTexto),
+
+                    novidade: ehNovidade,
+
+                    baixouPreco: ehBaixou,
+
+                    laudoUrl: linkLaudoInput 
+
+                };
+
+
+
+                if (carro.status.includes('vendido')) {
+
+                    vendidos.push(carro);
+
+                } else {
+
+                    disponiveis.push(carro);
+
+                    if (ehNovidade) novidadesParaLetreiro.push(carro);
+
+                }
+
+            });
+
+
+
+            todosOsCarros = [...disponiveis, ...vendidos];
+
+            montarFaixaLetreiro(novidadesParaLetreiro);
+
+            processarEstoque();
+
+        }
+
+    });
+
+}
+
+
+
+// Helpers
+
+function formatarKM(val) {
+
+    if(!val || val === 'N/I') return 'N/I';
+
+    return String(val).toLowerCase().includes('km') ? val : val + ' KM';
+
+}
+
+
+
+function converterPrecoParaNumero(texto) {
+
+    if (!texto) return 0;
+
+    let limpo = texto.replace(/[^\d,]/g, '').replace(',', '.');
+
+    return parseFloat(limpo) || 0;
+
+}
+
+
+
+function identificarCarroceria(modelo) {
+
+    const m = modelo.toLowerCase();
+
+    if (['hilux','s10','toro','ranger','oroch','saveiro','strada','montana','fiorino','frontier','amarok','l200','ram','titano'].some(p => m.includes(p))) return 'picape';
+
+    if (['compass','creta','renegade','kicks','tracker','hr-v','duster','t-cross','nivus','pulse','fastback','ix35','sportage','captur'].some(s => m.includes(s))) return 'suv';
+
+    if (['corolla','civic','prisma','sentra','cronos','logan','virtus','voyage','city','versa','siena','cruze'].some(s => m.includes(s))) return 'sedan';
+
+    if (['onix','gol','hb20','uno','palio','sandero','ka','argo','polo','mobi','up','fiesta','fox','c3','208'].some(h => m.includes(h))) return 'hatch';
+
+    return 'outros';
+
+}
+
+
+
+// Banner com Garantia de Botão Estilizado
+
+function gerenciarBannerDestaque(frase, link) {
+
+    const box = document.getElementById('box-banner-destaque');
+
+    if (!box) return;
+
+
+
+    const elTexto = document.getElementById('texto-banner-destaque');
+
+    const containerBotao = document.getElementById('container-botao-banner');
+
+
+
+    if (frase && frase !== "" && frase.toLowerCase() !== "null") {
+
+        if (elTexto) elTexto.innerText = frase;
+
+        
+
+        if (containerBotao) {
+
+            if (link && link.startsWith('http')) {
+
+                containerBotao.innerHTML = `
+
+                    <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+
+                        <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
+
+                    </a>`;
+
+            } else {
+
+                containerBotao.innerHTML = "";
+
+            }
+
+        }
+
+        box.style.display = "block";
+
+    } else if (link && link.startsWith('http')) {
+
+        // Se não tiver texto mas tiver o link do grupo, exibe o banner só com o botão
+
+        if (elTexto) elTexto.innerText = "Entre no nosso grupo oficial do WhatsApp!";
+
+        if (containerBotao) {
+
+            containerBotao.innerHTML = `
+
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm fw-bold px-4 py-2 rounded-pill shadow-sm text-dark d-inline-flex align-items-center gap-2">
+
+                    <i class="bi bi-whatsapp fs-6"></i> Entrar no Grupo
+
+                </a>`;
+
+        }
+
+        box.style.display = "block";
+
+    } else {
+
+        box.style.display = "none";
+
+    }
+
+}
+
+
+
+function montarFaixaLetreiro(listaNovidades) {
+
+    const divFaixa = document.getElementById('faixa-letreiro-container');
+
+    const conteudoFaixa = document.getElementById('faixa-letreiro-conteudo');
+
+    if (!divFaixa || !conteudoFaixa) return;
+
+
+
+    if (listaNovidades.length === 0) { divFaixa.style.display = 'none'; return; }
+
+
+
+    let htmlLetreiro = "";
+
+    const triplicado = [...listaNovidades, ...listaNovidades, ...listaNovidades];
+
+    triplicado.forEach(carro => {
+
+        htmlLetreiro += `<span class="item-ticker" onclick="abrirModalDetalhesDirect(${carro.id})"><span class="text-warning fw-bold">⚡ NOVIDADE:</span> ${carro.modelo} → <span class="text-success fw-bold">Lucro: ${carro.margem}</span></span>`;
+
+    });
+
+    conteudoFaixa.innerHTML = htmlLetreiro;
+
+    divFaixa.style.display = 'block';
+
+}
+
+
+
+function processarEstoque() {
+
+    let filtrados = [...todosOsCarros];
+
+
+
+    if (categoriaAtiva === 'novidades') {
+
+        filtrados = filtrados.filter(c => c.novidade && !c.status.includes('vendido'));
+
+    } else if (categoriaAtiva === 'baixou') {
+
+        filtrados = filtrados.filter(c => c.baixouPreco && !c.status.includes('vendido'));
+
+    } else if (categoriaAtiva !== 'todos') {
+
+        filtrados = filtrados.filter(c => c.carroceria === categoriaAtiva);
+
+    }
+
+
+
+    if (filtroPrecoAtivo === 'ate-50k') {
+
+        filtrados = filtrados.filter(c => c.valorNumerico > 0 && c.valorNumerico <= 50000);
+
+    } else if (filtroPrecoAtivo === '50k-80k') {
+
+        filtrados = filtrados.filter(c => c.valorNumerico > 50000 && c.valorNumerico <= 80000);
+
+    } else if (filtroPrecoAtivo === 'acima-80k') {
+
+        filtrados = filtrados.filter(c => c.valorNumerico > 80000);
+
+    }
+
+
+
+    if (termoPesquisa !== '') {
+
+        filtrados = filtrados.filter(c => 
+
+            c.modelo.toLowerCase().includes(termoPesquisa) ||
+
+            c.cor.toLowerCase().includes(termoPesquisa) ||
+
+            c.placaReal.toLowerCase().includes(termoPesquisa)
+
+        );
+
+    }
+
+
+
+    if (ordenarPorMargemAtivo) {
+
+        filtrados.sort((a, b) => converterPrecoParaNumero(b.margem) - converterPrecoParaNumero(a.margem));
+
+    }
+
+
+
+    listaFiltradaGlobal = filtrados;
+
+    const elContador = document.getElementById('contador-veiculos');
+
+    if (elContador) elContador.innerText = `${listaFiltradaGlobal.length} veículos encontrados`;
+
+
+
+    itensExibidosAtualmente = 0;
+
+    const container = document.getElementById('lista-carros');
+
+    if (container) container.innerHTML = '';
+
+    renderizarProximoBloco();
+
+}
+
+
+
+function renderizarProximoBloco() {
+
+    if (itensExibidosAtualmente >= listaFiltradaGlobal.length) return;
+
+
+
+    const container = document.getElementById('lista-carros');
+
     if (!container) return;
 
-    let skeletonsHtml = "";
-    for (let i = 0; i < 6; i++) {
-        skeletonsHtml += `
-            <div class="col">
-                <div class="card-vehicle p-2">
-                    <div class="skeleton skeleton-img mb-2"></div>
-                    <div class="skeleton skeleton-text"></div>
-                    <div class="skeleton skeleton-text short"></div>
+    const limite = Math.min(itensExibidosAtualmente + tamanhoDoBlocoPagina, listaFiltradaGlobal.length);
+
+
+
+    for (let i = itensExibidosAtualmente; i < limite; i++) {
+
+        const carro = listaFiltradaGlobal[i];
+
+        const esVendido = carro.status.includes('vendido');
+
+        const classeStatus = esVendido ? 'tag-status-vendido' : 'tag-status-disponivel';
+
+        const textoStatus = esVendido ? 'RESERVADO' : 'DISPONÍVEL';
+
+        
+
+        const fotoUrl = carro.fotoCapa.startsWith('http') ? converterLinkDrive(carro.fotoCapa) : 'https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS';
+
+        
+
+        const badgeNovidade = (carro.novidade && !esVendido) ? `<span class="tag-feature tag-feature-novidade">✨ NOVIDADE</span>` : '';
+
+        const badgeBaixou = (carro.baixouPreco && !esVendido) ? `<span class="tag-feature tag-feature-baixou">🔥 BAIXOU</span>` : '';
+
+        const badgeVideo = (carro.videoUrl && !esVendido) ? `<span class="tag-feature" style="background:#dc2626; color:#fff;"><i class="bi bi-play-btn-fill"></i> VÍDEO</span>` : '';
+
+        const badgeLaudo = (carro.laudoUrl && !esVendido) ? `<span class="tag-feature tag-feature-laudo"><i class="bi bi-file-earmark-check-fill"></i> LAUDO OK</span>` : '';
+
+
+
+        const cardHtml = `
+
+            <div class="col animation-fade-in" onclick="abrirModalDetalhesDirect(${carro.id})">
+
+                <div class="card-vehicle">
+
+                    <div class="img-vehicle-wrapper">
+
+                        <span class="tag-status ${classeStatus}">${textoStatus}</span>
+
+                        ${badgeNovidade} ${badgeBaixou} ${badgeVideo} ${badgeLaudo}
+
+                        <img src="${fotoUrl}" class="img-vehicle" loading="lazy" alt="${carro.modelo}" onerror="tratarImagemQuebrada(this)">
+
+                    </div>
+
+                    <div class="card-vehicle-body">
+
+                        <div>
+
+                            <h5 class="vehicle-title text-truncate" title="${carro.modelo}">${carro.modelo}</h5>
+
+                            <div class="specs-grid">
+
+                                <div class="spec-pill"><span>Placa</span>${carro.placa}</div>
+
+                                <div class="spec-pill text-truncate"><span>Cor</span>${carro.cor}</div>
+
+                                <div class="spec-pill text-truncate"><span>KM</span>${carro.km}</div>
+
+                                <div class="spec-pill text-truncate"><span>Margem</span><span class="text-success fw-bold p-0 m-0" style="font-size:0.68rem;">${carro.margem}</span></div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="price-container">
+
+                            <div><span class="price-label">REPASSE</span><span class="price-value">${carro.valor}</span></div>
+
+                            <span class="btn btn-sm btn-outline-dark rounded-pill btn-acessar-card fw-bold">Ver</span>
+
+                        </div>
+
+                    </div>
+
                 </div>
-            </div>`;
+
+            </div>
+
+        `;
+
+        container.insertAdjacentHTML('beforeend', cardHtml);
+
     }
-    container.innerHTML = skeletonsHtml;
+
+    itensExibidosAtualmente = limite;
+
 }
 
-/* ==========================================================================
-   FILTROS E PESQUISA
-   ========================================================================== */
-function configurarEventosFiltros() {
-    const campoPesquisa = document.getElementById("campo-pesquisa");
-    if (campoPesquisa) {
-        campoPesquisa.addEventListener("input", aplicarFiltrosGerais);
-    }
 
-    const filtroPreco = document.getElementById("filtro-preco");
-    if (filtroPreco) {
-        filtroPreco.addEventListener("change", aplicarFiltrosGerais);
-    }
 
-    const botoesPill = document.querySelectorAll(".btn-filter-pill:not(.btn-margem-toggle)");
-    botoesPill.forEach(btn => {
-        btn.addEventListener("click", function () {
-            botoesPill.forEach(b => b.classList.remove("active"));
-            this.classList.add("active");
-            aplicarFiltrosGerais();
-        });
-    });
+function tratarImagemQuebrada(imagemElemento) {
 
-    const btnMargem = document.querySelector(".btn-margem-toggle");
-    if (btnMargem) {
-        btnMargem.addEventListener("click", function () {
-            filtroMargemAtivo = !filtroMargemAtivo;
-            this.classList.toggle("active-margem", filtroMargemAtivo);
-            aplicarFiltrosGerais();
-        });
-    }
+    imagemElemento.onerror = null; 
 
-    // Scroll Infinito para carregar mais itens
-    window.addEventListener("scroll", () => {
-        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-            if (blocoAtual * ITENS_POR_BLOCO < veiculosFiltrados.length) {
-                renderizarProximoBloco(false);
-            }
-        }
-    });
+    imagemElemento.src = 'https://placehold.co/600x400/090d16/ffffff?text=Imagem+em+Atualização';
+
 }
 
-function aplicarFiltrosGerais() {
-    const termo = (document.getElementById("campo-pesquisa")?.value || "").toLowerCase().trim();
-    const faixaPreco = document.getElementById("filtro-preco")?.value || "todos";
-    const categoriaAtiva = document.querySelector(".btn-filter-pill.active")?.getAttribute("data-cat") || "todos";
 
-    veiculosFiltrados = todosVeiculos.filter(carro => {
-        // Busca texto
-        const bateTexto = carro.modelo.toLowerCase().includes(termo) ||
-                          carro.marca.toLowerCase().includes(termo) ||
-                          carro.cor.toLowerCase().includes(termo) ||
-                          carro.placa.toLowerCase().includes(termo);
 
-        // Busca Preço
-        let batePreco = true;
-        if (faixaPreco === "ate-50k") batePreco = carro.valorNum <= 50000;
-        else if (faixaPreco === "50k-80k") batePreco = carro.valorNum > 50000 && carro.valorNum <= 80000;
-        else if (faixaPreco === "acima-80k") batePreco = carro.valorNum > 80000;
+function converterLinkDrive(link) {
 
-        // Categoria / Pill
-        let bateCategoria = true;
-        if (categoriaAtiva === "novidades") bateCategoria = carro.novidade;
-        else if (categoriaAtiva === "baixou") bateCategoria = carro.baixou;
-        else if (categoriaAtiva !== "todos") bateCategoria = carro.carroceria.includes(categoriaAtiva);
+    if (link.includes('drive.google.com')) {
 
-        // Filtro Margem
-        let bateMargem = true;
-        if (filtroMargemAtivo) bateMargem = carro.margemNum > 0;
+        return 'https://lh3.googleusercontent.com/d/' + (link.includes('id=') ? link.split('id=')[1].split('&')[0] : link.split('/d/')[1].split('/')[0]);
 
-        return bateTexto && batePreco && bateCategoria && bateMargem;
-    });
-
-    if (filtroMargemAtivo) {
-        veiculosFiltrados.sort((a, b) => b.margemNum - a.margemNum);
     }
 
-    renderizarProximoBloco(true);
-    atualizarContador();
+    return link;
+
 }
 
-function atualizarContador() {
-    const contador = document.getElementById("contador-veiculos");
-    if (contador) {
-        contador.textContent = `${veiculosFiltrados.length} veículo(s) encontrado(s)`;
-    }
-}
 
-/* ==========================================================================
-   MODAIS E DETALHES DO VEÍCULO
-   ========================================================================== */
-function abrirModalDetalhesDirect(id) {
-    const carro = todosVeiculos.find(v => v.id === id);
+
+// Modal de Detalhes
+
+function abrirModalDetalhesDirect(idCarro) {
+
+    const carro = todosOsCarros.find(c => c.id === idCarro);
+
     if (!carro) return;
 
-    document.getElementById("modalModelo").textContent = carro.modelo;
-    document.getElementById("modalValor").textContent = carro.valor;
-    document.getElementById("modalMargem").textContent = carro.margem;
-    document.getElementById("modalFipe").textContent = carro.fipe;
-    document.getElementById("modalPlaca").textContent = modoLojaAtivo ? carro.placa : "Consulte";
-    document.getElementById("modalCor").textContent = carro.cor;
-    document.getElementById("modalKm").textContent = carro.km;
-    document.getElementById("modalCarroceria").textContent = carro.carroceria;
-    document.getElementById("modalDescricao").textContent = carro.descricao;
 
-    // Carrossel de Fotos
-    const containerFotos = document.getElementById("modalFotosContainer");
-    if (containerFotos) {
-        containerFotos.innerHTML = "";
-        const listaFotos = carro.fotos.length > 0 ? carro.fotos : ["https://via.placeholder.com/600x400?text=Sem+Foto"];
 
-        listaFotos.forEach((foto, index) => {
-            const activeClass = index === 0 ? "active" : "";
-            containerFotos.innerHTML += `
-                <div class="carousel-item ${activeClass}">
-                    <img src="${foto}" class="d-block modal-carousel-img" alt="Foto do veículo" onerror="tratarImagemQuebrada(this)">
-                </div>`;
-        });
+    document.getElementById('modalModelo').innerText = carro.modelo;
+
+    document.getElementById('modalValor').innerText = carro.valor;
+
+    document.getElementById('modalMargem').innerText = carro.margem;
+
+    document.getElementById('modalFipe').innerText = carro.fipe;
+
+    document.getElementById('modalPlaca').innerText = carro.placa; 
+
+    document.getElementById('modalCor').innerText = carro.cor;
+
+    document.getElementById('modalKm').innerText = carro.km;
+
+    document.getElementById('modalCarroceria').innerText = carro.carroceria;
+
+
+
+    const elDescricao = document.getElementById('modalDescricao');
+
+    if (elDescricao) {
+
+        elDescricao.innerText = carro.descricao;
+
     }
 
-    // Container de Laudo / Vídeo
-    const containerLaudo = document.getElementById("modalLaudoContainer");
+
+
+    // Botões de Vídeo e Laudo configurados com target="_blank"
+
+    const containerLaudo = document.getElementById('modalLaudoContainer');
+
     if (containerLaudo) {
-        let laudoHtml = "";
-        if (carro.laudo) {
-            laudoHtml += `<a href="${carro.laudo}" target="_blank" class="btn btn-sm btn-outline-primary w-100 mb-2 fw-bold"><i class="bi bi-file-earmark-pdf-fill"></i> Visualizar Laudo Cautelar</a>`;
+
+        let htmlBotoes = '';
+
+        
+
+        // Botão de Vídeo (Nova Aba)
+
+        if (carro.videoUrl && carro.videoUrl !== '') {
+
+            htmlBotoes += `
+
+                <a href="${carro.videoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-danger btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm mb-2" style="background-color:#dc2626; border:none;">
+
+                    <i class="bi bi-play-circle-fill fs-6"></i> Assistir Vídeo do Veículo
+
+                </a>
+
+            `;
+
         }
-        if (carro.video) {
-            laudoHtml += `<button onclick="abrirVideo('${carro.video}')" class="btn btn-sm btn-danger w-100 fw-bold"><i class="bi bi-play-circle-fill"></i> Assistir Vídeo de Apresentação</button>`;
+
+
+
+        // Botão de Laudo Cautelar (Nova Aba)
+
+        if (carro.laudoUrl && carro.laudoUrl !== '') {
+
+            htmlBotoes += `
+
+                <a href="${carro.laudoUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm w-100 rounded-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" style="background-color:#1e3a8a; border:none;">
+
+                    <i class="bi bi-file-earmark-check-fill fs-6"></i> Visualizar Laudo Cautelar
+
+                </a>
+
+            `;
+
         }
-        containerLaudo.innerHTML = laudoHtml;
+
+
+
+        containerLaudo.innerHTML = htmlBotoes;
+
     }
 
-    // Botão WhatsApp
-    const containerWpp = document.getElementById("modalBotaoWppContainer");
-    if (containerWpp) {
-        const textoMsg = encodeURIComponent(`Olá Ariel, tenho interesse no veículo: ${carro.modelo} (${carro.placa}) - Valor: ${carro.valor}`);
-        containerWpp.innerHTML = `
-            <a href="https://wa.me/5551986597751?text=${textoMsg}" target="_blank" class="btn btn-success fw-bold w-100 rounded-3 py-2 d-flex align-items-center justify-content-center gap-2">
-                <i class="bi bi-whatsapp"></i> Tenho Interesse
-            </a>`;
+
+
+    const containerFotos = document.getElementById('modalFotosContainer');
+
+    containerFotos.innerHTML = '';
+
+    
+
+    let arrFotos = [];
+
+    if (carro.fotoCapa !== '') arrFotos.push(carro.fotoCapa);
+
+    if (carro.fotosCarrossel !== '') {
+
+        arrFotos = arrFotos.concat(carro.fotosCarrossel.split(',').map(f => f.trim()).filter(f => f !== ''));
+
     }
 
-    // Botão Compartilhar
-    const btnShare = document.getElementById("btn-compartilhar-nativo");
-    if (btnShare) {
-        btnShare.onclick = () => {
-            if (navigator.share) {
-                navigator.share({
-                    title: carro.modelo,
-                    text: `Confira este ${carro.modelo} por ${carro.valor} na Ariel Unidas Atacado!`,
-                    url: window.location.href
-                }).catch(console.error);
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Link do catálogo copiado para a área de transferência!");
-            }
-        };
+    if (arrFotos.length === 0) arrFotos.push('https://placehold.co/600x400/0f172a/ffffff?text=ARIEL_UNIDAS');
+
+
+
+    arrFotos.forEach((foto, index) => {
+
+        const urlLimpa = converterLinkDrive(foto);
+
+        containerFotos.innerHTML += `
+
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+
+                <img src="${urlLimpa}" class="modal-carousel-img" alt="Foto" onerror="tratarImagemQuebrada(this)">
+
+            </div>
+
+        `;
+
+    });
+
+
+
+    document.getElementById('btn-compartilhar-nativo').onclick = function() {
+
+        const payloadTexto = `🔥 Ficha de Repasse: *${carro.modelo}*\n💰 Valor de Lote: ${carro.valor}\n📈 Tabela FIPE: ${carro.fipe}\n🎨 Cor: ${carro.cor} | 🧭 KM: ${carro.km}\n\nConfira as imagens direto no catálogo completo!`;
+
+        if (navigator.share) {
+
+            navigator.share({ title: carro.modelo, text: payloadTexto, url: window.location.href }).catch(() => {});
+
+        } else {
+
+            navigator.clipboard.writeText(payloadTexto);
+
+            alert('Ficha copiada para a área de transferência!');
+
+        }
+
+    };
+
+
+
+    const esVendido = carro.status.includes('vendido');
+
+    const containerBotao = document.getElementById('modalBotaoWppContainer');
+
+    if (!esVendido) {
+
+        const msg = encodeURIComponent(`Olá Ariel Coimbra, estou avaliando o veículo *${carro.modelo}* (Placa: ${carro.placaReal}) no catálogo digital e gostaria de iniciar a negociação.`);
+
+        containerBotao.innerHTML = `<a href="https://wa.me/5551986597751?text=${msg}" target="_blank" rel="noopener noreferrer" class="btn btn-success w-100 py-1.5 fw-bold rounded-3 d-flex align-items-center justify-content-center gap-1.5 small"><i class="bi bi-whatsapp"></i> Negociar</a>`;
+
+    } else {
+
+        containerBotao.innerHTML = `<button class="btn btn-secondary w-100 py-1.5 rounded-3 small" disabled>Reservado</button>`;
+
     }
 
-    const modal = new bootstrap.Modal(document.getElementById("modalDetalhes"));
-    modal.show();
+
+
+    new bootstrap.Modal(document.getElementById('modalDetalhes')).show();
+
 }
 
-function configurarEventosModais() {
-    const btnAutenticar = document.getElementById("btn-autenticar-loja");
-    if (btnAutenticar) {
-        btnAutenticar.addEventListener("click", autenticarModoLoja);
-    }
 
-    const btnDesconectar = document.getElementById("btn-desconectar-loja");
-    if (btnDesconectar) {
-        btnDesconectar.addEventListener("click", desconectarModoLoja);
-    }
 
-    const btnConsultar = document.getElementById("btn-consultar-placa");
-    if (btnConsultar) {
-        btnConsultar.addEventListener("click", consultarPlacaModoLoja);
-    }
-}
-
-/* ==========================================================================
-   MODO LOJA (ÁREA DO CLIENTE / SENHA)
-   ========================================================================== */
 function abrirModalLoja() {
-    const modal = new bootstrap.Modal(document.getElementById("modalLoja"));
-    modal.show();
+
+    document.getElementById('input-loja-senha').value = '';
+
+    document.getElementById('input-loja-placa').value = '';
+
+    document.getElementById('resultado-busca-loja').innerHTML = '';
+
+    const permitido = localStorage.getItem('modoLojaPermitido') === 'true';
+
+    document.getElementById('etapa-loja-senha').style.display = permitido ? 'none' : 'block';
+
+    document.getElementById('etapa-loja-placa').style.display = permitido ? 'block' : 'none';
+
+    new bootstrap.Modal(document.getElementById('modalLoja')).show();
+
 }
+
+
+
+function verificarSenhaLoja() {
+
+    const digitada = document.getElementById('input-loja-senha').value.trim();
+
+    if(!digitada) return alert('Digite a senha!');
+
+    
+
+    const hashDigitado = CryptoJS.SHA256(digitada).toString();
+
+    if (hashDigitado === hashSenhaMestre) {
+
+        localStorage.setItem('modoLojaPermitido', 'true');
+
+        document.getElementById('etapa-loja-senha').style.display = 'none';
+
+        document.getElementById('etapa-loja-placa').style.display = 'block';
+
+    } else {
+
+        alert('Código de segurança incorreto.');
+
+    }
+
+}
+
+
+
+function sairModoLoja() {
+
+    localStorage.removeItem('modoLojaPermitido');
+
+    document.getElementById('etapa-loja-senha').style.display = 'block';
+
+    document.getElementById('etapa-loja-placa').style.display = 'none';
+
+    document.getElementById('resultado-busca-loja').innerHTML = '';
+
+}
+
+
+
+function buscarCarroPorPlacaLoja() {
+
+    const placaBuscada = document.getElementById('input-loja-placa').value.toUpperCase().trim();
+
+    const divResultado = document.getElementById('resultado-busca-loja');
+
+    if(!placaBuscada) return alert('Insira a placa para pesquisa.');
+
+
+
+    const carro = todosOsCarros.find(c => c.placaReal === placaBuscada);
+
+    if(carro) {
+
+        divResultado.innerHTML = `
+
+            <div class="card border-0 text-start rounded-4 shadow-sm bg-light">
+
+                <div class="card-body p-3">
+
+                    <h6 class="fw-bold text-dark mb-2">${carro.modelo}</h6>
+
+                    <p class="mb-1 small"><strong>Placa:</strong> <span class="badge bg-dark rounded-2">${carro.placaReal}</span></p>
+
+                    <p class="mb-1 small"><strong>Margem:</strong> <span class="text-success fw-bold">${carro.margem}</span></p>
+
+                    <p class="mb-3 small"><strong>Lote:</strong> <span class="text-primary fw-bold">${carro.valor}</span></p>
+
+                    <button class="btn btn-premium-action w-100 btn-sm" onclick="fecharLojaEVerCarroDireto(${carro.id})">Visualizar Fotos</button>
+
+                </div>
+
+            </div>
+
+        `;
+
+    } else {
+
+        divResultado.innerHTML = `<div class="alert alert-danger py-2 small rounded-3">Nenhum veículo com a placa "${placaBuscada}".</div>`;
+
+    }
+
+}
+
+
+
+function fecharLojaEVerCarroDireto(idCarro) {
+
+    bootstrap.Modal.getInstance(document.getElementById('modalLoja')).hide();
+
+    const carro = todosOsCarros.find(c => c.id === idCarro);
+
+    abrirModalDetalhesDirect(idCarro);
+
+    document.getElementById('modalPlaca').innerHTML = `<span class="badge bg-warning text-dark px-2 py-1 fw-bold">${carro.placaReal}</span>`;
+
+}
+
+
 
 function abrirModalEndereco() {
-    const modal = new bootstrap.Modal(document.getElementById("modalEndereco"));
-    modal.show();
-}
 
-function autenticarModoLoja() {
-    const senhaInput = document.getElementById("input-loja-senha")?.value;
-    // Senha padrão demo "1234" ou configurada
-    if (senhaInput === "1234" || senhaInput === "unidas2026") {
-        modoLojaAtivo = true;
-        localStorage.setItem("modoLojaAtivo", "true");
-        atualizarInterfaceModoLoja();
-        renderizarProximoBloco(true);
-    } else {
-        alert("Senha incorreta! Tente novamente.");
+    const modalElemento = document.getElementById('modalEndereco');
+
+    if (modalElemento) {
+
+        const meuModal = new bootstrap.Modal(modalElemento);
+
+        meuModal.show();
+
     }
+
 }
 
-function desconectarModoLoja() {
-    modoLojaAtivo = false;
-    localStorage.removeItem("modoLojaAtivo");
-    atualizarInterfaceModoLoja();
-    renderizarProximoBloco(true);
+// Dentro do seu arquivo script.js
+
+function abrirVideo(urlVideo) {
+
+  let embedUrl = urlVideo;
+
+  if (urlVideo.includes('watch?v=')) {
+
+    embedUrl = urlVideo.replace('watch?v=', 'embed/');
+
+  } else if (urlVideo.includes('youtu.be/')) {
+
+    embedUrl = urlVideo.replace('youtu.be/', 'www.youtube.com/embed/');
+
+  }
+
+
+
+  document.getElementById('videoPlayer').src = embedUrl;
+
+  document.getElementById('videoModal').style.display = 'flex';
+
 }
 
-function verificarModoLojaSalvo() {
-    if (localStorage.getItem("modoLojaAtivo") === "true") {
-        modoLojaAtivo = true;
-        atualizarInterfaceModoLoja();
-    }
-}
 
-function atualizarInterfaceModoLoja() {
-    const etapaSenha = document.getElementById("etapa-loja-senha");
-    const etapaPlaca = document.getElementById("etapa-loja-placa");
-
-    if (etapaSenha && etapaPlaca) {
-        if (modoLojaAtivo) {
-            etapaSenha.style.display = "none";
-            etapaPlaca.style.display = "block";
-        } else {
-            etapaSenha.style.display = "block";
-            etapaPlaca.style.display = "none";
-        }
-    }
-}
-
-function consultarPlacaModoLoja() {
-    const placaInput = (document.getElementById("input-loja-placa")?.value || "").toUpperCase().trim();
-    const resultadoContainer = document.getElementById("resultado-busca-loja");
-    if (!resultadoContainer) return;
-
-    const carro = todosVeiculos.find(v => v.placa === placaInput);
-    if (carro) {
-        resultadoContainer.innerHTML = `
-            <div class="alert alert-success text-start rounded-3 mt-2">
-                <h6 class="fw-bold mb-1">${carro.modelo}</h6>
-                <p class="mb-1 small"><strong>Valor:</strong> ${carro.valor} | <strong>Margem:</strong> ${carro.margem}</p>
-                <button class="btn btn-sm btn-dark w-100 mt-2 fw-bold" onclick="fecharModalEVisualizar(${carro.id})">Abrir Ficha Completa</button>
-            </div>`;
-    } else {
-        resultadoContainer.innerHTML = `<div class="alert alert-warning small mt-2">Veículo com placa ${placaInput} não localizado no pátio.</div>`;
-    }
-}
-
-function fecharModalEVisualizar(id) {
-    const modalLojaEl = document.getElementById("modalLoja");
-    const modalLoja = bootstrap.Modal.getInstance(modalLojaEl);
-    if (modalLoja) modalLoja.hide();
-    
-    setTimeout(() => {
-        abrirModalDetalhesDirect(id);
-    }, 400);
-}
-
-/* ==========================================================================
-   FUNÇÕES DO PLAYER DE VÍDEO CUSTOMIZADO
-   ========================================================================== */
-function abrirVideo(url) {
-    const modal = document.getElementById("videoModal");
-    const player = document.getElementById("videoPlayer");
-    if (modal && player) {
-        // Converte link do YouTube para formato Embed se necessário
-        let embedUrl = url;
-        if (url.includes("youtube.com/watch?v=")) {
-            embedUrl = url.replace("watch?v=", "embed/");
-        } else if (url.includes("youtu.be/")) {
-            embedUrl = url.replace("youtu.be/", "youtube.com/embed/");
-        }
-
-        player.src = embedUrl;
-        modal.style.display = "flex";
-    }
-}
 
 function fecharVideo() {
-    const modal = document.getElementById("videoModal");
-    const player = document.getElementById("videoPlayer");
-    if (modal && player) {
-        player.src = "";
-        modal.style.display = "none";
-    }
-}
 
-/* ==========================================================================
-   FUNÇÕES AUXILIARES E FORMATADORES
-   ========================================================================== */
-function parseMoedaNum(valor) {
-    if (!valor) return 0;
-    const limpo = valor.toString().replace(/[^\d,-]/g, "").replace(",", ".");
-    return parseFloat(limpo) || 0;
-}
+  document.getElementById('videoPlayer').src = '';
 
-function formatarMoeda(valor) {
-    return valor.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
+  document.getElementById('videoModal').style.display = 'none';
 
-function tratarImagemQuebrada(img) {
-    img.onerror = null;
-    img.src = "https://via.placeholder.com/400x300?text=Foto+Indisponivel";
 }
