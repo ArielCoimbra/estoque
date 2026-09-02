@@ -262,7 +262,7 @@ body {
     }
 }
 
-/* BADGES */
+/* BADGES AJUSTADOS EM FLEXBOX AUTOMÁTICO */
 .tag-status { 
     position: absolute; 
     top: 10px; 
@@ -285,42 +285,32 @@ body {
     color: white; 
 }
 
+.badges-container-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    z-index: 10;
+}
+
 .tag-feature { 
-    position: absolute; 
-    top: 10px; 
-    right: 10px; 
+    position: relative; 
+    top: auto; 
+    right: auto; 
     font-size: 0.6rem; 
     font-weight: 700; 
     padding: 4px 8px; 
     border-radius: 8px; 
     color: white; 
-    z-index: 10; 
 }
 
-.tag-feature-novidade { 
-    background: #f59e0b; 
-}
-
-.tag-feature-baixou { 
-    background: #ef4444; 
-    top: 34px; 
-}
-
-/* BADGE EXCLUSIVO DO LAUDO CAUTELAR */
-.tag-feature-laudo {
-    background: #1e3a8a; /* Azul escuro corporativo */
-    top: 58px; /* Fica abaixo do badge 'baixou' se houver */
-}
-
-@media (max-width: 767px) {
-    .tag-feature-laudo {
-        top: 34px; /* Fica alinhado caso não tenha tantos badges no mobile */
-    }
-    /* Se tiver novidade E baixou no mobile, ajustamos para não sobrepor */
-    .tag-feature-baixou {
-        top: 34px;
-    }
-}
+.tag-feature-novidade { background: #f59e0b; }
+.tag-feature-baixou { background: #ef4444; }
+.tag-feature-laudo { background: #1e3a8a; }
+.tag-feature-video { background: #dc2626; }
 
 .card-vehicle-body {
     padding: 0.9rem;
