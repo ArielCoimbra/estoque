@@ -1,7 +1,7 @@
 /* ==========================================================================
    CONFIGURAÇÕES GERAIS E VARIÁVEIS DE ESTADO
    ========================================================================== */
-const PLANILHA_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT497aMvO-qP2dOn4WqT2T-y3S-6Y4eZ4N6z5Z0/pub?output=csv"; // Insira a URL do seu CSV publicado
+const PLANILHA_CSV_URL = "https://docs.google.com/spreadsheets/d/1xzN1JBC-5Li7csrGOTDq_wADj0AOAafVfCtVYeo99eI/export?format=csv";
 
 let todosVeiculos = [];
 let veiculosFiltrados = [];
